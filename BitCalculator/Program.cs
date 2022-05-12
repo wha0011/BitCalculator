@@ -272,7 +272,13 @@ namespace DevTools
                 GenerateAlgebra(); //DOES NOT WORK. REQUIRES IMPLEMENTATION
                 return;
             }
-
+            userINPUT = ReplaceTempVariables(userINPUT); //Remove temporarily defined variables
+            string replaced = ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
+            if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
+            {
+                PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
+                userINPUT = replaced; //Modify the user input to be the old input
+            }
             userINPUT = ReplaceVariables(userINPUT); //Remove all custom user variables from the string
 
 
@@ -329,13 +335,6 @@ namespace DevTools
                 //This function automatically deals with it, so we just need to finish
             {
                 return;
-            }
-            userINPUT = ReplaceTempVariables(userINPUT); //Remove temporarily defined variables
-            string replaced = ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
-            if(replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
-            {
-                PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
-                userINPUT = replaced; //Modify the user input to be the old input
             }
             if (userINPUT.Length >= 3 && userINPUT.Substring(0,3) == "var")
             {
@@ -620,25 +619,37 @@ namespace DevTools
             }
             return sINPUT;
         }
+        /// <summary>
+        /// Runs a custom system function ran()
+        /// Generates a random number between the first num, and the second num
+        /// Looks for the position of ran( in the string, then looks for ) and splits the two numbers
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <returns></returns>
         private static string RemoveRandom(string sINPUT)
         {
-            if (sINPUT.Contains("ran("))
+            if (sINPUT.Contains("ran(")) //Is the ran function in the users input
             {
                 string buffer = "";
-                for (int i = 0; i < sINPUT.Length; i++)
+                for (int i = 0; i < sINPUT.Length; i++) //Iterate through the string
                 {
-                    char c = sINPUT[i];
+                    char c = sINPUT[i]; //Using for instead of foreach to access the 'i' variable
                     buffer += c;
-                    if (buffer.Contains("ran("))
+                    if (buffer.Contains("ran(")) //The moment the buffer contains ran
+                        //i is the index of the (
                     {
-                        int nextBracket = ClosingBracket(sINPUT, i+1);
-                        string constraints = sINPUT.Substring(i+1, nextBracket-i-1);
+                        int nextBracket = ClosingBracket(sINPUT, i+1); //Find index of the closing brackets
+                        string constraints = sINPUT.Substring(i+1, nextBracket-i-1); //Remove ran( and the closing brackets
+                        //We are now left with two numbers and a comma
+
                         Random random = new Random();
-                        int nextRan = random.Next(int.Parse(constraints.Split(',')[0]), 1+int.Parse(constraints.Split(',')[1]));
+                        int nextRan = random.Next(int.Parse(constraints.Split(',')[0]), 1+int.Parse(constraints.Split(',')[1])); //+1 because max val is INCLUSIVE
                         PrintColour("Random number is: " + nextRan.ToString(), true);
-                        string before = sINPUT.Substring(0, i-3);
-                        string replace = nextRan.ToString();
-                        string after = sINPUT.Substring(nextBracket+1);
+
+                        //Rebuild the string
+                        string before = sINPUT.Substring(0, i-3); //Get the prev string value up until the ran(
+                        string replace = nextRan.ToString(); //Replace the ran(x,y) with the random value
+                        string after = sINPUT.Substring(nextBracket+1); //Get the index of the trailing bracket
                         return RemoveRandom(before+replace+after);
                     }
                 }
@@ -1857,7 +1868,7 @@ namespace DevTools
             {
                 PrintColour(i, true);
             }
-            input = RemoveRandom(input);
+            i = RemoveRandom(i);
             return i;
         }
         public static string RemoveAndReplace(int startIDX, int endIDX, string replaceWith, string input)
