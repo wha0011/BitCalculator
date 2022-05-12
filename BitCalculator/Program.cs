@@ -538,52 +538,75 @@ namespace DevTools
         /// DB = 8
         /// etc....
         /// I have no idea why I implemented this.....
+        static char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray(); //Static string of all the letters in the alphabet
         private static void PrintAti(string userINPUT)
         {
             userINPUT = userINPUT.Substring(3);
-            char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
             ulong total = 1;
             foreach (var c in userINPUT.ToUpper())
             {
-                if (alpha.ToList().IndexOf(c) == -1)
+                if (alphabet.ToList().IndexOf(c) == -1) //Not in alphabet? Continue to next element
                 {
+                    Colorful.Console.WriteLine(string.Format("Character: {0} not in alphabet. Disregarded in calculation",c)
+                        , Color.FromArgb(255, 10, 10));
                     continue;
                 }
-                total = total * (ulong)(alpha.ToList().IndexOf(c) + 1);
+                total *= (ulong)(alphabet.ToList().IndexOf(c) + 1); //Multiply equals by the next element
             }
-            Colorful.Console.WriteAscii(string.Format("{0:n0}", total));
+            Colorful.Console.WriteAscii(string.Format("{0:n0}", total)); //Print result as snazzy asci text
         }
-
+        /// <summary>
+        /// Function searches for // to lead a comment and \\ to exit one
+        /// It prints these to the console and removes them from the input string
+        /// 
+        /// It searches for the first versions of // and \\
+        /// Removes them from the string, then recurses to see if there is a second set
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <returns></returns>
         private static string RemoveComments(string sINPUT)
         {
-            if (sINPUT.Contains("//") && sINPUT.Contains(@"\\") && !sINPUT.Contains("#defunc"))
+            if (sINPUT.Contains(@"//") && sINPUT.Contains(@"\\") && !sINPUT.Contains("#defunc"))
             {
-                string comment = sINPUT.Substring(sINPUT.IndexOf("//")+2, sINPUT.IndexOf(@"\\")-sINPUT.IndexOf("//")-2);
-                Colorful.Console.WriteLine(comment, Color.Beige);
-                return RemoveComments(sINPUT.Substring(0,sINPUT.IndexOf("//"))+sINPUT.Substring(sINPUT.IndexOf(@"\\")+2));
+                string comment = sINPUT.Substring(sINPUT.IndexOf(@"//")+2, sINPUT.IndexOf(@"\\")-sINPUT.IndexOf(@"//")-2);
+                //comment is the substring, +2 is to removing the leading //
+                //-2 is to remove the following \\
+                Colorful.Console.WriteLine(comment, Color.Beige); //Write the comment to the console
+                return RemoveComments(sINPUT.Substring(0,sINPUT.IndexOf(@"//"))+sINPUT.Substring(sINPUT.IndexOf(@"\\")+2));
+                //use recursion to see if there are any more comments
             }
             else
             {
                 return sINPUT;
             }
         }
+        /// <summary>
+        /// Descriptions are marked with ///
+        /// This function prints the descriptions to the console
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <returns></returns>
         private static string ShowDescription(string sINPUT)
         {
-            if (sINPUT.Contains("///"))
+            if (sINPUT.Contains(@"///"))
             {
-                string comment = sINPUT.Substring(sINPUT.IndexOf("///") + 3);
+                string comment = sINPUT.Substring(sINPUT.IndexOf(@"///") + 3); //Find the end of the first ///. +3 to get to the end of the "///"
                 List<string> toprint = new List<string>();
                 string buffer = "";
                 foreach (var c in comment)
                 {
-                    if (c == '\\')
+                    if (c == '\\') //Is it a \
+                        //Uses \\, but is really looking for \
                     {
-                        toprint.Add(buffer);
+                        toprint.Add(buffer); //End of the description is marked with a \. Print the buffer and reset
                         buffer = "";
+                        break; //UNTESTED IMPROVEMENT
                     }
                     else
                     {
-                        if (!(buffer == "" && c == 'n' && toprint.Count() != 0))
+                        if (!(buffer == "" && c == 'n' && toprint.Count() != 0)) 
+                            //Character n seems to mean something
+                            //Requires investigation
                         {
                             buffer += c;
                         }
