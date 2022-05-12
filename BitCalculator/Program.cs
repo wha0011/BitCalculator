@@ -454,19 +454,19 @@ namespace DevTools
                 //Convert from hex to ulong, and print the result
                 return;
             }
-            var doumMathResult = RemoveDoubleMath(userINPUT); //Remove all 'doum' stuff
-            if (userINPUT != doumMathResult) //Did we do doum math?
+            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "doum") //Check if the user wants to do doum math
             {
-                //Do the doub print thing
+                userINPUT = userINPUT.Substring(4);
+                userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
 
-                userINPUT = doumMathResult;
+                //Print the value as a double
                 PrintDouble(DoubleToBin(double.Parse(userINPUT)));
                 PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString(), true);
                 double d = double.Parse(userINPUT);
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
-                return;
             }
+
             char chosenType = 'u';
             if (is32bit)
             {
@@ -615,22 +615,11 @@ namespace DevTools
                 toprint.Add(buffer);
                 foreach (var s in toprint) 
                 {
-                    Colorful.Console.WriteLine(s, Color.Beige);
+                    Colorful.Console.WriteLine(s, Color.Beige); //Write all the comments through the console
                 }
             }
             return sINPUT;
         }
-
-        private static string RemoveDoubleMath(string sINPUT)
-        {
-            if (sINPUT.Length >= 4 && sINPUT[0] == 'd' && sINPUT[1] == 'o' && sINPUT[2] == 'u' && sINPUT[3] == 'm')
-            {
-                sINPUT = sINPUT.Substring(4);
-                return DoubleCalculate(DoubleRemoveBrackets(sINPUT));
-            }
-            return sINPUT;
-        }
-
         private static string RemoveRandom(string sINPUT)
         {
             if (sINPUT.Contains("ran("))
