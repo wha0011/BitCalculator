@@ -27,6 +27,62 @@ namespace DevTools
         static bool defaultFlipVal = false;
         static void Main(string[] args)
         {
+            CheckDirectories(); //See if the file storing directories exist, if not, then create them
+            SetupConsole();
+
+            bool first = true;
+            while (true)
+            {
+                try
+                {
+                    Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
+                    string userInput = "";
+                    if (args.Length != 0 && first) //Are we opening a file?
+                    {
+                        PrintColour("Opening file: " + args[0]);
+                        var extension = args[0].Split('.')[1]; //Get the file extension from the filepath
+                        if (extension != "dcode")
+                        {
+                            PrintColour("Unrecognized file extension: " + extension); //Only open .dcode files
+                        }
+                        else
+                        {
+                            string x = RemoveLineBreaks(File.ReadAllText(args[0])); //Read the file in
+                            DoMainMethod(x); //Run the functions in the file
+                        }
+                        first = false; //This is no longer the first loop, set first to false
+                    }
+                    else
+                    {
+                        userInput = Colorful.Console.ReadLine();
+                        DoMainMethod(userInput);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
+                    Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
+                    //Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
+                }
+            }
+        }
+
+        private static void SetupConsole()
+        {
+            Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
+
+            Colorful.Console.Clear();
+            Colorful.Console.OutputEncoding = Encoding.Unicode;
+            Colorful.Console.WriteAsciiStyled("Dev Tools 2022", new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
+            Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
+            Colorful.Console.ForegroundColor = Color.Magenta;
+        }
+
+        /// <summary>
+        /// Checks to see if directories are valid. re-creates files if nessecary
+        /// </summary>
+        private static void CheckDirectories()
+        {
             if (!Directory.Exists(DataDirectory))
             {
                 Directory.CreateDirectory(DataDirectory);
@@ -43,7 +99,7 @@ namespace DevTools
             {
                 File.CreateText(FuncFilePath);
             }
-            Colorful.Console.BackgroundColor = Color.FromArgb(0,16,29);
+
             try
             {
                 if (File.ReadAllText(WorkingsFilePath) == "")
@@ -55,47 +111,6 @@ namespace DevTools
             catch
             {
                 Colorful.Console.WriteLine("DO NOT EDIT SYSTEM FILES. WORKINGS FILE HAS BEEN RESET");
-            }
-
-            Colorful.Console.Clear();
-            Colorful.Console.OutputEncoding = Encoding.Unicode;
-            Colorful.Console.WriteAsciiStyled("Dev Tools 2021", new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
-            Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
-            bool first = true;
-            while (true)
-            {
-                try
-                {
-                    Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158));
-                    Colorful.Console.ForegroundColor = Color.Magenta;
-                    string sINPUT = "";
-                    if (args.Length != 0 && first)
-                    {
-                        PrintColour("Opening file: " + args[0]);
-                        var extension = args[0].Split('.')[1]; //Get the file extension from the filepath
-                        if (extension != "dcode")
-                        {
-                            PrintColour("Unrecognized file extension: " + extension);
-                        }
-                        else
-                        {
-                            string x = RemoveLineBreaks(File.ReadAllText(args[0]));
-                            DoMainMethod(x);
-                        }
-                        first = false;
-                    }
-                    else
-                    {
-                        sINPUT = Colorful.Console.ReadLine();
-                        DoMainMethod(sINPUT);
-                    }
-                }
-                catch(Exception e)
-                {
-                    Colorful.Console.WriteLine("INVALID", Color.FromArgb(255,10,10));
-                    Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
-                    //Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
-                }
             }
         }
 
@@ -147,27 +162,29 @@ namespace DevTools
             }
             return result;
         }
-        public static void DoMainMethod(string sINPUT)
+        public static void DoMainMethod(string userINPUT)
         {
-            if (!sINPUT.Contains("loop") && !sINPUT.Contains("#defunc")) 
+            if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc")) 
+                //Only run multiple functions if function is not a loop or defining a function
             {
-                foreach (var s in sINPUT.Split(';'))
+                foreach (var s in userINPUT.Split(';')) //Split up the different user commands
                 {
-                    MainMethod(s);
+                    MainMethod(s); //Run the main method on them
                 }
             }
             else
             {
-                if (sINPUT.IndexOf(";") != 0 && sINPUT.IndexOf(";") < sINPUT.IndexOf("loop") && !sINPUT.Contains("#def"))
+                if (userINPUT.IndexOf(";") != 0 && userINPUT.IndexOf(";") < userINPUT.IndexOf("loop") && !userINPUT.Contains("#def"))
+                    //Run the functions that are called before the loop. After the loop statement, all semicolons are assumed to be inside it
                 {
-                    var s = sINPUT.Substring(0,sINPUT.IndexOf("loop"));
-                    foreach (var str in s.Split(';'))
+                    var beforeLoop = userINPUT.Substring(0,userINPUT.IndexOf("loop"));
+                    foreach (var str in beforeLoop.Split(';'))
                     {
                         MainMethod(str);
                     }
-                    sINPUT = sINPUT.Substring(s.Length);
+                    userINPUT = userINPUT.Substring(beforeLoop.Length); //Remove the previous statements from the userinputs
                 }
-                MainMethod(sINPUT);
+                MainMethod(userINPUT); //Run the mainmethod, with the changed length, or unmodified if there were no previous statements
             }
         }
         public static void WriteAscii(string sINPUT)
