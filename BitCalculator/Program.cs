@@ -657,12 +657,17 @@ namespace DevTools
             return sINPUT;
         }
 
+        #region printDecimals
+        /// <summary>
+        /// Prints a double decimal values binary output
+        /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
+        /// </summary>
+        /// <param name="input"></param>
         private static void PrintDouble(string input)
         {
-            //Colorful.Console.BackgroundColor = Color.LightSalmon;
-            //Colorful.Console.WriteLine(input, Color.Red);
-            //Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29);
-            var res = Regex.Replace(RemoveSpaces(input), "\n", "");
+            var res = Regex.Replace(RemoveSpaces(input), "\n", ""); //Remove all spaces, new lines or blanks from string
+
+
             for (int i = 0; i < 64; ++i)
             {
                 if (i == 0)
@@ -686,16 +691,17 @@ namespace DevTools
                     Colorful.Console.Write(' ');
                 }
             }
-            //Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29);
             Colorful.Console.WriteLine("This colour is the mantissa", Color.FromArgb(255, 100, 100));
             Colorful.Console.WriteLine("This colour is the exponent", Color.FromArgb(0, 255, 10));
             Colorful.Console.WriteLine("This colour is the sign"    , Color.FromArgb(255, 255, 255));
         }
+        /// <summary>
+        /// Prints a float decimal values binary output
+        /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
+        /// </summary>
+        /// <param name="input"></param>
         private static void PrintFloat(string input)
         {
-            //Colorful.Console.BackgroundColor = Color.LightSalmon;
-            //Colorful.Console.WriteLine(input, Color.Red);
-            //Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29);
             var res = Regex.Replace(RemoveSpaces(input), "\n", "");
             for (int i = 0; i < 32; ++i)
             {
@@ -725,7 +731,16 @@ namespace DevTools
             Colorful.Console.WriteLine("This colour is the exponent", Color.FromArgb(0, 255, 10));
             Colorful.Console.WriteLine("This colour is the sign", Color.FromArgb(255, 255, 255));
         }
+        #endregion
 
+
+        /// <summary>
+        /// Removes boolean questions
+        /// 4==4?3:2
+        /// Replaces this entire statement with the new result
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <returns></returns>
         private static string RemoveBooleanStatements(string sINPUT)
         {
             if (sINPUT.Contains('?') && !sINPUT.Contains(':')) //Only one condition and no else
@@ -1267,6 +1282,13 @@ namespace DevTools
             }
             return result;
         }
+        /// <summary>
+        /// VERY BUGGY. WILL BE FIXED LATER
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="variableName"></param>
+        /// <param name="variableValue"></param>
+        /// <returns></returns>
         private static string ReplaceTempVariables(string input, string variableName, string variableValue)
         {
             string result = "";
