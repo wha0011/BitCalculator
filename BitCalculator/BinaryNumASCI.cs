@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace DevTools
@@ -166,7 +167,7 @@ namespace DevTools
                 for (int i = 0; i < v.Length; i++)
                 {
                     char c = v[i];
-                    if (isyellow && !IsOperator(c) && c != ' ')
+                    if (isyellow && !Program.IsOperator(c) && c != ' ')
                     {
                         Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                         continue;
@@ -181,7 +182,7 @@ namespace DevTools
                         isyellow = true;
                         Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                     }
-                    else if (IsOperator(c) || c == ' ')
+                    else if (Program.IsOperator(c) || c == ' ')
                     {
                         isyellow = false;
                         Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));

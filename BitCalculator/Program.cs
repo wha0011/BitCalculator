@@ -1119,7 +1119,7 @@ namespace DevTools
             Colorful.Console.WriteLine();
         }
         public static bool printWorkings = true;
-        private static bool IsOperator(char c)
+        public static bool IsOperator(char c)
         {
             return c switch
             {
@@ -1143,7 +1143,9 @@ namespace DevTools
                 _ => false,
             };
         }
-
+        /*
+         * Calculates <<'s given a specific string
+         */
         private static string CalculateBitShift(string sINPUT, char chosenType)
         {
             if (sINPUT.Contains("<<"))
@@ -1194,22 +1196,28 @@ namespace DevTools
             }
             return "0";
         }
+        /// <summary>
+        /// Like remove math, except exclusively for bitshifts
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="chosenType"></param>
+        /// <returns></returns>
         public static string RemoveBitShift(string input, char chosenType)
         {
             string buffer = "";
-            if (input.Contains("<<") || input.Contains(">>"))
+            if (input.Contains("<<") || input.Contains(">>")) //Is there a bitwise operator?
             {
-                for (int i = 0; i < input.Length; i++)
+                for (int i = 0; i < input.Length; i++) //Iterate through the string
                 {
                     buffer += input[i];
-                    if (buffer.Contains("<<") || buffer.Contains(">>"))
+                    if (buffer.Contains("<<") || buffer.Contains(">>")) //Did we just get a <<?
                     {
-                        buffer = "";
+                        buffer = ""; //Reset the bugger
                         int lastOperatorIDX = LastOperatorIDX(input, i - 2);
                         if ((lastOperatorIDX != 0 || IsOperator(input[0])) && i >=2)
                         {
                             ++lastOperatorIDX;
-                        } 
+                        }
                         int nextOperatorIDX = NextOperatorIDX(input, i + 1);
                         string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
                         string result = CalculateBitShift(sub, chosenType);
@@ -1234,6 +1242,13 @@ namespace DevTools
             }
         }
 
+        /// <summary>
+        /// VERY BUGGY. WILL BE FIXED LATER
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="variableName"></param>
+        /// <param name="variableValue"></param>
+        /// <returns></returns>
         private static string ReplaceTempVariables(string input, char variableName, string variableValue)
         {
             string result = "";
@@ -1367,12 +1382,6 @@ namespace DevTools
                 tempVariables = dresult;
             }
             return mainresult;
-        }
-        public static void DoPrint(string sINPUT)
-        {
-            sINPUT = sINPUT.Substring(6);
-            sINPUT = BitCalculate(RemoveBrackets(sINPUT.Substring(0, ClosingBracket(sINPUT, 0)), 'u'), 'u');
-            PrintColour(sINPUT, false);
         }
         public static Dictionary<string, string> tempVariables = new Dictionary<string, string>();
         public static void DefineTempVariable(string variable)
