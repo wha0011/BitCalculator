@@ -142,7 +142,58 @@ namespace DevTools
             {
                 toprint += s;
             }
-            Program.PrintBlindColour(toprint, true);
+            PrintRedAndWhite(toprint, true);
         }
+        public static void PrintRedAndWhite(string v, bool isBin = false)
+        {
+            if (isBin)
+            {
+                foreach (var c in v)
+                {
+                    if (c == '0')
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(255, 0, 0));
+                    }
+                    else
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(255, 255, 255));
+                    }
+                }
+            }
+            else
+            {
+                bool isyellow = false;
+                for (int i = 0; i < v.Length; i++)
+                {
+                    char c = v[i];
+                    if (isyellow && !IsOperator(c) && c != ' ')
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
+                        continue;
+                    }
+
+                    if (char.IsNumber(c))
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(6, 153, 255));
+                    }
+                    else if (c == '#')
+                    {
+                        isyellow = true;
+                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
+                    }
+                    else if (IsOperator(c) || c == ' ')
+                    {
+                        isyellow = false;
+                        Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));
+                    }
+                    else
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
+                    }
+                }
+            }
+            Colorful.Console.WriteLine();
+        }
+
     }
 }

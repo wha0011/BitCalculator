@@ -981,7 +981,16 @@ namespace DevTools
             }
             return input;
         }
-
+        /// <summary>
+        /// Removes hex from the users input
+        /// Comes in the form #ffffff
+        /// So far this works, so eh, not gonna document it for now
+        /// Will proabbly not be involved in the new features being created
+        /// 
+        /// 'PROBABLY'
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private static string RemoveHex(string input)
         {
             if (input.Length >= 2 && input[1] == '_')
@@ -1009,29 +1018,23 @@ namespace DevTools
             }
             return input;
         }
-        public static int NextUpperCase_Number_IDX(int currIDX, string input)
-        {
-            for (int i = currIDX; i < input.Length; i++)
-            {
-                if (char.IsUpper(input[i]) || char.IsNumber(input[i]))
-                {
-                    return i;
-                }
-            }
-            return input.Length;
-        }
+        /// <summary>
+        /// Prints Hex in a snazzy colour
+        /// </summary>
+        /// <param name="v"></param>
         private static void PrintHex(string v)
         {
             Colorful.Console.WriteLine(v.Insert(0,"#"), Color.FromArgb(234,255,0));
         }
-        private static void ConvertHEX(string v)
-        {
-            if (v[0] == '#')
-            {
-                v = v.Substring(1);
-            }
-            PrintColour(ulong.Parse(v, System.Globalization.NumberStyles.HexNumber));
-        }
+        /// <summary>
+        /// Converts hex to rgb
+        /// You type in hrgb #ffffff
+        /// An voila, it converts it into rgb(255,255,255)
+        /// NOT to be used in conjunction with other things
+        /// 
+        /// So far this works, so eh, cant be bothered documenting it
+        /// </summary>
+        /// <param name="hexVal"></param>
         public static void HEX_to_RGB(string hexVal)
         {
             if (hexVal[0] == '#')
@@ -1054,25 +1057,12 @@ namespace DevTools
             result += ");";
             PrintColour(result, false);
         }
-        public static string ConvertHEX(ulong input)
-        {
-            return input.ToString("X2");
-        }
-        private static void PrintColour(ulong v)
-        {
-            foreach (var c in v.ToString())
-            {
-                if (c == '0')
-                {
-                    Colorful.Console.Write(c, Color.FromArgb(90, 255, 183));
-                }
-                else
-                {
-                    Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
-                }
-            }
-            Colorful.Console.WriteLine();
-        }
+        /// <summary>
+        /// An extension method for Colourful.Console.Writeline()
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="workings"></param>
+        /// <param name="isBin"></param>
         public static void PrintColour(string v, bool workings = false, bool isBin = false)
         {
             if (workings && printWorkings == false)
@@ -1129,57 +1119,6 @@ namespace DevTools
             Colorful.Console.WriteLine();
         }
         public static bool printWorkings = true;
-        public static void PrintBlindColour(string v, bool isBin = false)
-        {
-            if (isBin)
-            {
-                foreach (var c in v)
-                {
-                    if (c == '0')
-                    {
-                        Colorful.Console.Write(c, Color.FromArgb(255, 0, 0));
-                    }
-                    else
-                    {
-                        Colorful.Console.Write(c, Color.FromArgb(255, 255, 255));
-                        //Colorful.Console.WriteLine();
-                    }
-                }
-            }
-            else
-            {
-                bool isyellow = false;
-                for (int i = 0; i < v.Length; i++)
-                {
-                    char c = v[i];
-                    if (isyellow && !IsOperator(c) && c != ' ')
-                    {
-                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
-                        continue;
-                    }
-                    
-                    if (char.IsNumber(c))
-                    {
-                        Colorful.Console.Write(c, Color.FromArgb(6, 153, 255));
-                    }
-                    else if (c == '#')
-                    {
-                        isyellow = true;
-                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
-                    }
-                    else if (IsOperator(c) || c == ' ')
-                    {
-                        isyellow = false;
-                        Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));
-                    }
-                    else
-                    {
-                        Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
-                    }
-                }
-            }
-            Colorful.Console.WriteLine();
-        }
         private static bool IsOperator(char c)
         {
             return c switch
