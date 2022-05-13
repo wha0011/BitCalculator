@@ -1801,75 +1801,85 @@ namespace DevTools
         }
         public static string ReplaceVariables(string input)
         {
-            string i = input;
-            foreach (var s in File.ReadAllLines(DataFilePath).OrderByDescending(s=>s.Length))
+            try
             {
-                if (!s.Contains(','))
+                string i = input;
+                foreach (var s in File.ReadAllLines(DataFilePath).OrderByDescending(s => s.Length))
                 {
-                    File.WriteAllText(DataFilePath, "");
-                    PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
-                    return "";
-                }
-
-                var ss = s.Split(',');
-                i = Regex.Replace(i,ss[0], "("+ss[1]+")");
-            }
-            foreach (var s in File.ReadAllLines(FuncFilePath).OrderByDescending(s => s.Length))
-            {
-                if (s=="")
-                {
-                    continue;
-                }
-                if (!s.Contains('('))
-                {
-                    File.WriteAllText(FuncFilePath, "");
-                    PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
-                    return "";
-                }
-                var name = s.Split('(')[0];
-                if (i.Contains(name))
-                {
-                    string replacestring = s;
-                    int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
-                    replacestring = replacestring.Substring(closingBracketidx + 1);
-
-                    string[] values = i.Substring(name.Length+1, closingBracketidx-name.Length-1).Split(',');
-                    string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
-                    Dictionary<string, int> variableValues = new Dictionary<string, int>();
-                    //Iterate through here and add the variable values to the variable names
-                    //swap out the variable values for the variable names in the function stored file
-                    //Replace the function text with the text found in the file
-
-                    for (int idx = 0; idx < values.Length; ++idx)
+                    if (!s.Contains(','))
                     {
-                        replacestring = ReplaceTempVariables(replacestring, names[idx], values[idx]);
+                        File.WriteAllText(DataFilePath, "");
+                        PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                        return "";
                     }
-                    if (replacestring.Contains("///")) {
-                        replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
-                    }
-                    i = replacestring;
-                    if (i.IndexOf(";") != 0 && (i.IndexOf(";") < i.IndexOf("loop")||i.IndexOf("loop")==-1) && !i.Contains("#def"))
+
+                    var ss = s.Split(',');
+                    i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
+                }
+                foreach (var s in File.ReadAllLines(FuncFilePath).OrderByDescending(s => s.Length))
+                {
+                    if (s == "")
                     {
-                        var strs = i;
-                        if (i.Contains("loop")) {
-                            strs = i.Substring(0, i.IndexOf("loop"));
-                        }
-                        foreach (var str in strs.Split(';'))
+                        continue;
+                    }
+                    if (!s.Contains('('))
+                    {
+                        File.WriteAllText(FuncFilePath, "");
+                        PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                        return "";
+                    }
+                    var name = s.Split('(')[0];
+                    if (i.Contains(name))
+                    {
+                        string replacestring = s;
+                        int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
+                        replacestring = replacestring.Substring(closingBracketidx + 1);
+
+                        string[] values = i.Substring(name.Length + 1, closingBracketidx - name.Length - 1).Split(',');
+                        string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
+                        Dictionary<string, int> variableValues = new Dictionary<string, int>();
+                        //Iterate through here and add the variable values to the variable names
+                        //swap out the variable values for the variable names in the function stored file
+                        //Replace the function text with the text found in the file
+
+                        for (int idx = 0; idx < values.Length; ++idx)
                         {
-                            if (str != "") {
-                                MainMethod(str);
-                            }
+                            replacestring = ReplaceTempVariables(replacestring, names[idx], values[idx]);
                         }
-                        i = i.Substring(strs.Length);
+                        if (replacestring.Contains("///"))
+                        {
+                            replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
+                        }
+                        i = replacestring;
+                        if (i.IndexOf(";") != 0 && (i.IndexOf(";") < i.IndexOf("loop") || i.IndexOf("loop") == -1) && !i.Contains("#def"))
+                        {
+                            var strs = i;
+                            if (i.Contains("loop"))
+                            {
+                                strs = i.Substring(0, i.IndexOf("loop"));
+                            }
+                            foreach (var str in strs.Split(';'))
+                            {
+                                if (str != "")
+                                {
+                                    MainMethod(str);
+                                }
+                            }
+                            i = i.Substring(strs.Length);
+                        }
                     }
                 }
+                if (i != input)
+                {
+                    PrintColour(i, true);
+                }
+                i = RemoveRandom(i);
+                return i;
             }
-            if (i != input)
+            catch
             {
-                PrintColour(i, true);
+                throw new Exception("Ya might wanna check ur usage of that function");
             }
-            i = RemoveRandom(i);
-            return i;
         }
         public static string RemoveAndReplace(int startIDX, int endIDX, string replaceWith, string input)
         {
