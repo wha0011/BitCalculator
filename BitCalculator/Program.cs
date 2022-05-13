@@ -738,6 +738,9 @@ namespace DevTools
         /// Removes boolean questions
         /// 4==4?3:2
         /// Replaces this entire statement with the new result
+        /// 
+        /// THIS CODE IS FULL OF BUGS
+        /// REQUIRES FIXING
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
@@ -788,6 +791,7 @@ namespace DevTools
             return sINPUT;
         }
 
+        #region angleconversions
         public static double DegreeToRadian(double angle)
         {
             return Math.PI * angle / 180.0;
@@ -796,6 +800,15 @@ namespace DevTools
         {
             return angle * 180.0 / Math.PI;
         }
+        #endregion
+
+        /// <summary>
+        /// Removes trig statesments from the users input
+        /// 
+        /// IS BUGGY, REQUIRES FIX
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <returns></returns>
         private static string RemoveTrig(string sINPUT)
         {
             if (sINPUT.Contains("sin(") || 
