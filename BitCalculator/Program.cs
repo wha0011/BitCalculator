@@ -22,7 +22,7 @@ namespace DevTools
                 _secondNum = secondNum;
                 _operator = @operator;
             }
-        }   
+        }
         static ulong lastInput = 0ul;
         static bool defaultFlipVal = false;
         static void Main(string[] args)
@@ -147,7 +147,7 @@ namespace DevTools
                     inSpeech = !inSpeech;
                     continue;
                 }
-                if (!inSpeech && !isComment) 
+                if (!inSpeech && !isComment)
                 {
                     if (c != ' ')
                     {
@@ -164,8 +164,8 @@ namespace DevTools
         }
         public static void DoMainMethod(string userINPUT)
         {
-            if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc")) 
-                //Only run multiple functions if function is not a loop or defining a function
+            if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc"))
+            //Only run multiple functions if function is not a loop or defining a function
             {
                 foreach (var s in userINPUT.Split(';')) //Split up the different user commands
                 {
@@ -175,9 +175,9 @@ namespace DevTools
             else
             {
                 if (userINPUT.IndexOf(";") != 0 && userINPUT.IndexOf(";") < userINPUT.IndexOf("loop") && !userINPUT.Contains("#def"))
-                    //Run the functions that are called before the loop. After the loop statement, all semicolons are assumed to be inside it
+                //Run the functions that are called before the loop. After the loop statement, all semicolons are assumed to be inside it
                 {
-                    var beforeLoop = userINPUT.Substring(0,userINPUT.IndexOf("loop"));
+                    var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
                         MainMethod(str);
@@ -201,12 +201,12 @@ namespace DevTools
             userINPUT = RemoveComments(userINPUT); //Remove all 
 
             #region uservariables
-            if (userINPUT.Length >= 8 && userINPUT.Substring(0,7) == "#define") //Are we defining a variable?
+            if (userINPUT.Length >= 8 && userINPUT.Substring(0, 7) == "#define") //Are we defining a variable?
             {
                 DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
-            if (userINPUT.Length >= 8 && userINPUT.Substring(0,7) == "#defunc")
+            if (userINPUT.Length >= 8 && userINPUT.Substring(0, 7) == "#defunc")
             {
                 DefineFunction(userINPUT); //Define a function with the new input
                 return;
@@ -252,13 +252,13 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0,5) == "help-") //Show help for specific function. Specified after the -
+            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "help-") //Show help for specific function. Specified after the -
             {
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
             var resetworkings = false;
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0,2) == "nw") //User wants to print with no workings?
+            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 2) == "nw") //User wants to print with no workings?
             {
                 printWorkings = false; //Stop printing workings
                 userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
@@ -279,17 +279,16 @@ namespace DevTools
                 PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
                 userINPUT = replaced; //Modify the user input to be the old input
             }
-            userINPUT = ReplaceVariables(userINPUT); //Remove all custom user variables from the string
 
 
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0,4) == "loop") //User wants to do a loop?
+            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "loop") //User wants to do a loop?
             {
                 DoLoopFunc(userINPUT); //Do the loop, then exit
                 return;
             }
             #region showdecimals
             //Show value as decimal
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0,4) == "doub") //User wants to show value as double
+            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "doub") //User wants to show value as double
             {
                 PrintDouble(DoubleToBin(double.Parse(userINPUT.Substring(4)))); //Print the new double value
                 double userDoubleInput = double.Parse(userINPUT.Substring(4));
@@ -298,7 +297,7 @@ namespace DevTools
                 lastInput = Convert.ToUInt64(bitconv, 2); //Convert the double into a ulong to change last input
                 return;
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0,5) == "float") //User wants to show value as float
+            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "float") //User wants to show value as float
             {
                 PrintFloat(FloatToBin(float.Parse(userINPUT.Substring(5)))); //Print the new float value
                 float userFloatInput = float.Parse(userINPUT.Substring(5));
@@ -332,23 +331,23 @@ namespace DevTools
                 return;
             }
             if (ModifyVariables(userINPUT)) //Is the user modifying variables that already exist
-                //This function automatically deals with it, so we just need to finish
+                                            //This function automatically deals with it, so we just need to finish
             {
                 return;
             }
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0,3) == "var")
+            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 3) == "var")
             {
                 DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
                 return;
             }
             bool noprint = false;
-            if (userINPUT.Length >= 2 && userINPUT.Substring(0,2) == "np") //Does the user not want to print the binary value of the final result?
+            if (userINPUT.Length >= 2 && userINPUT.Substring(0, 2) == "np") //Does the user not want to print the binary value of the final result?
             {
                 noprint = true; //Tell the binary printer NOT to print
                 userINPUT = userINPUT.Substring(2); //Remove the string "np" from the userINPUT
             }
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0,4) == "hrgb") //Does the user want to convert a hex value into rgb
-                //Returns rgb(255,255,255) for #ffffff
+            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "hrgb") //Does the user want to convert a hex value into rgb
+                                                                              //Returns rgb(255,255,255) for #ffffff
             {
                 userINPUT = userINPUT.Substring(4); //Remove the "hrgb" from the calculation
                 HEX_to_RGB(userINPUT); //Convert the hex value into rgb and print the result
@@ -360,12 +359,12 @@ namespace DevTools
             {
                 return; //Result has already been dealt with. Return
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0,5) == "asci(") //Does the user want to draw ascii art
+            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "asci(") //Does the user want to draw ascii art
             {
-                WriteAscii(userINPUT.Substring(5, userINPUT.Length-6)); //Remove the final bracket from the asci statement
+                WriteAscii(userINPUT.Substring(5, userINPUT.Length - 6)); //Remove the final bracket from the asci statement
                 return;
             }
-            if (userINPUT.Length >= 6 && userINPUT.Substring(0,6) == "asib(") //Does the user want to draw snazzy binary ascii art
+            if (userINPUT.Length >= 6 && userINPUT.Substring(0, 6) == "asib(") //Does the user want to draw snazzy binary ascii art
             {
                 BinaryNumASCI.PrintConverted(userINPUT.Substring(6, userINPUT.Length - 7)); //Remove the final bracket from the asci statement
                 return;
@@ -394,7 +393,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveBinary(userINPUT); //User can define binary with b_. Replace this with its integer value
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0,3) == "avg") //User wants to get average number of a set
+            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 3) == "avg") //User wants to get average number of a set
             {
                 PrintColour("Average is: " + Average(userINPUT));
                 return;
@@ -410,7 +409,7 @@ namespace DevTools
             bool is32bit = false;
             bool is16bit = false;
             bool is8bit = false;
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0,3) == "ati") //Weird math thingy. Description in the PrintAti() function
+            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 3) == "ati") //Weird math thingy. Description in the PrintAti() function
             {
                 PrintAti(userINPUT);
                 return;
@@ -446,10 +445,10 @@ namespace DevTools
                 PrintHex(ulong.Parse(userINPUT).ToString("X2").ToLower()); //Print the hex value of the users input
                 return;
             }
-            if (userINPUT.Length >= 2 && userINPUT.Substring(0,2) == "#_") //Converting hex value into ulong?
+            if (userINPUT.Length >= 2 && userINPUT.Substring(0, 2) == "#_") //Converting hex value into ulong?
             {
                 userINPUT = userINPUT.Substring(2);
-                PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false); 
+                PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false);
                 //Convert from hex to ulong, and print the result
                 return;
             }
@@ -479,8 +478,9 @@ namespace DevTools
             {
                 chosenType = 'b';
             } //Change the chosen output type depending on the specified bit length
-            //Default is 64 bit ulong
+              //Default is 64 bit ulong
 
+            userINPUT = ReplaceVariables(userINPUT); //Remove all custom user variables from the string
             userINPUT = RemoveBrackets(userINPUT, chosenType);
             string booleans = CheckForBooleans(userINPUT, chosenType); //Remove boolean conditions (==,!=,<,>)
             if (booleans == "true" || booleans == "false")
@@ -546,7 +546,7 @@ namespace DevTools
             {
                 if (alphabet.ToList().IndexOf(c) == -1) //Not in alphabet? Continue to next element
                 {
-                    Colorful.Console.WriteLine(string.Format("Character: {0} not in alphabet. Disregarded in calculation",c)
+                    Colorful.Console.WriteLine(string.Format("Character: {0} not in alphabet. Disregarded in calculation", c)
                         , Color.FromArgb(255, 10, 10));
                     continue;
                 }
@@ -567,11 +567,11 @@ namespace DevTools
         {
             if (sINPUT.Contains(@"//") && sINPUT.Contains(@"\\") && !sINPUT.Contains("#defunc"))
             {
-                string comment = sINPUT.Substring(sINPUT.IndexOf(@"//")+2, sINPUT.IndexOf(@"\\")-sINPUT.IndexOf(@"//")-2);
+                string comment = sINPUT.Substring(sINPUT.IndexOf(@"//") + 2, sINPUT.IndexOf(@"\\") - sINPUT.IndexOf(@"//") - 2);
                 //comment is the substring, +2 is to removing the leading //
                 //-2 is to remove the following \\
                 Colorful.Console.WriteLine(comment, Color.Beige); //Write the comment to the console
-                return RemoveComments(sINPUT.Substring(0,sINPUT.IndexOf(@"//"))+sINPUT.Substring(sINPUT.IndexOf(@"\\")+2));
+                return RemoveComments(sINPUT.Substring(0, sINPUT.IndexOf(@"//")) + sINPUT.Substring(sINPUT.IndexOf(@"\\") + 2));
                 //use recursion to see if there are any more comments
             }
             else
@@ -595,7 +595,7 @@ namespace DevTools
                 foreach (var c in comment)
                 {
                     if (c == '\\') //Is it a \
-                        //Uses \\, but is really looking for \
+                                   //Uses \\, but is really looking for \
                     {
                         toprint.Add(buffer); //End of the description is marked with a \. Print the buffer and reset
                         buffer = "";
@@ -603,16 +603,16 @@ namespace DevTools
                     }
                     else
                     {
-                        if (!(buffer == "" && c == 'n' && toprint.Count() != 0)) 
-                            //Character n seems to mean something
-                            //Requires investigation
+                        if (!(buffer == "" && c == 'n' && toprint.Count() != 0))
+                        //Character n seems to mean something
+                        //Requires investigation
                         {
                             buffer += c;
                         }
                     }
                 }
                 toprint.Add(buffer);
-                foreach (var s in toprint) 
+                foreach (var s in toprint)
                 {
                     Colorful.Console.WriteLine(s, Color.Beige); //Write all the comments through the console
                 }
@@ -636,21 +636,25 @@ namespace DevTools
                     char c = sINPUT[i]; //Using for instead of foreach to access the 'i' variable
                     buffer += c;
                     if (buffer.Contains("ran(")) //The moment the buffer contains ran
-                        //i is the index of the (
+                                                 //i is the index of the (
                     {
-                        int nextBracket = ClosingBracket(sINPUT, i+1); //Find index of the closing brackets
-                        string constraints = sINPUT.Substring(i+1, nextBracket-i-1); //Remove ran( and the closing brackets
+                        int nextBracket = ClosingBracket(sINPUT, i + 1); //Find index of the closing brackets
+                        string constraints = sINPUT.Substring(i + 1, nextBracket - i - 1); //Remove ran( and the closing brackets
                         //We are now left with two numbers and a comma
 
                         Random random = new Random();
-                        int nextRan = random.Next(int.Parse(constraints.Split(',')[0]), 1+int.Parse(constraints.Split(',')[1])); //+1 because max val is INCLUSIVE
+                        string[] nums = constraints.Split(',');
+                        nums[0] = RemoveBrackets(nums[0],'u');
+                        nums[1] = RemoveBrackets(nums[1],'u'); //User may have variables or functions declared here. Check for these
+
+                        int nextRan = random.Next(int.Parse(nums[0]), 1 + int.Parse(nums[1])); //+1 because max val is INCLUSIVE
                         PrintColour("Random number is: " + nextRan.ToString(), true);
 
                         //Rebuild the string
-                        string before = sINPUT.Substring(0, i-3); //Get the prev string value up until the ran(
+                        string before = sINPUT.Substring(0, i - 3); //Get the prev string value up until the ran(
                         string replace = nextRan.ToString(); //Replace the ran(x,y) with the random value
-                        string after = sINPUT.Substring(nextBracket+1); //Get the index of the trailing bracket
-                        return RemoveRandom(before+replace+after);
+                        string after = sINPUT.Substring(nextBracket + 1); //Get the index of the trailing bracket
+                        return RemoveRandom(before + replace + after);
                     }
                 }
             }
@@ -672,17 +676,17 @@ namespace DevTools
             {
                 if (i == 0)
                 {
-                    Colorful.Console.Write(res[i], Color.FromArgb(255,255,255));
+                    Colorful.Console.Write(res[i], Color.FromArgb(255, 255, 255));
                 }
                 else if (i <= 11)
                 {
-                    Colorful.Console.Write(res[i], Color.FromArgb(0,255,10));
+                    Colorful.Console.Write(res[i], Color.FromArgb(0, 255, 10));
                 }
                 else
                 {
-                    Colorful.Console.Write(res[i], Color.FromArgb(255,100,100));
+                    Colorful.Console.Write(res[i], Color.FromArgb(255, 100, 100));
                 }
-                if ((i+1)%8 == 0 && i !=0)
+                if ((i + 1) % 8 == 0 && i != 0)
                 {
                     Colorful.Console.Write('\n');
                 }
@@ -693,7 +697,7 @@ namespace DevTools
             }
             Colorful.Console.WriteLine("This colour is the mantissa", Color.FromArgb(255, 100, 100));
             Colorful.Console.WriteLine("This colour is the exponent", Color.FromArgb(0, 255, 10));
-            Colorful.Console.WriteLine("This colour is the sign"    , Color.FromArgb(255, 255, 255));
+            Colorful.Console.WriteLine("This colour is the sign", Color.FromArgb(255, 255, 255));
         }
         /// <summary>
         /// Prints a float decimal values binary output
@@ -753,11 +757,11 @@ namespace DevTools
                     char c = sINPUT[i];
                     if (c == '?')
                     {
-                        int lastOperatorIDX = LastOperatorIDX(sINPUT, i-1);
-                        string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i-lastOperatorIDX), 'u'),'u'), 'u'));
+                        int lastOperatorIDX = LastOperatorIDX(sINPUT, i - 1);
+                        string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i - lastOperatorIDX), 'u'), 'u'), 'u'));
                         if (condition == "true")
                         {
-                            string toRun = sINPUT.Substring(i, sINPUT.Length-i).Substring(1);
+                            string toRun = sINPUT.Substring(i, sINPUT.Length - i).Substring(1);
                             DoMainMethod(toRun);
                         }
                         return "";
@@ -781,7 +785,7 @@ namespace DevTools
                         }
                         else
                         {
-                            string toRun = sINPUT.Substring(nextColonIDX, sINPUT.Length-nextColonIDX).Substring(1);
+                            string toRun = sINPUT.Substring(nextColonIDX, sINPUT.Length - nextColonIDX).Substring(1);
                             DoMainMethod(toRun);
                         }
                         return "";
@@ -811,8 +815,8 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveTrig(string sINPUT)
         {
-            if (sINPUT.Contains("sin(") || 
-                sINPUT.Contains("arcsin(")||
+            if (sINPUT.Contains("sin(") ||
+                sINPUT.Contains("arcsin(") ||
                 sINPUT.Contains("tan(") ||
                 sINPUT.Contains("arctan(") ||
                 sINPUT.Contains("cos(") ||
@@ -865,7 +869,7 @@ namespace DevTools
                         int nextOperaror = ClosingBracket(sINPUT, i + 1);
                         string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
                         string calcNum = (Math.Sin(DegreeToRadian(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror+1, sINPUT.Length - nextOperaror-1);
+                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
                         //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
                         PrintColour(string.Format("sin({0}) = {1}", s, calcNum), false);
                         return RemoveTrig(fixedval + calcNum + afterThat);
@@ -919,7 +923,7 @@ namespace DevTools
                     amountOfClosingBrackets++; //One set of brackets has been closed
                 }
                 if (amountOfClosingBrackets == amountOfOpenBrackets) //Is there the same amount of open brackets as there are closing brackets
-                    //This symbolizes that all nested sets of brackets have been found
+                                                                     //This symbolizes that all nested sets of brackets have been found
                 {
                     return i; //Return the idx of the last bracket
                 }
@@ -967,11 +971,11 @@ namespace DevTools
                     char c = (char)input[i];
                     if (prev == 'b' && c == '_') //Are we at the start of the binary??
                     {
-                        string fixedval = input.Substring(0, i-1); //The statement that came previously to the binary num
+                        string fixedval = input.Substring(0, i - 1); //The statement that came previously to the binary num
 
                         int nextOperaror = NextOperatorIDX_NoLetter(input, i + 1); //Find the index of the next operator so that we know when the binary statement ends
                         string binNum = Convert.ToUInt64(input.Substring(i + 1, nextOperaror - i - 1), 2).ToString(); //Find the binary num, convert it to a uint64
-                         
+
                         string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror); //Find the trailing characters
                         PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat), true); //Show the user what has been replaced
                         return RemoveBinary(fixedval + binNum + afterThat); //There may be more binary to find, so look for that
@@ -1004,15 +1008,15 @@ namespace DevTools
                     char c = (char)input[i];
                     if (c == '#')
                     {
-                        string fixedval = input.Substring(0,i);
-                        int nextOperaror = NextOperatorIDX_NoLetter(input, i+1);
-                        string hexNum = ulong.Parse(input.Substring(i+1, nextOperaror - i-1), System.Globalization.NumberStyles.HexNumber).ToString();
+                        string fixedval = input.Substring(0, i);
+                        int nextOperaror = NextOperatorIDX_NoLetter(input, i + 1);
+                        string hexNum = ulong.Parse(input.Substring(i + 1, nextOperaror - i - 1), System.Globalization.NumberStyles.HexNumber).ToString();
                         string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror);
                         if (printWorkings)
                         {
                             PrintColour(input.Substring(i + 1, nextOperaror - i - 1) + " --> " + hexNum);
                         }
-                        return RemoveHex(fixedval+hexNum+afterThat);
+                        return RemoveHex(fixedval + hexNum + afterThat);
                     }
                 }
             }
@@ -1024,7 +1028,7 @@ namespace DevTools
         /// <param name="v"></param>
         private static void PrintHex(string v)
         {
-            Colorful.Console.WriteLine(v.Insert(0,"#"), Color.FromArgb(234,255,0));
+            Colorful.Console.WriteLine(v.Insert(0, "#"), Color.FromArgb(234, 255, 0));
         }
         /// <summary>
         /// Converts hex to rgb
@@ -1053,7 +1057,7 @@ namespace DevTools
                     buffer = "";
                 }
             }
-            result = result.Substring(0,result.Length-1);
+            result = result.Substring(0, result.Length - 1);
             result += ");";
             PrintColour(result, false);
         }
@@ -1095,7 +1099,7 @@ namespace DevTools
                         Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                         continue;
                     }
-                    
+
                     if (char.IsNumber(c))
                     {
                         Colorful.Console.Write(c, Color.FromArgb(6, 153, 255));
@@ -1140,6 +1144,7 @@ namespace DevTools
                 ')' => true,
                 ':' => true,
                 ';' => true,
+                ',' => true,
                 _ => false,
             };
         }
@@ -1173,7 +1178,7 @@ namespace DevTools
                     switch (chosenType)
                     {
                         case 'b':
-                            strings[0] = (byte.MaxValue/2+1).ToString();
+                            strings[0] = (byte.MaxValue / 2 + 1).ToString();
                             break;
                         case 's':
                             strings[0] = (ushort.MaxValue / 2 + 1).ToString();
@@ -1214,7 +1219,7 @@ namespace DevTools
                     {
                         buffer = ""; //Reset the bugger
                         int lastOperatorIDX = LastOperatorIDX(input, i - 2);
-                        if ((lastOperatorIDX != 0 || IsOperator(input[0])) && i >=2)
+                        if ((lastOperatorIDX != 0 || IsOperator(input[0])) && i >= 2)
                         {
                             ++lastOperatorIDX;
                         }
@@ -1234,7 +1239,7 @@ namespace DevTools
             string tocalc = loop.Split(':')[0];
             string s = BitCalculate(RemoveBrackets(tocalc, 'u'), 'u');
             int timesAround = int.Parse(s);
-            loop = loop.Substring(tocalc.Length+1);
+            loop = loop.Substring(tocalc.Length + 1);
             for (int i = 0; i < timesAround; ++i)
             {
                 string currentLoop = ReplaceTempVariables(loop, 'i', i.ToString());
@@ -1255,7 +1260,7 @@ namespace DevTools
             for (int i = 0; i < input.Length; ++i)
             {
                 char c = input[i];
-                if (c == variableName && (input.Length-1 == i || IsOperator(input[i+1])) && (i == 0 || IsOperator(input[i-1])))
+                if (c == variableName && (input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
                 {
                     result += variableValue;
                 }
@@ -1281,16 +1286,22 @@ namespace DevTools
                 char c = input[i];
                 string currentVar = "";
                 result += c;
-                if (result.Length >= variableName.Length&&!IsOperator(input[i])&&!char.IsDigit(input[i]))
+                if (result.Length >= variableName.Length && !IsOperator(input[i]) && !char.IsDigit(input[i]))
                 {
-                    currentVar = result.Substring(i-variableName.Length+1);
+                    currentVar = result.Substring(i - variableName.Length + 1);
                 }
-                if (currentVar == variableName && (input.Length - result.Length == 0 || IsOperator(input[i + 1])) && (i == variableName.Length - 1 || IsOperator(input[i - variableName.Length])))
+                if (currentVar == variableName) //Is this the current variable we are working on
                 {
-                    result = result.Substring(0, result.Length - variableName.Length) + input.Substring(i + 1, input.Length - 1 - i);
-                    result = result.Insert(i-variableName.Length+1,"("+variableValue+")");
-                    PrintColour(variableName + " --> " + variableValue, true);
-                    return ReplaceTempVariables(result, variableName, variableValue);
+                    if (input.Length == result.Length //Are we at the end of the line?
+                    || (IsOperator(input[i + 1]) //At the end of the variable. i.e. there isn't a letter or number after the variable, but an operator
+                    && (i == variableName.Length - 1 || IsOperator(input[i - variableName.Length]))))
+
+                    {
+                        result = result.Substring(0, result.Length - variableName.Length) + input.Substring(i + 1, input.Length - 1 - i);
+                        result = result.Insert(i - variableName.Length + 1, "(" + variableValue + ")");
+                        PrintColour(variableName + " --> " + variableValue, true);
+                        return ReplaceTempVariables(result, variableName, variableValue);
+                    }
                 }
             }
             return result;
