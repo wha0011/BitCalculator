@@ -897,67 +897,84 @@ namespace DevTools
             return sINPUT;
         }
 
-        private static int ClosingBracket(string sINPUT, int v)
+        /// <summary>
+        /// Finds the index of the closing bracket in a string
+        /// NO BUGS HERE
+        /// </summary>
+        /// <param name="sINPUT"></param>
+        /// <param name="curridx">where to search from in the string</param>
+        /// <returns></returns>
+        private static int ClosingBracket(string sINPUT, int curridx)
         {
-            int amountOfOpenBrackets = 1;
-            int amountOfClosingBrackets = 0;
-            for (int i = v; i < sINPUT.Length; ++i)
+            int amountOfOpenBrackets = 1; //Assume that whatever is giving this string to us has alredy found an open bracket
+            int amountOfClosingBrackets = 0; //We will need to look for the closing bracket
+            for (int i = curridx; i < sINPUT.Length; ++i) //Iterate through the string from the curridx
             {
-                if (sINPUT[i] == '(')
+                if (sINPUT[i] == '(') //Is there a set of nested brackets?
                 {
-                    amountOfOpenBrackets++;
+                    amountOfOpenBrackets++; //Increase the amount of open brackets, so that we have to find MORE closing brackets
                 }
                 if (sINPUT[i] == ')')
                 {
-                    amountOfClosingBrackets++;
+                    amountOfClosingBrackets++; //One set of brackets has been closed
                 }
-                if (amountOfClosingBrackets == amountOfOpenBrackets)
+                if (amountOfClosingBrackets == amountOfOpenBrackets) //Is there the same amount of open brackets as there are closing brackets
+                    //This symbolizes that all nested sets of brackets have been found
                 {
-                    return i;
+                    return i; //Return the idx of the last bracket
                 }
             }
-            return sINPUT.Length - 1;
+            return sINPUT.Length - 1; //No closing bracket was found! just return the end of the string
         }
-
+        /// <summary>
+        /// Deletes the variable as the name specifies
+        /// </summary>
+        /// <param name="input"></param>
         private static void DeleteVariable(string input)
         {
-            List<string> variables = File.ReadAllLines(DataFilePath).ToList();
+            List<string> variables = File.ReadAllLines(DataFilePath).ToList(); //Find a list of all the variables
             var copy = new List<string>();
             foreach (var v in variables)
             {
                 copy.Add(v);
-            }
+            } //Copy the list so that we can iterate through this list while removing items from the other
             foreach (var s in variables)
             {
                 var v = s.Split(',')[0];
-                if (v == input)
+                if (v == input) //Is this the variable we are deleting?
                 {
-                    copy.Remove(s);
+                    copy.Remove(s); //Remove it from the list
                 }
             }
             foreach (var v in copy)
             {
-                PrintColour(v, true);
+                PrintColour(v, true); //Print out the rest of the variables defined
             }
-            File.WriteAllLines(DataFilePath, copy);
+            File.WriteAllLines(DataFilePath, copy); //Write the new variable set to the file
         }
-
+        /// <summary>
+        /// Replaces binary as defined by b_010101  with its corresponding int value
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private static string RemoveBinary(string input)
         {
             char prev = ' ';
-            if (input.Contains("b_"))
+            if (input.Contains("b_")) //Is there binary to remove?
             {
                 for (int i = 0; i < input.Length; i++)
                 {
                     char c = (char)input[i];
-                    if (c == '_' && prev == 'b')
+                    if (prev == 'b' && c == '_') //Are we at the start of the binary??
                     {
-                        string fixedval = input.Substring(0, i-1);
-                        int nextOperaror = NextOperatorIDX_NoLetter(input, i + 1);
-                        string binNum = Convert.ToUInt64(input.Substring(i + 1, nextOperaror - i - 1), 2).ToString();
-                        string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror);
-                        PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat), true);
-                        return RemoveHex(fixedval + binNum + afterThat);
+                        string fixedval = input.Substring(0, i-1); //The statement that came previously to the binary num
+
+                        int nextOperaror = NextOperatorIDX_NoLetter(input, i + 1); //Find the index of the next operator so that we know when the binary statement ends
+                        string binNum = Convert.ToUInt64(input.Substring(i + 1, nextOperaror - i - 1), 2).ToString(); //Find the binary num, convert it to a uint64
+                         
+                        string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror); //Find the trailing characters
+                        PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat), true); //Show the user what has been replaced
+                        return RemoveBinary(fixedval + binNum + afterThat); //There may be more binary to find, so look for that
                     }
                     prev = c;
                 }
