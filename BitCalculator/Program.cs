@@ -423,36 +423,36 @@ namespace DevTools
                 PrintColour("Printing flipped...", true); //Inform the user that the binary outcome is being flipped
             }
 
-            if (userINPUT.Length >= 1 && userINPUT[0] == 'i') //User wants to show binary value as 32i (32 bit uint)
+            if (userINPUT.StartsWith("i")) //User wants to show binary value as 32i (32 bit uint)
             {
                 is32bit = true; //Tell the binary printer to print only 32 bits
                 userINPUT = userINPUT.Substring(1); //Remove the i from the thing being printed
             }
-            else if (userINPUT.Length >= 1 && userINPUT[0] == 's') //User wants to show binary value as 16s (16 bit ushort)
+            else if (userINPUT.StartsWith("s")) //User wants to show binary value as 16s (16 bit ushort)
             {
                 is16bit = true; //Tell the binary printer to only print 16 bits
                 userINPUT = userINPUT.Substring(1); //Remove the s from the thing being printed
             }
-            else if (userINPUT.Length >= 1 && userINPUT[0] == 'b') //User wants to show binary value as 8b (8 bit byte)
+            else if (userINPUT.StartsWith("b")) //User wants to show binary value as 8b (8 bit byte)
             {
                 is8bit = true; //Tell the binary printer to only print 8 bits
                 userINPUT = userINPUT.Substring(1); //Remove the b from the thing being printed
             }
 
-            else if (userINPUT.Length >= 2 && userINPUT[0] == 'h') //User wants to show as hexadecimal?
+            else if (userINPUT.StartsWith("h")) //User wants to show as hexadecimal?
             {
                 userINPUT = userINPUT.Substring(1); //Remove the h from the start
                 PrintHex(ulong.Parse(userINPUT).ToString("X2").ToLower()); //Print the hex value of the users input
                 return;
             }
-            if (userINPUT.Length >= 2 && userINPUT.Substring(0, 2) == "#_") //Converting hex value into ulong?
+            if (userINPUT.StartsWith("#_")) //Converting hex value into ulong?
             {
                 userINPUT = userINPUT.Substring(2);
                 PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false);
                 //Convert from hex to ulong, and print the result
                 return;
             }
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "doum") //Check if the user wants to do doum math
+            if (userINPUT.StartsWith("doum")) //Check if the user wants to do doum math
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
