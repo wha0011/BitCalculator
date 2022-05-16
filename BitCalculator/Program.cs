@@ -580,11 +580,11 @@ namespace DevTools
         public static string RemoveX(string userINPUT)
         {
             userINPUT = ReplaceTempVariables(userINPUT);
-            userINPUT = RemoveTrig(userINPUT);
             userINPUT = RemoveBooleanStatements(userINPUT);
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
             userINPUT = ReplaceVariables(userINPUT);
+            userINPUT = RemoveTrig(userINPUT);
             return userINPUT;
         }
         /// <summary>
@@ -878,8 +878,8 @@ namespace DevTools
         {
             string fixedval = sINPUT.Substring(0, stringIDX - 3); //Find the math that happens before it
             int nextOperaror = ClosingBracket(sINPUT, stringIDX + 1); //The next operator
-            //BUG IF IT INCLUDES E-...
-            string result = sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1); //Find the number between the brackets
+            //BUG IF IT INCLUDES E-...d
+            string result = DoubleRemoveBrackets(sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1)); //Find the number between the brackets
             double calcNum = DegreeToRadian(double.Parse(result)); //Convert it from degrees to radians
             switch (mathAngleType)
             {
