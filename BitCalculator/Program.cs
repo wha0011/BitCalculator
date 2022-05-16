@@ -273,6 +273,8 @@ namespace DevTools
                 return;
             }
             userINPUT = ReplaceTempVariables(userINPUT); //Remove temporarily defined variables
+            userINPUT = RemoveTrig(userINPUT); //Remove the trig functions from the users input
+
             string replaced = ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
@@ -421,8 +423,6 @@ namespace DevTools
                 PrintColour("Printing flipped...", true); //Inform the user that the binary outcome is being flipped
             }
 
-            userINPUT = RemoveTrig(userINPUT); //Remove the trig functions from the users input
-
             if (userINPUT.Length >= 1 && userINPUT[0] == 'i') //User wants to show binary value as 32i (32 bit uint)
             {
                 is32bit = true; //Tell the binary printer to print only 32 bits
@@ -463,6 +463,7 @@ namespace DevTools
                 double d = double.Parse(userINPUT);
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
+                return;
             }
 
             char chosenType = 'u';
