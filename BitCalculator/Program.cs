@@ -198,8 +198,7 @@ namespace DevTools
         public static void MainMethod(string userINPUT)
         {
             userINPUT = RemoveSpaces(userINPUT);
-            userINPUT = RemoveComments(userINPUT); //Remove all 
-
+            userINPUT = RemoveComments(userINPUT);
             #region uservariables
             if (userINPUT.StartsWith("#define")) //Are we defining a variable?
             {
@@ -221,6 +220,8 @@ namespace DevTools
                 DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
+
+            userINPUT = RemoveX(userINPUT);
 
             //Display/show variables
             if (userINPUT == "showfunc") //Show the user defined functions
@@ -272,8 +273,6 @@ namespace DevTools
                 GenerateAlgebra(); //DOES NOT WORK. REQUIRES IMPLEMENTATION
                 return;
             }
-            userINPUT = ReplaceTempVariables(userINPUT); //Remove temporarily defined variables
-            userINPUT = RemoveTrig(userINPUT); //Remove the trig functions from the users input
 
             string replaced = ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
@@ -355,12 +354,6 @@ namespace DevTools
                 HEX_to_RGB(userINPUT); //Convert the hex value into rgb and print the result
                 return;
             }
-            string toreplace = RemoveBooleanStatements(userINPUT); //Remove the boolean statements from the users input
-            //For example 2+2==4?x:y
-            if (toreplace != userINPUT) //Have boolean statements been implemented in the users script?
-            {
-                return; //Result has already been dealt with. Return
-            }
             if (userINPUT.StartsWith("asci(")) //Does the user want to draw ascii art
             {
                 WriteAscii(userINPUT.Substring(5, userINPUT.Length - 6)); //Remove the final bracket from the asci statement
@@ -371,7 +364,6 @@ namespace DevTools
                 BinaryNumASCI.PrintConverted(userINPUT.Substring(6, userINPUT.Length - 7)); //Remove the final bracket from the asci statement
                 return;
             }
-            userINPUT = RemoveHex(userINPUT); //Look for hex the user has typed and replace it with its int value
             if (userINPUT.ToLower() == "help") //Pretty damn well self explanatory
             {
                 PrintHelp();
@@ -394,7 +386,6 @@ namespace DevTools
                 return;
             }
 
-            userINPUT = RemoveBinary(userINPUT); //User can define binary with b_. Replace this with its integer value
             if (userINPUT.StartsWith("avg")) //User wants to get average number of a set
             {
                 PrintColour("Average is: " + Average(userINPUT));
@@ -481,7 +472,6 @@ namespace DevTools
             } //Change the chosen output type depending on the specified bit length
               //Default is 64 bit ulong
 
-            userINPUT = ReplaceVariables(userINPUT); //Remove all custom user variables from the string
             userINPUT = RemoveBrackets(userINPUT, chosenType);
             string booleans = CheckForBooleans(userINPUT, chosenType); //Remove boolean conditions (==,!=,<,>)
             if (booleans == "true" || booleans == "false")
@@ -579,6 +569,16 @@ namespace DevTools
             {
                 return sINPUT;
             }
+        }
+        public static string RemoveX(string userINPUT)
+        {
+            userINPUT = ReplaceTempVariables(userINPUT);
+            userINPUT = RemoveTrig(userINPUT);
+            userINPUT = RemoveBooleanStatements(userINPUT);
+            userINPUT = RemoveHex(userINPUT);
+            userINPUT = RemoveBinary(userINPUT);
+            userINPUT = ReplaceVariables(userINPUT);
+            return userINPUT;
         }
         /// <summary>
         /// Descriptions are marked with ///
