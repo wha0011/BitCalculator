@@ -201,22 +201,22 @@ namespace DevTools
             userINPUT = RemoveComments(userINPUT); //Remove all 
 
             #region uservariables
-            if (userINPUT.Length >= 8 && userINPUT.Substring(0, 7) == "#define") //Are we defining a variable?
+            if (userINPUT.StartsWith("#define")) //Are we defining a variable?
             {
                 DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
-            if (userINPUT.Length >= 8 && userINPUT.Substring(0, 7) == "#defunc")
+            if (userINPUT.StartsWith("#defunc"))
             {
                 DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
-            if (userINPUT.Length >= 8 && userINPUT.Substring(0, 8) == "#delfunc")
+            if (userINPUT.StartsWith("#delfunc"))
             {
                 DeleteFunction(userINPUT.Substring(8)); //Delete the function
                 return;
             }
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "#del")
+            if (userINPUT.StartsWith("#del"))
             {
                 DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
@@ -252,13 +252,13 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "help-") //Show help for specific function. Specified after the -
+            if (userINPUT.StartsWith("help-")) //Show help for specific function. Specified after the -
             {
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
             var resetworkings = false;
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 2) == "nw") //User wants to print with no workings?
+            if (userINPUT.StartsWith("nw")) //User wants to print with no workings?
             {
                 printWorkings = false; //Stop printing workings
                 userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
@@ -283,14 +283,14 @@ namespace DevTools
             }
 
 
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "loop") //User wants to do a loop?
+            if (userINPUT.StartsWith("loop")) //User wants to do a loop?
             {
                 DoLoopFunc(userINPUT); //Do the loop, then exit
                 return;
             }
             #region showdecimals
             //Show value as decimal
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "doub") //User wants to show value as double
+            if (userINPUT.StartsWith("doub")) //User wants to show value as double
             {
                 PrintDouble(DoubleToBin(double.Parse(userINPUT.Substring(4)))); //Print the new double value
                 double userDoubleInput = double.Parse(userINPUT.Substring(4));
@@ -299,7 +299,7 @@ namespace DevTools
                 lastInput = Convert.ToUInt64(bitconv, 2); //Convert the double into a ulong to change last input
                 return;
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "float") //User wants to show value as float
+            if (userINPUT.StartsWith("float")) //User wants to show value as float
             {
                 PrintFloat(FloatToBin(float.Parse(userINPUT.Substring(5)))); //Print the new float value
                 float userFloatInput = float.Parse(userINPUT.Substring(5));
@@ -337,18 +337,18 @@ namespace DevTools
             {
                 return;
             }
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 3) == "var")
+            if (userINPUT.StartsWith("var"))
             {
                 DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
                 return;
             }
             bool noprint = false;
-            if (userINPUT.Length >= 2 && userINPUT.Substring(0, 2) == "np") //Does the user not want to print the binary value of the final result?
+            if (userINPUT.StartsWith("np")) //Does the user not want to print the binary value of the final result?
             {
                 noprint = true; //Tell the binary printer NOT to print
                 userINPUT = userINPUT.Substring(2); //Remove the string "np" from the userINPUT
             }
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "hrgb") //Does the user want to convert a hex value into rgb
+            if (userINPUT.StartsWith("hrgb")) //Does the user want to convert a hex value into rgb
                                                                               //Returns rgb(255,255,255) for #ffffff
             {
                 userINPUT = userINPUT.Substring(4); //Remove the "hrgb" from the calculation
@@ -361,12 +361,12 @@ namespace DevTools
             {
                 return; //Result has already been dealt with. Return
             }
-            if (userINPUT.Length >= 5 && userINPUT.Substring(0, 5) == "asci(") //Does the user want to draw ascii art
+            if (userINPUT.StartsWith("asci(")) //Does the user want to draw ascii art
             {
                 WriteAscii(userINPUT.Substring(5, userINPUT.Length - 6)); //Remove the final bracket from the asci statement
                 return;
             }
-            if (userINPUT.Length >= 6 && userINPUT.Substring(0, 6) == "asib(") //Does the user want to draw snazzy binary ascii art
+            if (userINPUT.StartsWith("asib(")) //Does the user want to draw snazzy binary ascii art
             {
                 BinaryNumASCI.PrintConverted(userINPUT.Substring(6, userINPUT.Length - 7)); //Remove the final bracket from the asci statement
                 return;
@@ -395,7 +395,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveBinary(userINPUT); //User can define binary with b_. Replace this with its integer value
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 3) == "avg") //User wants to get average number of a set
+            if (userINPUT.StartsWith("avg")) //User wants to get average number of a set
             {
                 PrintColour("Average is: " + Average(userINPUT));
                 return;
@@ -411,48 +411,48 @@ namespace DevTools
             bool is32bit = false;
             bool is16bit = false;
             bool is8bit = false;
-            if (userINPUT.Length >= 3 && userINPUT.Substring(0, 3) == "ati") //Weird math thingy. Description in the PrintAti() function
+            if (userINPUT.StartsWith("ati")) //Weird math thingy. Description in the PrintAti() function
             {
                 PrintAti(userINPUT);
                 return;
             }
-            if (userINPUT.Length >= 1 && userINPUT[0] == 'f') //Flipping the binary result?
+            if (userINPUT.StartsWith("f")) //Flipping the binary result?
             {
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
                 userINPUT = userINPUT.Substring(1); //Remove the 'f' from the string
                 PrintColour("Printing flipped...", true); //Inform the user that the binary outcome is being flipped
             }
 
-            if (userINPUT.Length >= 1 && userINPUT[0] == 'i') //User wants to show binary value as 32i (32 bit uint)
+            if (userINPUT.StartsWith("i")) //User wants to show binary value as 32i (32 bit uint)
             {
                 is32bit = true; //Tell the binary printer to print only 32 bits
                 userINPUT = userINPUT.Substring(1); //Remove the i from the thing being printed
             }
-            else if (userINPUT.Length >= 1 && userINPUT[0] == 's') //User wants to show binary value as 16s (16 bit ushort)
+            else if (userINPUT.StartsWith("s")) //User wants to show binary value as 16s (16 bit ushort)
             {
                 is16bit = true; //Tell the binary printer to only print 16 bits
                 userINPUT = userINPUT.Substring(1); //Remove the s from the thing being printed
             }
-            else if (userINPUT.Length >= 1 && userINPUT[0] == 'b') //User wants to show binary value as 8b (8 bit byte)
+            else if (userINPUT.StartsWith("b")) //User wants to show binary value as 8b (8 bit byte)
             {
                 is8bit = true; //Tell the binary printer to only print 8 bits
                 userINPUT = userINPUT.Substring(1); //Remove the b from the thing being printed
             }
 
-            else if (userINPUT.Length >= 2 && userINPUT[0] == 'h') //User wants to show as hexadecimal?
+            else if (userINPUT.StartsWith("h")) //User wants to show as hexadecimal?
             {
                 userINPUT = userINPUT.Substring(1); //Remove the h from the start
                 PrintHex(ulong.Parse(userINPUT).ToString("X2").ToLower()); //Print the hex value of the users input
                 return;
             }
-            if (userINPUT.Length >= 2 && userINPUT.Substring(0, 2) == "#_") //Converting hex value into ulong?
+            if (userINPUT.StartsWith("#_")) //Converting hex value into ulong?
             {
                 userINPUT = userINPUT.Substring(2);
                 PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false);
                 //Convert from hex to ulong, and print the result
                 return;
             }
-            if (userINPUT.Length >= 4 && userINPUT.Substring(0, 4) == "doum") //Check if the user wants to do doum math
+            if (userINPUT.StartsWith("doum")) //Check if the user wants to do doum math
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
