@@ -338,7 +338,14 @@ namespace DevTools
             }
             if (userINPUT.StartsWith("var"))
             {
-                DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
+                try
+                {
+                    DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
+                }
+                catch
+                {
+                    throw new Exception("Could not define variable.\nThis may be because the variable has already been defined. Read documentation to see how to modify a variable");
+                }
                 return;
             }
             bool noprint = false;
