@@ -798,11 +798,11 @@ namespace DevTools
         #region angleconversions
         public static double DegreeToRadian(double angle)
         {
-            return Math.PI * angle / 180.0;
+            return Math.Round(Math.PI * angle / 180.0,6);
         }
         public static double RadianToDegree(double angle)
         {
-            return angle * 180.0 / Math.PI;
+            return Math.Round(angle * 180.0 / Math.PI);
         }
         #endregion
 
@@ -829,76 +829,80 @@ namespace DevTools
                     buffer += c;
                     if (buffer.Contains("arcsin("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 6);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = RadianToDegree(Math.Asin(double.Parse(s))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("arcsin({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.ArcSin);
                     }
                     if (buffer.Contains("arccos("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 6);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = Math.Round(RadianToDegree(Math.Acos(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("arccos({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.ArcCos);
                     }
                     if (buffer.Contains("arctan("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 6);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = (RadianToDegree(Math.Atan(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("arctan({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.ArcTan);
                     }
-
-
-
                     if (buffer.Contains("sin("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 3);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = (Math.Sin(DegreeToRadian(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("sin({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.Sin);
                     }
                     if (buffer.Contains("cos("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 3);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = (Math.Cos(DegreeToRadian(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("cos({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.Cos);
                     }
                     if (buffer.Contains("tan("))
                     {
-                        string fixedval = sINPUT.Substring(0, i - 3);
-                        int nextOperaror = ClosingBracket(sINPUT, i + 1);
-                        string s = sINPUT.Substring(i + 1, nextOperaror - i - 1);
-                        string calcNum = (Math.Tan(DegreeToRadian(double.Parse(s)))).ToString();
-                        string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-                        //PrintColour(string.Format("{0} --> {1}", sINPUT, fixedval + binNum + afterThat));
-                        PrintColour(string.Format("tan({0}) = {1}", s, calcNum), false);
-                        return RemoveTrig(fixedval + calcNum + afterThat);
+                        return CalcTrig(sINPUT, i, MathAngleType.Tan);
                     }
                 }
             }
+
+            PrintColour(sINPUT);
             return sINPUT;
+        }
+        enum MathAngleType
+        {
+            Sin,
+            Cos,
+            Tan,
+            ArcSin,
+            ArcCos,
+            ArcTan,
+        }
+        private static string CalcTrig(string sINPUT, int stringIDX, MathAngleType mathAngleType)
+        {
+            string fixedval = sINPUT.Substring(0, stringIDX - 3); //Find the math that happens before it
+            int nextOperaror = ClosingBracket(sINPUT, stringIDX + 1); //The next operator
+            //BUG IF IT INCLUDES E-...
+            string result = sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1); //Find the number between the brackets
+            double calcNum = DegreeToRadian(double.Parse(result)); //Convert it from degrees to radians
+            switch (mathAngleType)
+            {
+                case MathAngleType.Sin:
+                    calcNum = Math.Sin(calcNum);
+                    break;
+                case MathAngleType.Cos:
+                    calcNum = Math.Cos(calcNum);
+                    break;
+                case MathAngleType.Tan:
+                    calcNum = Math.Tan(calcNum);
+                    break;
+                case MathAngleType.ArcSin:
+                    calcNum = Math.Asin(calcNum);
+                    break;
+                case MathAngleType.ArcCos:
+                    calcNum = Math.Acos(calcNum);
+                    break;
+                case MathAngleType.ArcTan:
+                    calcNum = Math.Atan(calcNum);
+                    break;
+            }
+            calcNum = RadianToDegree(calcNum);
+            string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
+            PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), false);
+            string return_result = fixedval + calcNum + afterThat;
+            if (return_result.Length <= 3 || return_result.Substring(0,4) != "doum")
+            {
+                return_result = return_result.Insert(0,"doum");
+            }
+            return RemoveTrig(return_result);
         }
 
         /// <summary>
