@@ -766,11 +766,27 @@ namespace DevTools
                     if (c == '?')
                     {
                         int lastOperatorIDX = LastOperatorIDX(sINPUT, i - 1);
+                        string after = sINPUT.Substring(NextOperatorIDX(sINPUT, i));
                         string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i - lastOperatorIDX), 'u'), 'u'), 'u'));
                         if (condition == "true")
                         {
-                            string toRun = sINPUT.Substring(i, sINPUT.Length - i).Substring(1);
-                            DoMainMethod(toRun);
+                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            {
+                                before = "";
+                            }
+                            DoMainMethod(before + result + after);
+                        }
+                        else
+                        {
+                            string result = "0";
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            {
+                                before = "";
+                            }
+                            DoMainMethod(before + result + after);
                         }
                         return "";
                     }
@@ -785,16 +801,28 @@ namespace DevTools
                     {
                         int lastOperatorIDX = LastOperatorIDX(sINPUT, i - 1);
                         int nextColonIDX = NextColonIDX(sINPUT, i + 1);
+                        string after = sINPUT.Substring(NextOperatorIDX(sINPUT, nextColonIDX));
+
                         string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i - lastOperatorIDX), 'u'), 'u'), 'u'));
                         if (condition == "true")
                         {
-                            string toRun = sINPUT.Substring(i, nextColonIDX - i).Substring(1);
-                            DoMainMethod(toRun);
+                            string result = sINPUT.Substring(sINPUT.IndexOf('?')+1, sINPUT.IndexOf(':')-sINPUT.IndexOf('?')-1); //Space between the ? and the : is the final condition
+                            string before = sINPUT.Substring(0,LastOperatorIDX(sINPUT, sINPUT.IndexOf("==")-1)+1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            {
+                                before = "";
+                            }
+                            DoMainMethod(before+result+after);
                         }
                         else
                         {
-                            string toRun = sINPUT.Substring(nextColonIDX, sINPUT.Length - nextColonIDX).Substring(1);
-                            DoMainMethod(toRun);
+                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            {
+                                before = "";
+                            }
+                            DoMainMethod(before + result + after);
                         }
                         return "";
                     }
@@ -1441,6 +1469,7 @@ namespace DevTools
                     input[i] == '^' ||
                     input[i] == '&' ||
                     input[i] == '|' ||
+                    input[i] == '=' ||
                     char.IsLetter(input[i]))
                 {
                     return i;
