@@ -1590,7 +1590,6 @@ namespace DevTools
             Console.WriteLine();
             PrintColour("v means previous value                                         Example: v+1");
             PrintColour("adv means print out previous value as double                   Example: adv");
-            PrintColour("bsv means print out previous value as binary                   Example: sv");
             PrintColour("afv means print out previous value as float                    Example: sv");
             PrintColour("rf means to reverse the default flip value.                    Example: rf");
             PrintColour("avg(num1,num2) will print out the average value of a collection of numbers");
