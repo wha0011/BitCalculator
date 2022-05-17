@@ -62,7 +62,7 @@ namespace DevTools
                 {
                     Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
-                    //Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
+                    Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                 }
             }
         }
@@ -200,28 +200,28 @@ namespace DevTools
             userINPUT = RemoveSpaces(userINPUT);
             userINPUT = RemoveComments(userINPUT);
             #region uservariables
-            if (userINPUT.StartsWith("#define")) //Are we defining a variable?
+            if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
                 DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
-            if (userINPUT.StartsWith("#defunc"))
+            if (userINPUT.BeginsWith("#defunc"))
             {
                 DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
-            if (userINPUT.StartsWith("#delfunc"))
+            if (userINPUT.BeginsWith("#delfunc"))
             {
                 DeleteFunction(userINPUT.Substring(8)); //Delete the function
                 return;
             }
-            if (userINPUT.StartsWith("#del"))
+            if (userINPUT.BeginsWith("#del"))
             {
                 DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
             var resetworkings = false;
-            if (userINPUT.StartsWith("nw")) //User wants to print with no workings?
+            if (userINPUT.BeginsWith("nw")) //User wants to print with no workings?
             {
                 printWorkings = false; //Stop printing workings
                 userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
@@ -266,7 +266,7 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT.StartsWith("help-")) //Show help for specific function. Specified after the -
+            if (userINPUT.BeginsWith("help-")) //Show help for specific function. Specified after the -
             {
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
@@ -285,14 +285,14 @@ namespace DevTools
             }
 
 
-            if (userINPUT.StartsWith("loop")) //User wants to do a loop?
+            if (userINPUT.BeginsWith("loop")) //User wants to do a loop?
             {
                 DoLoopFunc(userINPUT); //Do the loop, then exit
                 return;
             }
             #region showdecimals
             //Show value as decimal
-            if (userINPUT.StartsWith("doub")) //User wants to show value as double
+            if (userINPUT.BeginsWith("doub")) //User wants to show value as double
             {
                 PrintDouble(DoubleToBin(double.Parse(userINPUT.Substring(4)))); //Print the new double value
                 double userDoubleInput = double.Parse(userINPUT.Substring(4));
@@ -301,7 +301,7 @@ namespace DevTools
                 lastInput = Convert.ToUInt64(bitconv, 2); //Convert the double into a ulong to change last input
                 return;
             }
-            if (userINPUT.StartsWith("float")) //User wants to show value as float
+            if (userINPUT.BeginsWith("float")) //User wants to show value as float
             {
                 PrintFloat(FloatToBin(float.Parse(userINPUT.Substring(5)))); //Print the new float value
                 float userFloatInput = float.Parse(userINPUT.Substring(5));
@@ -339,7 +339,7 @@ namespace DevTools
             {
                 return;
             }
-            if (userINPUT.StartsWith("var"))
+            if (userINPUT.BeginsWith("var"))
             {
                 try
                 {
@@ -352,26 +352,43 @@ namespace DevTools
                 return;
             }
             bool noprint = false;
-            if (userINPUT.StartsWith("np")) //Does the user not want to print the binary value of the final result?
+            if (userINPUT.BeginsWith("np")) //Does the user not want to print the binary value of the final result?
             {
                 noprint = true; //Tell the binary printer NOT to print
                 userINPUT = userINPUT.Substring(2); //Remove the string "np" from the userINPUT
             }
-            if (userINPUT.StartsWith("hrgb")) //Does the user want to convert a hex value into rgb
+            if (userINPUT.BeginsWith("hrgb")) //Does the user want to convert a hex value into rgb
                                                                               //Returns rgb(255,255,255) for #ffffff
             {
                 userINPUT = userINPUT.Substring(4); //Remove the "hrgb" from the calculation
                 HEX_to_RGB(userINPUT); //Convert the hex value into rgb and print the result
                 return;
             }
-            if (userINPUT.StartsWith("asci(")) //Does the user want to draw ascii art
+            if (userINPUT.BeginsWith("asci")) //Does the user want to draw ascii art
             {
-                WriteAscii(userINPUT.Substring(5, userINPUT.Length - 6)); //Remove the final bracket from the asci statement
+                try
+                {
+                    userINPUT = RemoveBrackets(userINPUT, 'u');
+                }
+                catch
+                {
+
+                }
+                WriteAscii(userINPUT.Substring(4, userINPUT.Length - 4)); //Remove the final bracket from the asci statement
                 return;
             }
-            if (userINPUT.StartsWith("asib(")) //Does the user want to draw snazzy binary ascii art
+            if (userINPUT.BeginsWith("basci")) //Does the user want to draw snazzy binary ascii art
             {
-                BinaryNumASCI.PrintConverted(userINPUT.Substring(6, userINPUT.Length - 7)); //Remove the final bracket from the asci statement
+                try
+                {
+                    userINPUT = RemoveBrackets(userINPUT, 'u');
+                }
+                catch
+                {
+
+                }
+
+                BinaryNumASCI.PrintConverted(userINPUT.Substring(5, userINPUT.Length - 5)); //Remove the final bracket from the asci statement
                 return;
             }
             if (userINPUT.ToLower() == "help") //Pretty damn well self explanatory
@@ -396,7 +413,7 @@ namespace DevTools
                 return;
             }
 
-            if (userINPUT.StartsWith("avg")) //User wants to get average number of a set
+            if (userINPUT.BeginsWith("avg")) //User wants to get average number of a set
             {
                 PrintColour("Average is: " + Average(userINPUT));
                 return;
@@ -412,48 +429,48 @@ namespace DevTools
             bool is32bit = false;
             bool is16bit = false;
             bool is8bit = false;
-            if (userINPUT.StartsWith("ati")) //Weird math thingy. Description in the PrintAti() function
+            if (userINPUT.BeginsWith("ati")) //Weird math thingy. Description in the PrintAti() function
             {
                 PrintAti(userINPUT);
                 return;
             }
-            if (userINPUT.StartsWith("f")) //Flipping the binary result?
+            if (userINPUT.BeginsWith("f")) //Flipping the binary result?
             {
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
                 userINPUT = userINPUT.Substring(1); //Remove the 'f' from the string
                 PrintColour("Printing flipped...", true); //Inform the user that the binary outcome is being flipped
             }
 
-            if (userINPUT.StartsWith("i")) //User wants to show binary value as 32i (32 bit uint)
+            if (userINPUT.BeginsWith("i")) //User wants to show binary value as 32i (32 bit uint)
             {
                 is32bit = true; //Tell the binary printer to print only 32 bits
                 userINPUT = userINPUT.Substring(1); //Remove the i from the thing being printed
             }
-            else if (userINPUT.StartsWith("s")) //User wants to show binary value as 16s (16 bit ushort)
+            else if (userINPUT.BeginsWith("s")) //User wants to show binary value as 16s (16 bit ushort)
             {
                 is16bit = true; //Tell the binary printer to only print 16 bits
                 userINPUT = userINPUT.Substring(1); //Remove the s from the thing being printed
             }
-            else if (userINPUT.StartsWith("b")) //User wants to show binary value as 8b (8 bit byte)
+            else if (userINPUT.BeginsWith("b")) //User wants to show binary value as 8b (8 bit byte)
             {
                 is8bit = true; //Tell the binary printer to only print 8 bits
                 userINPUT = userINPUT.Substring(1); //Remove the b from the thing being printed
             }
 
-            else if (userINPUT.StartsWith("h")) //User wants to show as hexadecimal?
+            else if (userINPUT.BeginsWith("h")) //User wants to show as hexadecimal?
             {
                 userINPUT = userINPUT.Substring(1); //Remove the h from the start
                 PrintHex(ulong.Parse(userINPUT).ToString("X2").ToLower()); //Print the hex value of the users input
                 return;
             }
-            if (userINPUT.StartsWith("#_")) //Converting hex value into ulong?
+            if (userINPUT.BeginsWith("#_")) //Converting hex value into ulong?
             {
                 userINPUT = userINPUT.Substring(2);
                 PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false);
                 //Convert from hex to ulong, and print the result
                 return;
             }
-            if (userINPUT.StartsWith("doum")) //Check if the user wants to do doum math
+            if (userINPUT.BeginsWith("doum")) //Check if the user wants to do doum math
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
@@ -509,7 +526,6 @@ namespace DevTools
                 {
                     if (userINPUT == "") //Process blank
                     {
-                        PrintColour("No value entered", false);
                         return;
                     }
                     PrintColour(UlongToBin(input, flipped), false, true);
@@ -1474,11 +1490,11 @@ namespace DevTools
         public static Dictionary<string, string> tempVariables = new Dictionary<string, string>();
         public static void DefineTempVariable(string variable)
         {
-            string[] strings = variable.Split('=');
+            string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1];
             string variableName = variable.Substring(0, equalsIDX+1);
-            if (variableName.Any(c => !char.IsLetter(c) && c != ' ') || value.Contains(','))
+            if (variableName.Any(c => !char.IsLetter(c) && c != ' '))
             {
                 PrintColour("Invalid", false);
                 return;
@@ -1789,7 +1805,7 @@ namespace DevTools
             PrintColour("This will print out i's value and then show you in binary form what happens when you bitshift left 1 by i");
             PrintColour("asci(\"textvalue\") will print out the \"text value\" in large ascii letters, however, if your sentence is too long then some lines will wrap around and it will no longer look like ascii text");
             PrintColour("                                                               Example: asci(\"cool ascii text\")");
-            PrintColour("In the same format you can use ascib(value) to print numbers out in a binary font");
+            PrintColour("In the same format you can use basci(value) to print numbers out in a binary font");
             Console.WriteLine();
             PrintColour("Seperating functions with semicolons also works for storing previous variables");
             PrintColour("For example:  5==5?2:4;^3");
@@ -1835,30 +1851,39 @@ namespace DevTools
 
         static void DefineVariable(string variable)
         {
-            string[] strings = variable.Split('=');
+            string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length-1;
             string value = strings[1];
             string variableName = variable.Substring(7,equalsIDX-6);
-            if (variableName.Any(c=>!char.IsLetter(c) && c != ' ') || value.Contains(','))
+            if (variableName.Any(c=>!char.IsLetter(c) && c != ' '))
             {
                 PrintColour("Invalid variable name", false);
                 return;
             }
+            List<string> contents = DefineVariableContents(variableName, value);
+            if (contents.All(s=>s.SplitAtFirst(',')[0] != variableName))
+            {
+                contents.Add(string.Format("{0},{1}", variableName, value));
+            }
+            File.WriteAllLines(DataFilePath, contents);
+        }
+        public static List<string> DefineVariableContents(string variableName = "", string value = "")
+        {
             List<string> contents = File.ReadAllLines(DataFilePath).ToList();
             for (int i = 0; i < contents.Count; i++)
             {
                 string s = contents[i];
-                if (s.Split(',')[0] == variableName)
+                string[] args = s.SplitAtFirst(',');
+                if (args[0] == variableName)
                 {
-                    var ss = s.Split(',');
+                    var ss = s.SplitAtFirst(',');
                     ss[1] = value;
                     contents[i] = ss[0] + ',' + ss[1];
                     File.WriteAllLines(DataFilePath, contents);
-                    return;
                 }
             }
-            contents.Add(string.Format("{0},{1}", variableName, value));
-            File.WriteAllLines(DataFilePath, contents);
+
+            return contents;
         }
         static void DefineFunction(string function)
         {
@@ -1932,7 +1957,7 @@ namespace DevTools
             try
             {
                 string i = input;
-                foreach (var s in File.ReadAllLines(DataFilePath).OrderByDescending(s => s.Length))
+                foreach (var s in DefineVariableContents())
                 {
                     if (!s.Contains(','))
                     {
@@ -1941,7 +1966,7 @@ namespace DevTools
                         return "";
                     }
 
-                    var ss = s.Split(',');
+                    var ss = s.SplitAtFirst(',');
                     i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
                 }
                 foreach (var s in File.ReadAllLines(FuncFilePath).OrderByDescending(s => s.Length))
