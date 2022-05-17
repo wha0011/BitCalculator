@@ -164,6 +164,12 @@ namespace DevTools
         }
         public static void DoMainMethod(string userINPUT)
         {
+            if (userINPUT.BeginsWith("help-")) //Show help for specific function. Specified after the -
+            {
+                PrintDescription(userINPUT.Substring(5)); //Print the help
+                return;
+            }
+
             if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc"))
             //Only run multiple functions if function is not a loop or defining a function
             {
@@ -230,6 +236,7 @@ namespace DevTools
                     resetworkings = true; //Change the workings value back to normal when we are done
                 }
             }
+
             userINPUT = RemoveX(userINPUT);
             if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
@@ -265,11 +272,6 @@ namespace DevTools
             if (userINPUT == "exit" || userINPUT == "quit") //close the app?
             {
                 Environment.Exit(0);
-            }
-            if (userINPUT.BeginsWith("help-")) //Show help for specific function. Specified after the -
-            {
-                PrintDescription(userINPUT.Substring(5)); //Print the help
-                return;
             }
             if (userINPUT == "alg") //Generate algebra
             {
@@ -614,24 +616,50 @@ namespace DevTools
         /// <summary>
         /// Descriptions are marked with ///
         /// This function prints the descriptions to the console
+        /// 
+        /// Mark with ** where you want things to be recognised as normal commands
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
+        enum PrintType
+        {
+            Comment,
+            Command,
+        }
         private static string ShowDescription(string sINPUT)
         {
+            sINPUT = Regex.Replace(sINPUT, @"<new>", "\n"); //Replace all \n with new lines
+
             if (sINPUT.Contains(@"///"))
             {
                 string comment = sINPUT.Substring(sINPUT.IndexOf(@"///") + 3); //Find the end of the first ///. +3 to get to the end of the "///"
-                List<string> toprint = new List<string>();
+                List<Comment> toprint = new List<Comment>();
                 string buffer = "";
-                foreach (var c in comment)
+                bool lookingForAsterix = false;
+                for (int i = 0; i < comment.Length; i++)
                 {
+                    char c = comment[i];
                     if (c == '\\') //Is it a \
                                    //Uses \\, but is really looking for \
                     {
-                        toprint.Add(buffer); //End of the description is marked with a \. Print the buffer and reset
+                        toprint.Add(new Comment(buffer, PrintType.Comment)); //Add this as being normal
                         buffer = "";
                         break; //UNTESTED IMPROVEMENT
+                    }
+                    else if (c == '*') //Asterix shows we want to print out as code
+                    {
+                        if (lookingForAsterix) //Are we looking for the ending asterix?
+                        {
+                            toprint.Add(new Comment(buffer, PrintType.Command)); //Add this as being code
+                            lookingForAsterix = false;
+                            buffer = "";
+                        }
+                        else
+                        {
+                            toprint.Add(new Comment(buffer, PrintType.Comment)); //Add this as being normal
+                            lookingForAsterix = true;
+                            buffer = "";
+                        }
                     }
                     else
                     {
@@ -643,13 +671,32 @@ namespace DevTools
                         }
                     }
                 }
-                toprint.Add(buffer);
-                foreach (var s in toprint)
+                foreach (var c in toprint)
                 {
-                    Colorful.Console.WriteLine(s, Color.Beige); //Write all the comments through the console
+                    switch (c.printType)
+                    {
+                        case PrintType.Comment:
+                            Colorful.Console.Write(c.s, Color.Beige);
+                            break;
+                        case PrintType.Command:
+                            PrintColour(c.s, false, false, false);
+                            break;
+                    }
                 }
+                Console.WriteLine();
             }
             return sINPUT;
+        }
+        struct Comment
+        {
+            public string s;
+            public PrintType printType;
+
+            public Comment(string s, PrintType printType)
+            {
+                this.s = s;
+                this.printType = printType;
+            }
         }
         /// <summary>
         /// Runs a custom system function ran()
@@ -1160,7 +1207,7 @@ namespace DevTools
         /// <param name="v"></param>
         /// <param name="workings"></param>
         /// <param name="isBin"></param>
-        public static void PrintColour(string v, bool workings = false, bool isBin = false)
+        public static void PrintColour(string v, bool workings = false, bool isBin = false, bool writeline = true)
         {
             if (workings && printWorkings == false)
             {
@@ -1213,7 +1260,10 @@ namespace DevTools
                     }
                 }
             }
-            Colorful.Console.WriteLine();
+            if (writeline)
+            {
+                Colorful.Console.WriteLine();
+            }
         }
         public static bool printWorkings = true;
         public static bool IsOperator(char c)
@@ -1606,6 +1656,18 @@ namespace DevTools
             return 0;
         }
 
+        private static int LastAsterixIDX(string input, int currIDX)
+        {
+            for (int i = currIDX; i > -1; --i)
+            {
+                if (input[i] == '*')
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         private static int LastNegOperatorIDX(string input, int currIDX)
         {
             for (int i = currIDX; i > -1; --i)
@@ -1933,8 +1995,26 @@ namespace DevTools
         static void PrintDescription(string name)
         {
             var prev = File.ReadAllLines(FuncFilePath).ToList();
-            foreach (var s in prev)
+            var nextidx = 0;
+            for (int i = 0; i < prev.Count; i++)
             {
+                string? s = prev[i];
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    nextidx = i + 1;
+                    break;
+                }
+                var bracketidx = s.IndexOf('(');
+                var substr = s.Substring(0, bracketidx);
+                if (substr == name) //Already defined function
+                {
+                    ShowDescription(s);
+                }
+            }
+            for (int i = nextidx; i < prev.Count; i++)
+            {
+                string? s = prev[i];
+
                 var bracketidx = s.IndexOf('(');
                 var substr = s.Substring(0, bracketidx);
                 if (substr == name) //Already defined function
@@ -1977,8 +2057,8 @@ namespace DevTools
                     }
                     if (!s.Contains('('))
                     {
-                        File.WriteAllText(FuncFilePath, "");
-                        PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                        File.WriteAllText(FuncFilePath, Help.defaultfuncs);
+                        PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
                         return "";
                     }
                     var name = s.Split('(')[0];
