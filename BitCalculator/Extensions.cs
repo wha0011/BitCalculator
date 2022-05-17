@@ -9,6 +9,11 @@ namespace DevTools
     {
         public static bool BeginsWith(this string s, string start)
         {
+            if(s == "")
+            {
+                return false;
+            }
+
             if (s.Length >= start.Length && s.Substring(0,start.Length) == start)
             {
                 return true;

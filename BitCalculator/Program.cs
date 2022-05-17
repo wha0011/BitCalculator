@@ -62,7 +62,7 @@ namespace DevTools
                 {
                     Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
-                    //Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
+                    Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                 }
             }
         }
@@ -526,7 +526,6 @@ namespace DevTools
                 {
                     if (userINPUT == "") //Process blank
                     {
-                        PrintColour("No value entered", false);
                         return;
                     }
                     PrintColour(UlongToBin(input, flipped), false, true);
