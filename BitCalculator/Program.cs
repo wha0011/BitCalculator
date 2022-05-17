@@ -220,8 +220,21 @@ namespace DevTools
                 DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
-
+            var resetworkings = false;
+            if (userINPUT.StartsWith("nw")) //User wants to print with no workings?
+            {
+                printWorkings = false; //Stop printing workings
+                userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
+                if (!resetworkings)
+                {
+                    resetworkings = true; //Change the workings value back to normal when we are done
+                }
+            }
             userINPUT = RemoveX(userINPUT);
+            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+            {
+                return;
+            }
 
             //Display/show variables
             if (userINPUT == "showfunc") //Show the user defined functions
@@ -257,16 +270,6 @@ namespace DevTools
             {
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
-            }
-            var resetworkings = false;
-            if (userINPUT.StartsWith("nw")) //User wants to print with no workings?
-            {
-                printWorkings = false; //Stop printing workings
-                userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
-                if (!resetworkings)
-                {
-                    resetworkings = true; //Change the workings value back to normal when we are done
-                }
             }
             if (userINPUT == "alg") //Generate algebra
             {
@@ -580,11 +583,16 @@ namespace DevTools
         public static string RemoveX(string userINPUT)
         {
             userINPUT = ReplaceTempVariables(userINPUT);
-            userINPUT = RemoveBooleanStatements(userINPUT);
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
             userINPUT = ReplaceVariables(userINPUT);
             userINPUT = RemoveTrig(userINPUT);
+
+            userINPUT = RemoveBooleanStatements(userINPUT);
+            if (userINPUT == "CLOSE_CONDITION_PROCESSED")
+            {
+                return userINPUT;
+            }
             return userINPUT;
         }
         /// <summary>
@@ -765,14 +773,28 @@ namespace DevTools
                     char c = sINPUT[i];
                     if (c == '?')
                     {
-                        int lastOperatorIDX = LastOperatorIDX(sINPUT, i - 1);
-                        string after = sINPUT.Substring(NextOperatorIDX(sINPUT, i));
-                        string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i - lastOperatorIDX), 'u'), 'u'), 'u'));
-                        if (condition == "true")
+                        int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
+                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i));
+                        string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
+
+                        string conditionResult;
+                        if (printWorkings == true)
+                        {
+                            printWorkings = false;
+                            conditionResult = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                            printWorkings = true;
+                        }
+                        else
+                        {
+                            conditionResult = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                        }
+
+                        PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult), true);
+                        if (conditionResult == "true")
                         {
                             string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
-                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
-                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
                             }
@@ -781,14 +803,14 @@ namespace DevTools
                         else
                         {
                             string result = "0";
-                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
-                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
                             }
                             DoMainMethod(before + result + after);
                         }
-                        return "";
+                        return "CLOSE_CONDITION_PROCESSED";
                     }
                 }
             }
@@ -799,16 +821,31 @@ namespace DevTools
                     char c = sINPUT[i];
                     if (c == '?')
                     {
-                        int lastOperatorIDX = LastOperatorIDX(sINPUT, i - 1);
+                        int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
                         int nextColonIDX = NextColonIDX(sINPUT, i + 1);
-                        string after = sINPUT.Substring(NextOperatorIDX(sINPUT, nextColonIDX));
+                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, nextColonIDX));
 
-                        string condition = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(sINPUT.Substring(lastOperatorIDX, i - lastOperatorIDX), 'u'), 'u'), 'u'));
-                        if (condition == "true")
+                        string conditionResult = "";
+                        string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
+
+                        if (printWorkings == true)
+                        {
+                            printWorkings = false;
+                            conditionResult = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                            printWorkings = true;
+                        }
+                        else
+                        {
+                            conditionResult = RemoveHex(RemoveBrackets(BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                        }
+                        PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult),true);
+
+
+                        if (conditionResult == "true")
                         {
                             string result = sINPUT.Substring(sINPUT.IndexOf('?')+1, sINPUT.IndexOf(':')-sINPUT.IndexOf('?')-1); //Space between the ? and the : is the final condition
-                            string before = sINPUT.Substring(0,LastOperatorIDX(sINPUT, sINPUT.IndexOf("==")-1)+1);
-                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            string before = sINPUT.Substring(0,LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition()-1)+1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
                             }
@@ -816,15 +853,15 @@ namespace DevTools
                         }
                         else
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
-                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOf("==") - 1) + 1);
-                            if (sINPUT[NextOperatorIDX(sINPUT, 0)] == '=') //First operator is the boolean statement?
+                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
+                            string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
+                            if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
                             }
                             DoMainMethod(before + result + after);
                         }
-                        return "";
+                        return "CLOSE_CONDITION_PROCESSED";
                     }
                 }
             }
@@ -1499,6 +1536,27 @@ namespace DevTools
             }
             return input.Length;
         }
+
+        private static int NextOperatorIDX_NoLetter_NoBrackets(string input, int currIDX)
+        {
+            for (int i = currIDX; i < input.Length; i++)
+            {
+                if (input[i] == '<' ||
+                    input[i] == '>' ||
+                    input[i] == '+' ||
+                    input[i] == '-' ||
+                    input[i] == '*' ||
+                    input[i] == '/' ||
+                    input[i] == '^' ||
+                    input[i] == '&' ||
+                    input[i] == '|' ||
+                    input[i] == ',')
+                {
+                    return i;
+                }
+            }
+            return input.Length;
+        }
         private static int NextColonIDX(string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
@@ -1530,6 +1588,25 @@ namespace DevTools
                 }
             }
             return 0;
+        }
+
+        private static int LastNegOperatorIDX(string input, int currIDX)
+        {
+            for (int i = currIDX; i > -1; --i)
+            {
+                if (input[i] == '+' ||
+                    input[i] == '-' ||
+                    input[i] == '*' ||
+                    input[i] == '/' ||
+                    input[i] == '^' ||
+                    input[i] == '&' ||
+                    input[i] == '|' ||
+                    char.IsLetter(input[i]))
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         public static string DoubleToBin(double input, bool flipped = false)
