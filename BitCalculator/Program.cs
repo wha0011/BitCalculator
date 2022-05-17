@@ -1988,7 +1988,7 @@ namespace DevTools
                         int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
                         replacestring = replacestring.Substring(closingBracketidx + 1);
 
-                        string[] values = i.Substring(name.Length + 1, closingBracketidx - name.Length - 1).Split(',');
+                        string[] values = i.Substring(name.Length + 1, ClosingBracket(i, name.Length + 1) - name.Length - 1).Split(',');
                         string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
                         Dictionary<string, int> variableValues = new Dictionary<string, int>();
                         //Iterate through here and add the variable values to the variable names
