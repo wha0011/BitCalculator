@@ -7,11 +7,17 @@ namespace DevTools
 {
     public static class Extensions
     {
-        public static bool StartsWith(this string s, string start)
+        public static bool BeginsWith(this string s, string start)
         {
             if (s.Length >= start.Length && s.Substring(0,start.Length) == start)
             {
                 return true;
+            }
+
+            if (s[0] == '(') //Starts with can include if it starts with a bracket, then the term
+            {
+                s = s.Substring(1);
+                return s.BeginsWith(start);
             }
             return false;
         }
