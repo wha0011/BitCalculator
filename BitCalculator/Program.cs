@@ -364,14 +364,31 @@ namespace DevTools
                 HEX_to_RGB(userINPUT); //Convert the hex value into rgb and print the result
                 return;
             }
-            if (userINPUT.BeginsWith("asci(")) //Does the user want to draw ascii art
+            if (userINPUT.BeginsWith("asci")) //Does the user want to draw ascii art
             {
-                WriteAscii(userINPUT.Substring(5, userINPUT.Length - 6)); //Remove the final bracket from the asci statement
+                try
+                {
+                    userINPUT = RemoveBrackets(userINPUT, 'u');
+                }
+                catch
+                {
+
+                }
+                WriteAscii(userINPUT.Substring(4, userINPUT.Length - 4)); //Remove the final bracket from the asci statement
                 return;
             }
-            if (userINPUT.BeginsWith("asib(")) //Does the user want to draw snazzy binary ascii art
+            if (userINPUT.BeginsWith("basci")) //Does the user want to draw snazzy binary ascii art
             {
-                BinaryNumASCI.PrintConverted(userINPUT.Substring(6, userINPUT.Length - 7)); //Remove the final bracket from the asci statement
+                try
+                {
+                    userINPUT = RemoveBrackets(userINPUT, 'u');
+                }
+                catch
+                {
+
+                }
+
+                BinaryNumASCI.PrintConverted(userINPUT.Substring(5, userINPUT.Length - 5)); //Remove the final bracket from the asci statement
                 return;
             }
             if (userINPUT.ToLower() == "help") //Pretty damn well self explanatory
@@ -1789,7 +1806,7 @@ namespace DevTools
             PrintColour("This will print out i's value and then show you in binary form what happens when you bitshift left 1 by i");
             PrintColour("asci(\"textvalue\") will print out the \"text value\" in large ascii letters, however, if your sentence is too long then some lines will wrap around and it will no longer look like ascii text");
             PrintColour("                                                               Example: asci(\"cool ascii text\")");
-            PrintColour("In the same format you can use ascib(value) to print numbers out in a binary font");
+            PrintColour("In the same format you can use basci(value) to print numbers out in a binary font");
             Console.WriteLine();
             PrintColour("Seperating functions with semicolons also works for storing previous variables");
             PrintColour("For example:  5==5?2:4;^3");
@@ -1845,7 +1862,7 @@ namespace DevTools
                 return;
             }
             List<string> contents = DefineVariableContents(variableName, value);
-            if (!contents.All(s=>s.SplitAtFirst(',')[0] != variableName))
+            if (contents.All(s=>s.SplitAtFirst(',')[0] != variableName))
             {
                 contents.Add(string.Format("{0},{1}", variableName, value));
             }
