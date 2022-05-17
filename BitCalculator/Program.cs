@@ -792,7 +792,7 @@ namespace DevTools
                         PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult), true);
                         if (conditionResult == "true")
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
+                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
                             string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
