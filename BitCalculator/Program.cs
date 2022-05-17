@@ -1835,30 +1835,39 @@ namespace DevTools
 
         static void DefineVariable(string variable)
         {
-            string[] strings = variable.Split('=');
+            string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length-1;
             string value = strings[1];
             string variableName = variable.Substring(7,equalsIDX-6);
-            if (variableName.Any(c=>!char.IsLetter(c) && c != ' ') || value.Contains(','))
+            if (variableName.Any(c=>!char.IsLetter(c) && c != ' '))
             {
                 PrintColour("Invalid variable name", false);
                 return;
             }
+            List<string> contents = DefineVariableContents(variableName, value);
+            if (!contents.All(s=>s.SplitAtFirst(',')[0] != variableName))
+            {
+                contents.Add(string.Format("{0},{1}", variableName, value));
+            }
+            File.WriteAllLines(DataFilePath, contents);
+        }
+        public static List<string> DefineVariableContents(string variableName = "", string value = "")
+        {
             List<string> contents = File.ReadAllLines(DataFilePath).ToList();
             for (int i = 0; i < contents.Count; i++)
             {
                 string s = contents[i];
-                if (s.Split(',')[0] == variableName)
+                string[] args = s.SplitAtFirst(',');
+                if (args[0] == variableName)
                 {
-                    var ss = s.Split(',');
+                    var ss = s.SplitAtFirst(',');
                     ss[1] = value;
                     contents[i] = ss[0] + ',' + ss[1];
                     File.WriteAllLines(DataFilePath, contents);
-                    return;
                 }
             }
-            contents.Add(string.Format("{0},{1}", variableName, value));
-            File.WriteAllLines(DataFilePath, contents);
+
+            return contents;
         }
         static void DefineFunction(string function)
         {
@@ -1932,7 +1941,7 @@ namespace DevTools
             try
             {
                 string i = input;
-                foreach (var s in File.ReadAllLines(DataFilePath).OrderByDescending(s => s.Length))
+                foreach (var s in DefineVariableContents())
                 {
                     if (!s.Contains(','))
                     {
@@ -1941,7 +1950,7 @@ namespace DevTools
                         return "";
                     }
 
-                    var ss = s.Split(',');
+                    var ss = s.SplitAtFirst(',');
                     i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
                 }
                 foreach (var s in File.ReadAllLines(FuncFilePath).OrderByDescending(s => s.Length))

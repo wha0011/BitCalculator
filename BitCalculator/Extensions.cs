@@ -36,5 +36,18 @@ namespace DevTools
             }
             return false;
         }
+
+        public static string[] SplitAtFirst(this string s, char c)
+        {
+            if (!s.Contains(c))
+            {
+                return new string[1] { s};
+            }
+
+            var after = s.Substring(s.IndexOf(c)+1);
+            var before = s.Substring(0,s.IndexOf(c));
+
+            return new string[] {before,after};
+        }
     }
 }
