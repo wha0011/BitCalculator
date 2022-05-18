@@ -933,11 +933,11 @@ namespace DevTools
         #region angleconversions
         public static double DegreeToRadian(double angle)
         {
-            return Math.Round(Math.PI * angle / 180.0,6);
+            return angle * (Math.PI / 180.0);
         }
         public static double RadianToDegree(double angle)
         {
-            return Math.Round(angle * 180.0 / Math.PI);
+            return angle * (180.0 / Math.PI);
         }
         #endregion
 
@@ -1029,10 +1029,14 @@ namespace DevTools
                     calcNum = Math.Atan(calcNum);
                     break;
             }
-            calcNum = RadianToDegree(calcNum);
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
             PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), false);
             string return_result = fixedval + calcNum + afterThat;
+
+            if (return_result.StartsWith("arc")) //Was this an arc operation?
+            {
+                return_result = return_result.Substring(3); //Remove it
+            }
             if (return_result.Length <= 3 || return_result.Substring(0,4) != "doum")
             {
                 return_result = return_result.Insert(0,"doum");
