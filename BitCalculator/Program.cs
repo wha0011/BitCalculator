@@ -162,7 +162,7 @@ namespace DevTools
             }
             return result;
         }
-        public static void DoMainMethod(string userINPUT)
+        public static void DoMainMethod(string userINPUT, bool removeSpaces = true)
         {
             if (userINPUT.BeginsWith("help-")) //Show help for specific function. Specified after the -
             {
@@ -175,7 +175,7 @@ namespace DevTools
             {
                 foreach (var s in userINPUT.Split(';')) //Split up the different user commands
                 {
-                    MainMethod(s); //Run the main method on them
+                    MainMethod(s, removeSpaces); //Run the main method on them
                 }
             }
             else
@@ -186,11 +186,11 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
-                        MainMethod(str);
+                        MainMethod(str, removeSpaces);
                     }
                     userINPUT = userINPUT.Substring(beforeLoop.Length); //Remove the previous statements from the userinputs
                 }
-                MainMethod(userINPUT); //Run the mainmethod, with the changed length, or unmodified if there were no previous statements
+                MainMethod(userINPUT, removeSpaces); //Run the mainmethod, with the changed length, or unmodified if there were no previous statements
             }
         }
         /// <summary>
@@ -201,10 +201,13 @@ namespace DevTools
         {
             Colorful.Console.WriteAsciiStyled(text, new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
         }
-        public static void MainMethod(string userINPUT)
+        public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
-            userINPUT = RemoveSpaces(userINPUT);
-            userINPUT = RemoveComments(userINPUT);
+            if (removeSpaces)
+            {
+                userINPUT = RemoveSpaces(userINPUT);
+                userINPUT = RemoveComments(userINPUT);
+            }
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
@@ -860,7 +863,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         else
                         {
@@ -870,7 +873,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         return "CLOSE_CONDITION_PROCESSED";
                     }
@@ -911,7 +914,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before+result+after);
+                            DoMainMethod(before+result+after, false);
                         }
                         else
                         {
@@ -921,7 +924,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         return "CLOSE_CONDITION_PROCESSED";
                     }
@@ -2511,7 +2514,7 @@ namespace DevTools
                 {
                     return "true";
                 }
-                                else
+                else
                 {
                     return "false";
                 }
