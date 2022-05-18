@@ -2060,7 +2060,7 @@ namespace DevTools
                     }
                     if (!s.Contains('('))
                     {
-                        File.WriteAllText(FuncFilePath, Help.defaultfuncs);
+                        File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS);
                         PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
                         return "";
                     }
