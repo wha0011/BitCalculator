@@ -563,6 +563,10 @@ namespace DevTools
             ulong total = 1;
             foreach (var c in userINPUT.ToUpper())
             {
+                if (c == '(' || c== ')')
+                {
+                    continue; //Ignore all brackets
+                }
                 if (alphabet.ToList().IndexOf(c) == -1) //Not in alphabet? Continue to next element
                 {
                     Colorful.Console.WriteLine(string.Format("Character: {0} not in alphabet. Disregarded in calculation", c)
@@ -663,12 +667,7 @@ namespace DevTools
                     }
                     else
                     {
-                        if (!(buffer == "" && c == 'n' && toprint.Count() != 0))
-                        //Character n seems to mean something
-                        //Requires investigation
-                        {
-                            buffer += c;
-                        }
+                        buffer += c;
                     }
                 }
                 foreach (var c in toprint)
@@ -2049,11 +2048,15 @@ namespace DevTools
                     var ss = s.SplitAtFirst(',');
                     i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
                 }
-                foreach (var s in File.ReadAllLines(FuncFilePath).OrderByDescending(s => s.Length))
+                foreach (var s in File.ReadAllLines(FuncFilePath))
                 {
                     if (s == "")
                     {
                         continue;
+                    }
+                    if (s == "SYSTEM FUNCTIONS:")
+                    {
+                        break;
                     }
                     if (!s.Contains('('))
                     {
