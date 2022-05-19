@@ -18,7 +18,7 @@ namespace DevTools
                                           + @"dtv()///Type in plain text, with no other functions *dtv* and it will show you all the *var*'s that you have.\\\" + "\n"
                                           + @"exit()///Closes the application\\\" + "\n"
                                           + @"quit()///Closes the application\\\" + "\n"
-                                          + @"alg()///Generates and solves an algebraic expression\\\" + "\n"
+                                          + @"alg()///Can be used to factorise an algebraic expression.<new>For example, the equation *6x² - 11x - 7* can be solved with *alg(6,-11,-7)<new>This is a standalone function. Does not work with others*\\\" + "\n"
                                           + @"v()///After you type in a command, for example *100+100*, whatever the result is will be replaced with *v*<new>For example, if your next line of code was *7+v*, this would print out *207*<new>v is y default put at the start of a statement.<new>For example, if you just typed *<<2*, that would be replaced by *v<<2*, which would be replaced with *207<<2*\\\" + "\n"
                                           + @"doub()///Shows a value as a double, including binary output.<new>For example, *doum 6.7764* will show you how a double value of *6.7764* is stored in binary\\\" + "\n"
                                           + @"float()///Shows a value as a float, including binary output.<new>For example, *float 6.7764* will show you how a float value of *6.7764* is stored in binary\\\" + "\n"
