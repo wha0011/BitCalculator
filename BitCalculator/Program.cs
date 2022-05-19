@@ -162,7 +162,7 @@ namespace DevTools
             }
             return result;
         }
-        public static void DoMainMethod(string userINPUT)
+        public static void DoMainMethod(string userINPUT, bool removeSpaces = true)
         {
             if (userINPUT.BeginsWith("help-")) //Show help for specific function. Specified after the -
             {
@@ -175,7 +175,7 @@ namespace DevTools
             {
                 foreach (var s in userINPUT.Split(';')) //Split up the different user commands
                 {
-                    MainMethod(s); //Run the main method on them
+                    MainMethod(s, removeSpaces); //Run the main method on them
                 }
             }
             else
@@ -186,11 +186,11 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
-                        MainMethod(str);
+                        MainMethod(str, removeSpaces);
                     }
                     userINPUT = userINPUT.Substring(beforeLoop.Length); //Remove the previous statements from the userinputs
                 }
-                MainMethod(userINPUT); //Run the mainmethod, with the changed length, or unmodified if there were no previous statements
+                MainMethod(userINPUT, removeSpaces); //Run the mainmethod, with the changed length, or unmodified if there were no previous statements
             }
         }
         /// <summary>
@@ -201,10 +201,90 @@ namespace DevTools
         {
             Colorful.Console.WriteAsciiStyled(text, new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
         }
-        public static void MainMethod(string userINPUT)
+        public static string FactoriseCrissCross(int first, int second, int c, bool write = true)
         {
-            userINPUT = RemoveSpaces(userINPUT);
-            userINPUT = RemoveComments(userINPUT);
+            foreach (var factor in GetFactors(first))
+            {
+                int topleft = factor;
+                int bottomleft = first / factor;
+                foreach (var factor2 in GetFactors(c))
+                {
+                    int topright = factor2;
+                    int bottomright = c / factor2;
+                    if (bottomleft * topright + topleft * bottomright == second)
+                    {
+                        string co1 = topleft == 1 ? "" : topleft.ToString();
+                        string co2 = bottomleft == 1 || bottomleft == -1 ? "" : bottomleft.ToString();
+
+                        co1 = topleft == -1 ? "-" : co1;
+                        co2 = bottomleft == -1 ? "-" : co2;
+                        if (write == true)
+                        {
+                            string s_topleft = topleft.ToString();
+                            string s_topright = topright.ToString();
+                            s_topright = s_topright[0] == '-' ? s_topright : s_topright.Insert(0,"+");
+
+                            string s_bottomleft = bottomleft.ToString();
+                            string s_bottomright = bottomright.ToString();
+                            s_bottomright = s_bottomright[0] == '-' ? s_bottomright : s_bottomright.Insert(0, "+");
+
+
+                            Console.WriteLine(string.Format("({0}x{1})({2}x{3})", s_topleft,s_topright, s_bottomleft, s_bottomright));
+                        }
+                        /**
+                         * 3    5
+                         *   --
+                         * 4    5
+                         * */
+                        return string.Format("({0}x {4} {1})({2}x {5} {3})", co1, Math.Abs(topright), co2, Math.Abs(bottomright), topright >= 0 ? "+" : "-", bottomright >= 0 ? "+" : "-");
+                    }
+                }
+            }
+            return "";
+        }
+        static IEnumerable<int> GetFactors(int n)
+        {
+            for (int i = 1; i <= Math.Abs(n); ++i)
+            {
+                if (n % i == 0)
+                {
+                    yield return i;
+                    yield return -i;
+                }
+            }
+        }
+        public static bool VariableExists(string name)
+        {
+            foreach (var line in DefineVariableContents())
+            {
+                if (line.Split(',')[0] == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            foreach (var line in File.ReadAllLines(FuncFilePath))
+            {
+                if (line.Split('(')[0] == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            foreach (var variable in tempVariables.Keys)
+            {
+                if (variable == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static void MainMethod(string userINPUT, bool removeSpaces = true)
+        {
+            if (removeSpaces)
+            {
+                userINPUT = RemoveSpaces(userINPUT);
+                userINPUT = RemoveComments(userINPUT);
+            }
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
@@ -273,9 +353,12 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT == "alg") //Generate algebra
+            if (userINPUT.StartsWith("alg")) //Generate algebra
             {
-                GenerateAlgebra(); //DOES NOT WORK. REQUIRES IMPLEMENTATION
+                userINPUT = userINPUT.Substring(4);
+                userINPUT = userINPUT.Substring(0,userINPUT.Length-1); //Remove brackets
+                int[] nums = userINPUT.Split(',').Select(s=>int.Parse(s)).ToArray();
+                FactoriseCrissCross(nums[0], nums[1], nums[2]);
                 return;
             }
 
@@ -398,14 +481,18 @@ namespace DevTools
                 PrintHelp();
                 return;
             }
-            if (userINPUT.ToLower() == "pnw") //Change the default value for printing workings or not
+            if (userINPUT.StartsWith("pw")) //Change the default value for printing workings or not
             {
-                printWorkings = !printWorkings;
+                string value = userINPUT.Substring(3); //Remove start bracket
+                value = value.Substring(0,value.Length-1); //Removing ending bracket
+                printWorkings = bool.Parse(value);
                 return;
             }
-            if (userINPUT.ToLower() == "fnpw") //Change the value for printing workings of not.. Write it to a file
+            if (userINPUT.ToLower() == "fpw") //Change the value for printing workings of not.. Write it to a file
             {
-                printWorkings = !printWorkings;
+                string value = userINPUT.Substring(4); //Remove start bracket
+                value = value.Substring(0, value.Length - 1); //Removing ending bracket
+                printWorkings = bool.Parse(value);
                 File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
                 return;
             }
@@ -860,7 +947,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         else
                         {
@@ -870,7 +957,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         return "CLOSE_CONDITION_PROCESSED";
                     }
@@ -911,7 +998,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before+result+after);
+                            DoMainMethod(before+result+after, false);
                         }
                         else
                         {
@@ -921,7 +1008,7 @@ namespace DevTools
                             {
                                 before = "";
                             }
-                            DoMainMethod(before + result + after);
+                            DoMainMethod(before + result + after, false);
                         }
                         return "CLOSE_CONDITION_PROCESSED";
                     }
@@ -1269,6 +1356,10 @@ namespace DevTools
             }
         }
         public static bool printWorkings = true;
+        public static void PrintError(string errorMessage)
+        {
+            Colorful.Console.WriteLine(errorMessage, Color.Red);
+        }
         public static bool IsOperator(char c)
         {
             return c switch
@@ -1549,7 +1640,12 @@ namespace DevTools
             string variableName = variable.Substring(0, equalsIDX+1);
             if (variableName.Any(c => !char.IsLetter(c) && c != ' '))
             {
-                PrintColour("Invalid", false);
+                PrintError("Invalid variable name");
+                return;
+            }
+            if (VariableExists(variableName))
+            {
+                PrintError("Variable is already defined");
                 return;
             }
             tempVariables.Add(variableName, value);
@@ -1830,9 +1926,14 @@ namespace DevTools
             int equalsIDX = strings[0].Length-1;
             string value = strings[1];
             string variableName = variable.Substring(7,equalsIDX-6);
-            if (variableName.Any(c=>!char.IsLetter(c) && c != ' '))
+            if (variableName.Any(c=>!char.IsLetter(c) && c != ' ') )
             {
                 PrintColour("Invalid variable name", false);
+                return;
+            }
+            if (VariableExists(variableName))
+            {
+                PrintError("Variable is already defined");
                 return;
             }
             List<string> contents = DefineVariableContents(variableName, value);
@@ -1866,6 +1967,11 @@ namespace DevTools
 
             var prev = File.ReadAllLines(FuncFilePath).ToList();
             var name = function.Substring(0, function.IndexOf('('));
+            if (VariableExists(name))
+            {
+                PrintError("Variable is already defined");
+                return;
+            }
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
@@ -2346,59 +2452,6 @@ namespace DevTools
             return "0";
         }
         static string prevanswer = "";
-        /// <summary>
-        /// DOES NOT WORK
-        /// DO NOT IMPLEMENT
-        /// </summary>
-        private static void GenerateAlgebra()
-        {
-            Random r = new Random();
-            var first = r.Next(-8,8);
-            var second = r.Next(-8,8);
-            if (first == 0)
-            {
-                first = 1;
-            }
-            if (second == 0)
-            {
-                second = 5;
-            }
-            if (first+second == 0)
-            {
-                GenerateAlgebra();
-                return;
-            }
-
-            int a = 0;
-            Random rand = new Random();
-            do
-            {
-                int n = rand.Next(1, 5);
-                if (first % n == 0  )
-                {
-                    a = first / n;
-                }
-                if (second % n == 0)
-                {
-                    a = second / n;
-                }
-            } while (a == 0);
-            int c = (second + first) / (a*2);
-            PrintColour(string.Format("{0}x² {1} {2}x {3} {4}", a, first + second <= -1 ? "" : "+", first + second, a <= -1 ? "" : "+", a));
-            string firstbrackets = "";
-            string secondbrackets = "";
-            if (first < 0 && second < 0)
-            {
-                firstbrackets = string.Format("({0}x {1} {2})", GCD(first, a), GCD(second, a) <= -1 ? "" : "+", GCD(second, a));
-                secondbrackets = string.Format("({0}x {1} {2})", first / GCD(first, a), second / GCD(second, a) <= -1 ? "" : "+", second / GCD(second, a));
-            }
-            else
-            {
-                firstbrackets = string.Format("({0}x {1} {2})", GCD(first, a), GCD(second, a) <= -1 ? "" : "+", GCD(second, a));
-                secondbrackets = string.Format("({0}x {1} {2})", first / GCD(first, a), a / GCD(second, a) <= -1 ? "" : "+", a / GCD(second, a));
-            }
-            PrintColour(firstbrackets+secondbrackets);
-        }
         static int GCD(int[] numbers)
         {
             return numbers.Aggregate(GCD);
@@ -2511,7 +2564,7 @@ namespace DevTools
                 {
                     return "true";
                 }
-                                else
+                else
                 {
                     return "false";
                 }
