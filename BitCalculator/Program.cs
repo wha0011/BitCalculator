@@ -481,14 +481,18 @@ namespace DevTools
                 PrintHelp();
                 return;
             }
-            if (userINPUT.ToLower() == "pnw") //Change the default value for printing workings or not
+            if (userINPUT.StartsWith("pw")) //Change the default value for printing workings or not
             {
-                printWorkings = !printWorkings;
+                string value = userINPUT.Substring(3); //Remove start bracket
+                value = value.Substring(0,value.Length-1); //Removing ending bracket
+                printWorkings = bool.Parse(value);
                 return;
             }
-            if (userINPUT.ToLower() == "fnpw") //Change the value for printing workings of not.. Write it to a file
+            if (userINPUT.ToLower() == "fpw") //Change the value for printing workings of not.. Write it to a file
             {
-                printWorkings = !printWorkings;
+                string value = userINPUT.Substring(4); //Remove start bracket
+                value = value.Substring(0, value.Length - 1); //Removing ending bracket
+                printWorkings = bool.Parse(value);
                 File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
                 return;
             }
