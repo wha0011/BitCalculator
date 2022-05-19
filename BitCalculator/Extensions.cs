@@ -36,7 +36,7 @@ namespace DevTools
             idxs.Add(s.IndexOf(">"));
             idxs.Add(s.IndexOf("<"));
 
-            return idxs.OrderBy(t=>t).First();
+            return idxs.OrderBy(t=>t).Where(i=>i>=0).First();
         }
 
         public static bool IsConditionary(this char c)

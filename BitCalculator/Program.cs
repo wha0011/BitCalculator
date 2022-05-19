@@ -620,6 +620,10 @@ namespace DevTools
                     PrintColour(UlongToBin(input, flipped), false, true);
                 }
             }
+            else
+            {
+                PrintColour(input.ToString());
+            }
             lastInput = input; //Assign lastinput
             if (resetworkings) //Are we resetting the modified printworkings value
             {
@@ -923,7 +927,7 @@ namespace DevTools
                     if (c == '?')
                     {
                         int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
-                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i));
+                        string after = sINPUT.Substring(NextOperatorIDX_NoBrackets(sINPUT, i));
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
 
                         string conditionResult;
@@ -941,7 +945,7 @@ namespace DevTools
                         PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult), true);
                         if (conditionResult == "true")
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
+                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX_NoBrackets(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
                             string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
@@ -972,7 +976,7 @@ namespace DevTools
                     {
                         int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
                         int nextColonIDX = NextColonIDX(sINPUT, i + 1);
-                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, nextColonIDX));
+                        string after = sINPUT.Substring(NextOperatorIDX_NoBrackets(sINPUT, nextColonIDX));
 
                         string conditionResult = "";
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
@@ -993,7 +997,8 @@ namespace DevTools
                         if (conditionResult == "true")
                         {
                             string result = sINPUT.Substring(sINPUT.IndexOf('?')+1, sINPUT.IndexOf(':')-sINPUT.IndexOf('?')-1); //Space between the ? and the : is the final condition
-                            string before = sINPUT.Substring(0,LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition()-1)+1);
+                            int lastoperatoridx = LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1);
+                            string before = sINPUT.Substring(0, lastOperatorIDX + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
@@ -1002,7 +1007,7 @@ namespace DevTools
                         }
                         else
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
+                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX_NoBrackets(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
                             string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
@@ -1700,7 +1705,7 @@ namespace DevTools
             return input.Length;
         }
 
-        private static int NextOperatorIDX_NoLetter_NoBrackets(string input, int currIDX)
+        private static int NextOperatorIDX_NoBrackets(string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -1713,7 +1718,8 @@ namespace DevTools
                     input[i] == '^' ||
                     input[i] == '&' ||
                     input[i] == '|' ||
-                    input[i] == ',')
+                    input[i] == ',' ||
+                    char.IsLetter(input[i]))
                 {
                     return i;
                 }
