@@ -253,6 +253,31 @@ namespace DevTools
                 }
             }
         }
+        public static bool VariableExists(string name)
+        {
+            foreach (var line in DefineVariableContents())
+            {
+                if (line.Split(',')[0] == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            foreach (var line in File.ReadAllLines(FuncFilePath))
+            {
+                if (line.Split('(')[0] == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            foreach (var variable in tempVariables.Keys)
+            {
+                if (variable == name) //Does it exist?
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
             if (removeSpaces)
@@ -1327,6 +1352,10 @@ namespace DevTools
             }
         }
         public static bool printWorkings = true;
+        public static void PrintError(string errorMessage)
+        {
+            Colorful.Console.WriteLine(errorMessage, Color.Red);
+        }
         public static bool IsOperator(char c)
         {
             return c switch
@@ -1607,7 +1636,12 @@ namespace DevTools
             string variableName = variable.Substring(0, equalsIDX+1);
             if (variableName.Any(c => !char.IsLetter(c) && c != ' '))
             {
-                PrintColour("Invalid", false);
+                PrintError("Invalid variable name");
+                return;
+            }
+            if (VariableExists(variableName))
+            {
+                PrintError("Variable is already defined");
                 return;
             }
             tempVariables.Add(variableName, value);
@@ -1888,9 +1922,14 @@ namespace DevTools
             int equalsIDX = strings[0].Length-1;
             string value = strings[1];
             string variableName = variable.Substring(7,equalsIDX-6);
-            if (variableName.Any(c=>!char.IsLetter(c) && c != ' '))
+            if (variableName.Any(c=>!char.IsLetter(c) && c != ' ') )
             {
                 PrintColour("Invalid variable name", false);
+                return;
+            }
+            if (VariableExists(variableName))
+            {
+                PrintError("Variable is already defined");
                 return;
             }
             List<string> contents = DefineVariableContents(variableName, value);
@@ -1924,6 +1963,11 @@ namespace DevTools
 
             var prev = File.ReadAllLines(FuncFilePath).ToList();
             var name = function.Substring(0, function.IndexOf('('));
+            if (VariableExists(name))
+            {
+                PrintError("Variable is already defined");
+                return;
+            }
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
