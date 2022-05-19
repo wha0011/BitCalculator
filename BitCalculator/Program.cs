@@ -318,7 +318,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+             if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -1075,8 +1075,6 @@ namespace DevTools
                     }
                 }
             }
-
-            PrintColour(sINPUT);
             return sINPUT;
         }
         enum MathAngleType
