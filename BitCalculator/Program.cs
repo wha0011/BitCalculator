@@ -55,7 +55,8 @@ namespace DevTools
                     }
                     else
                     {
-                        userInput = Colorful.Console.ReadLine();
+                        userInput = ReadLineOrEsc();
+                        ChangeUserTextColour(userInput);
                         DoMainMethod(userInput);
                     }
                 }
@@ -66,6 +67,46 @@ namespace DevTools
                     Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                 }
             }
+        }
+
+        // returns null if user pressed Escape, or the contents of the line if they pressed Enter.
+        private static string ReadLineOrEsc()
+        {
+            string retString = "";
+
+            int curIndex = 0;
+            do
+            {
+                ConsoleKeyInfo readKeyResult = Console.ReadKey(true);
+
+                // handle Enter
+                if (readKeyResult.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    return retString;
+                }
+
+                // handle backspace
+                if (readKeyResult.Key == ConsoleKey.Backspace)
+                {
+                    if (curIndex > 0)
+                    {
+                        retString = retString.Remove(retString.Length - 1);
+                        Console.Write(readKeyResult.KeyChar);
+                        Console.Write(' ');
+                        Console.Write(readKeyResult.KeyChar);
+                        curIndex--;
+                    }
+                }
+                else
+                {
+                    retString += readKeyResult.KeyChar;
+                    Console.Write(readKeyResult.KeyChar);
+                    curIndex++;
+                    ChangeUserTextColourLive(retString);
+                }
+            }
+            while (true);
         }
 
         private static void SetupConsole()
@@ -1317,6 +1358,21 @@ namespace DevTools
             result += ");";
             PrintColour(result, false);
         }
+
+        struct FuncLocation
+        {
+            public int start;
+            public int end;
+            public string name;
+
+            public FuncLocation(int start, int end, string name)
+            {
+                this.start = start;
+                this.end = end;
+                this.name = name;
+            }
+        }
+
         /// <summary>
         /// An extension method for Colourful.Console.Writeline()
         /// </summary>
@@ -1325,6 +1381,28 @@ namespace DevTools
         /// <param name="isBin"></param>
         public static void PrintColour(string v, bool workings = false, bool isBin = false, bool writeline = true)
         {
+            //Checking for functions
+            #region functionCheck
+            var AllFunctions = File.ReadAllLines(FuncFilePath);
+            List<FuncLocation> funclocations = new List<FuncLocation>();
+            foreach (var s in File.ReadAllLines(FuncFilePath))
+            {
+                if (s == "")
+                {
+                    continue;
+                }
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
+                var name = s.Split('(')[0];
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name)+name.Length+1), name));
+                }
+            }
+            #endregion
+            funclocations = funclocations.OrderBy(f=>f.start).ToList();
             if (workings && printWorkings == false)
             {
                 return;
@@ -1340,39 +1418,74 @@ namespace DevTools
                     else
                     {
                         Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
-                        //Colorful.Console.WriteLine();
                     }
-                }
+                } //Binary font
             }
             else
             {
                 bool isyellow = false;
+                bool printingFunction = false;
+                FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
-                    char c = v[i];
-                    if (isyellow && !IsOperator(c) && c != ' ')
+                    if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
                     {
-                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
-                        continue;
+                        current = funclocations[0];
+                        printingFunction = true;
+                        funclocations.RemoveAt(0); //Remove it from the list
                     }
 
-                    if (char.IsNumber(c))
+                    char c = v[i];
+
+                    if (printingFunction) //Are we printing out a function?
                     {
-                        Colorful.Console.Write(c, Color.FromArgb(6, 153, 255));
-                    }
-                    else if (c == '#')
-                    {
-                        isyellow = true;
-                        Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
-                    }
-                    else if (IsOperator(c) || c == ' ')
-                    {
-                        isyellow = false;
-                        Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));
+                        if (i < current.start + current.name.Length) //Are we in the name of the function?
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(168, 0, 149));
+                        }
+                        else if (i == current.start + current.name.Length && c== '(') //Opening bracket?
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(255,255,255));
+                        }
+                        else if (i == current.end && c == ')') //Closing bracket?
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(255, 255, 255));
+                        }
+                        else
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
+                        }
                     }
                     else
                     {
-                        Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
+                        if (isyellow && !IsOperator(c) && c != ' ')
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
+                            continue;
+                        }
+
+                        if (char.IsNumber(c))
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(6, 153, 255));
+                        }
+                        else if (c == '#')
+                        {
+                            isyellow = true;
+                            Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
+                        }
+                        else if (IsOperator(c) || c == ' ')
+                        {
+                            isyellow = false;
+                            Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));
+                        }
+                        else
+                        {
+                            Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
+                        }
+                    }
+                    if (current.end == i) //Are we at the end of a function?
+                    {
+                        printingFunction = false;
                     }
                 }
             }
@@ -1381,6 +1494,28 @@ namespace DevTools
                 Colorful.Console.WriteLine();
             }
             lastprint = v;
+        }
+        public static void ChangeUserTextColour(string userinput)
+        {
+            var x = Console.CursorLeft;
+            var y = Console.CursorTop;
+            y--; //Get the row above us
+            Console.SetCursorPosition(x,y);
+            Console.WriteLine(); //Clear previous line
+            Console.SetCursorPosition(x, y);
+
+            Colorful.Console.Write("-->", Color.FromArgb(255, 181, 158)); //Re-print the header
+
+            PrintColour(userinput);
+        }
+        public static void ChangeUserTextColourLive(string userinput)
+        {
+            var x = Console.CursorLeft;
+            var y = Console.CursorTop;
+            x-= userinput.Length; //Get the start of the row
+            Console.SetCursorPosition(x, y);
+
+            PrintColour(userinput, false, false, false);
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
@@ -2145,7 +2280,7 @@ namespace DevTools
                         replacestring = replacestring.Substring(closingBracketidx + 1);
 
                         int valuesstartidx = i.IndexOf(name) + name.Length+1;
-                        string[] values = i.Substring(valuesstartidx, ClosingBracket(i, name.Length + 1) - valuesstartidx).Split(',');
+                        string[] values = i.Substring(valuesstartidx, ClosingBracket(i, valuesstartidx) - valuesstartidx).Split(',');
                         string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
                         Dictionary<string, int> variableValues = new Dictionary<string, int>();
                         //Iterate through here and add the variable values to the variable names
@@ -2160,23 +2295,10 @@ namespace DevTools
                         {
                             replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
                         }
-                        i = replacestring;
-                        if (i.IndexOf(";") != 0 && (i.IndexOf(";") < i.IndexOf("loop") || i.IndexOf("loop") == -1) && !i.Contains("#def"))
-                        {
-                            var strs = i;
-                            if (i.Contains("loop"))
-                            {
-                                strs = i.Substring(0, i.IndexOf("loop"));
-                            }
-                            foreach (var str in strs.Split(';'))
-                            {
-                                if (str != "")
-                                {
-                                    MainMethod(str);
-                                }
-                            }
-                            i = i.Substring(strs.Length);
-                        }
+                        string before = i.Substring(0, i.IndexOf(name));
+                        string after = i.Substring(ClosingBracket(i, i.IndexOf(name) + name.Length + 1)+1);
+                        i = before + replacestring + after;
+                        return ReplaceVariables(i);
                     }
                 }
                 if (i != input)
