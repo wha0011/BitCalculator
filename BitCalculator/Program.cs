@@ -278,8 +278,11 @@ namespace DevTools
             }
             return false;
         }
+        static bool noprint = false;
         public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
+            noprint = false;
+
             if (removeSpaces)
             {
                 userINPUT = RemoveSpaces(userINPUT);
@@ -436,7 +439,6 @@ namespace DevTools
                 }
                 return;
             }
-            bool noprint = false;
             if (userINPUT.BeginsWith("np")) //Does the user not want to print the binary value of the final result?
             {
                 noprint = true; //Tell the binary printer NOT to print
@@ -565,7 +567,10 @@ namespace DevTools
                 userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
 
                 //Print the value as a double
-                PrintDouble(DoubleToBin(double.Parse(userINPUT)));
+                if (!noprint)
+                {
+                    PrintDouble(DoubleToBin(double.Parse(userINPUT)));
+                }
                 PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString(), true);
                 double d = double.Parse(userINPUT);
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
@@ -1127,6 +1132,16 @@ namespace DevTools
             {
                 return_result = return_result.Substring(3); //Remove it
             }
+            if (return_result.StartsWith("nw"))
+            {
+                printWorkings = false;
+                return_result = return_result.Substring(2);
+            }
+            if (return_result.StartsWith("np"))
+            {
+                noprint = true;
+                return_result = return_result.Substring(2);
+            }
             if (return_result.Length <= 3 || return_result.Substring(0,4) != "doum")
             {
                 return_result = return_result.Insert(0,"doum");
@@ -1500,9 +1515,26 @@ namespace DevTools
             for (int i = 0; i < input.Length; ++i)
             {
                 char c = input[i];
-                if (c == variableName && (input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
+                if (c == variableName)
                 {
-                    result += variableValue;
+                    if ((input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
+                    {
+                        result += variableValue;
+                    }
+                    else if (i == 2 && (input.StartsWith("nw") || input.StartsWith("np"))) //Is there a nw or a np command?
+                    {
+                        //Replace the variable
+                        result += variableValue;
+                    }
+                    else if (i == 4 && input.StartsWith("nwnp")) //nw and np?
+                    {
+                        //replace the variable
+                        result += variableValue;
+                    }
+                    else
+                    {
+                        result += c;
+                    }
                 }
                 else
                 {
