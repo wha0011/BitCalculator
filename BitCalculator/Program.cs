@@ -25,6 +25,7 @@ namespace DevTools
         }
         static ulong lastInput = 0ul;
         static bool defaultFlipVal = false;
+        public static string lastprint;
         static void Main(string[] args)
         {
             CheckDirectories(); //See if the file storing directories exist, if not, then create them
@@ -169,7 +170,14 @@ namespace DevTools
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
-
+            if (userINPUT == "UNITTEST")
+            {
+                foreach (var test in UnitTest.unitTests)
+                {
+                    test.Test();
+                }
+                return;
+            }
             if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc"))
             //Only run multiple functions if function is not a loop or defining a function
             {
@@ -229,7 +237,7 @@ namespace DevTools
                             s_bottomright = s_bottomright[0] == '-' ? s_bottomright : s_bottomright.Insert(0, "+");
 
 
-                            Console.WriteLine(string.Format("({0}x{1})({2}x{3})", s_topleft,s_topright, s_bottomleft, s_bottomright));
+                            PrintColour(string.Format("({0}x{1})({2}x{3})", s_topleft,s_topright, s_bottomleft, s_bottomright));
                         }
                         /**
                          * 3    5
@@ -1372,6 +1380,7 @@ namespace DevTools
             {
                 Colorful.Console.WriteLine();
             }
+            lastprint = v;
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
