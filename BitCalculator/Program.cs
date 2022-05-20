@@ -571,7 +571,7 @@ namespace DevTools
                 {
                     PrintDouble(DoubleToBin(double.Parse(userINPUT)));
                 }
-                PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString(), true);
+                PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString());
                 double d = double.Parse(userINPUT);
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
@@ -1125,7 +1125,7 @@ namespace DevTools
                     break;
             }
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-            PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), false);
+            PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), true);
             string return_result = fixedval + calcNum + afterThat;
 
             if (return_result.StartsWith("arc")) //Was this an arc operation?
@@ -2011,6 +2011,10 @@ namespace DevTools
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    continue;
+                }
                 var bracketidx = s.IndexOf('(');
                 var substr = s.Substring(0,bracketidx);
                 if (substr == name) //Already defined function
@@ -2024,7 +2028,7 @@ namespace DevTools
             }
             File.WriteAllLines(FuncFilePath, prev.ToArray());
 
-            string result = File.ReadAllText(FuncFilePath) + function + "\n";
+            string result = function + "\n" + File.ReadAllText(FuncFilePath);
 
             File.WriteAllText(FuncFilePath, result);
         }
@@ -2034,6 +2038,10 @@ namespace DevTools
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
                 var bracketidx = s.IndexOf('(');
                 var substr = s.Substring(0, bracketidx);
                 if (substr == name) //Already defined function
@@ -2127,7 +2135,8 @@ namespace DevTools
                         int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
                         replacestring = replacestring.Substring(closingBracketidx + 1);
 
-                        string[] values = i.Substring(name.Length + 1, ClosingBracket(i, name.Length + 1) - name.Length - 1).Split(',');
+                        int valuesstartidx = i.IndexOf(name) + name.Length+1;
+                        string[] values = i.Substring(valuesstartidx, ClosingBracket(i, name.Length + 1) - valuesstartidx).Split(',');
                         string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
                         Dictionary<string, int> variableValues = new Dictionary<string, int>();
                         //Iterate through here and add the variable values to the variable names
