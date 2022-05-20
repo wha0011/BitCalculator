@@ -150,6 +150,11 @@ namespace DevTools
                     File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
                 }
                 printWorkings = bool.Parse(File.ReadAllText(WorkingsFilePath));
+
+                if (File.ReadAllText(FuncFilePath) == "")
+                {
+                    File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS);
+                }
             }
             catch
             {
