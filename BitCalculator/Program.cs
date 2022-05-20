@@ -25,6 +25,7 @@ namespace DevTools
         }
         static ulong lastInput = 0ul;
         static bool defaultFlipVal = false;
+        public static string lastprint;
         static void Main(string[] args)
         {
             CheckDirectories(); //See if the file storing directories exist, if not, then create them
@@ -169,7 +170,14 @@ namespace DevTools
                 PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
-
+            if (userINPUT == "UNITTEST")
+            {
+                foreach (var test in UnitTest.unitTests)
+                {
+                    test.Test();
+                }
+                return;
+            }
             if (!userINPUT.Contains("loop") && !userINPUT.Contains("#defunc"))
             //Only run multiple functions if function is not a loop or defining a function
             {
@@ -229,7 +237,7 @@ namespace DevTools
                             s_bottomright = s_bottomright[0] == '-' ? s_bottomright : s_bottomright.Insert(0, "+");
 
 
-                            Console.WriteLine(string.Format("({0}x{1})({2}x{3})", s_topleft,s_topright, s_bottomleft, s_bottomright));
+                            PrintColour(string.Format("({0}x{1})({2}x{3})", s_topleft,s_topright, s_bottomleft, s_bottomright));
                         }
                         /**
                          * 3    5
@@ -278,8 +286,11 @@ namespace DevTools
             }
             return false;
         }
+        static bool noprint = false;
         public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
+            noprint = false;
+
             if (removeSpaces)
             {
                 userINPUT = RemoveSpaces(userINPUT);
@@ -318,7 +329,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+             if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -436,7 +447,6 @@ namespace DevTools
                 }
                 return;
             }
-            bool noprint = false;
             if (userINPUT.BeginsWith("np")) //Does the user not want to print the binary value of the final result?
             {
                 noprint = true; //Tell the binary printer NOT to print
@@ -565,8 +575,11 @@ namespace DevTools
                 userINPUT = DoubleCalculate(DoubleRemoveBrackets(userINPUT)); //Calculate the result
 
                 //Print the value as a double
-                PrintDouble(DoubleToBin(double.Parse(userINPUT)));
-                PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString(), true);
+                if (!noprint)
+                {
+                    PrintDouble(DoubleToBin(double.Parse(userINPUT)));
+                }
+                PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString());
                 double d = double.Parse(userINPUT);
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
@@ -619,6 +632,10 @@ namespace DevTools
                     }
                     PrintColour(UlongToBin(input, flipped), false, true);
                 }
+            }
+            else
+            {
+                PrintColour(input.ToString());
             }
             lastInput = input; //Assign lastinput
             if (resetworkings) //Are we resetting the modified printworkings value
@@ -923,7 +940,7 @@ namespace DevTools
                     if (c == '?')
                     {
                         int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
-                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i));
+                        string after = sINPUT.Substring(NextOperatorIDX_NoBrackets(sINPUT, i));
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
 
                         string conditionResult;
@@ -941,7 +958,7 @@ namespace DevTools
                         PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult), true);
                         if (conditionResult == "true")
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
+                            string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, NextOperatorIDX_NoBrackets(sINPUT, i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
                             string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
@@ -972,7 +989,7 @@ namespace DevTools
                     {
                         int lastOperatorIDX = LastNegOperatorIDX(sINPUT, i - 1);
                         int nextColonIDX = NextColonIDX(sINPUT, i + 1);
-                        string after = sINPUT.Substring(NextOperatorIDX_NoLetter_NoBrackets(sINPUT, nextColonIDX));
+                        string after = sINPUT.Substring(NextOperatorIDX_NoBrackets(sINPUT, nextColonIDX));
 
                         string conditionResult = "";
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
@@ -993,7 +1010,8 @@ namespace DevTools
                         if (conditionResult == "true")
                         {
                             string result = sINPUT.Substring(sINPUT.IndexOf('?')+1, sINPUT.IndexOf(':')-sINPUT.IndexOf('?')-1); //Space between the ? and the : is the final condition
-                            string before = sINPUT.Substring(0,LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition()-1)+1);
+                            int lastoperatoridx = LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1);
+                            string before = sINPUT.Substring(0, lastOperatorIDX + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
                                 before = "";
@@ -1002,7 +1020,7 @@ namespace DevTools
                         }
                         else
                         {
-                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX_NoLetter_NoBrackets(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
+                            string result = sINPUT.Substring(sINPUT.IndexOf(':') + 1, NextOperatorIDX_NoBrackets(sINPUT, sINPUT.IndexOf(':')) - sINPUT.IndexOf(':') - 1); //Space between the ? and the : is the final condition
                             string before = sINPUT.Substring(0, LastOperatorIDX(sINPUT, sINPUT.IndexOfCondition() - 1) + 1);
                             if (sINPUT[NextOperatorIDX(sINPUT, 0)].IsConditionary()) //First operator is the boolean statement?
                             {
@@ -1075,8 +1093,6 @@ namespace DevTools
                     }
                 }
             }
-
-            PrintColour(sINPUT);
             return sINPUT;
         }
         enum MathAngleType
@@ -1117,12 +1133,22 @@ namespace DevTools
                     break;
             }
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-            PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), false);
+            PrintColour(string.Format("{0}({1}) = {2}",mathAngleType.ToString() , result, calcNum), true);
             string return_result = fixedval + calcNum + afterThat;
 
             if (return_result.StartsWith("arc")) //Was this an arc operation?
             {
                 return_result = return_result.Substring(3); //Remove it
+            }
+            if (return_result.StartsWith("nw"))
+            {
+                printWorkings = false;
+                return_result = return_result.Substring(2);
+            }
+            if (return_result.StartsWith("np"))
+            {
+                noprint = true;
+                return_result = return_result.Substring(2);
             }
             if (return_result.Length <= 3 || return_result.Substring(0,4) != "doum")
             {
@@ -1354,6 +1380,7 @@ namespace DevTools
             {
                 Colorful.Console.WriteLine();
             }
+            lastprint = v;
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
@@ -1497,9 +1524,26 @@ namespace DevTools
             for (int i = 0; i < input.Length; ++i)
             {
                 char c = input[i];
-                if (c == variableName && (input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
+                if (c == variableName)
                 {
-                    result += variableValue;
+                    if ((input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
+                    {
+                        result += variableValue;
+                    }
+                    else if (i == 2 && (input.StartsWith("nw") || input.StartsWith("np"))) //Is there a nw or a np command?
+                    {
+                        //Replace the variable
+                        result += variableValue;
+                    }
+                    else if (i == 4 && input.StartsWith("nwnp")) //nw and np?
+                    {
+                        //replace the variable
+                        result += variableValue;
+                    }
+                    else
+                    {
+                        result += c;
+                    }
                 }
                 else
                 {
@@ -1702,7 +1746,7 @@ namespace DevTools
             return input.Length;
         }
 
-        private static int NextOperatorIDX_NoLetter_NoBrackets(string input, int currIDX)
+        private static int NextOperatorIDX_NoBrackets(string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -1715,7 +1759,8 @@ namespace DevTools
                     input[i] == '^' ||
                     input[i] == '&' ||
                     input[i] == '|' ||
-                    input[i] == ',')
+                    input[i] == ',' ||
+                    char.IsLetter(input[i]))
                 {
                     return i;
                 }
@@ -1975,6 +2020,10 @@ namespace DevTools
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    continue;
+                }
                 var bracketidx = s.IndexOf('(');
                 var substr = s.Substring(0,bracketidx);
                 if (substr == name) //Already defined function
@@ -1988,7 +2037,7 @@ namespace DevTools
             }
             File.WriteAllLines(FuncFilePath, prev.ToArray());
 
-            string result = File.ReadAllText(FuncFilePath) + function + "\n";
+            string result = function + "\n" + File.ReadAllText(FuncFilePath);
 
             File.WriteAllText(FuncFilePath, result);
         }
@@ -1998,6 +2047,10 @@ namespace DevTools
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
                 var bracketidx = s.IndexOf('(');
                 var substr = s.Substring(0, bracketidx);
                 if (substr == name) //Already defined function
@@ -2091,7 +2144,8 @@ namespace DevTools
                         int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
                         replacestring = replacestring.Substring(closingBracketidx + 1);
 
-                        string[] values = i.Substring(name.Length + 1, ClosingBracket(i, name.Length + 1) - name.Length - 1).Split(',');
+                        int valuesstartidx = i.IndexOf(name) + name.Length+1;
+                        string[] values = i.Substring(valuesstartidx, ClosingBracket(i, name.Length + 1) - valuesstartidx).Split(',');
                         string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
                         Dictionary<string, int> variableValues = new Dictionary<string, int>();
                         //Iterate through here and add the variable values to the variable names
