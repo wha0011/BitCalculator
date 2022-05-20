@@ -96,6 +96,7 @@ namespace DevTools
                         Console.Write(' ');
                         Console.Write(readKeyResult.KeyChar);
                         curIndex--;
+                        ChangeUserTextColourLive(retString);
                     }
                 }
                 else
@@ -117,7 +118,7 @@ namespace DevTools
             Colorful.Console.OutputEncoding = Encoding.Unicode;
             Colorful.Console.WriteAsciiStyled("Dev Tools 2022", new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
             Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
-            Colorful.Console.ForegroundColor = Color.Magenta;
+            Colorful.Console.ForegroundColor = Color.FromArgb(10, 181, 158);
         }
 
         /// <summary>
