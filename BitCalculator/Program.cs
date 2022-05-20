@@ -79,13 +79,6 @@ namespace DevTools
             {
                 ConsoleKeyInfo readKeyResult = Console.ReadKey(true);
 
-                // handle Esc
-                if (readKeyResult.Key == ConsoleKey.Escape)
-                {
-                    Console.WriteLine();
-                    return null;
-                }
-
                 // handle Enter
                 if (readKeyResult.Key == ConsoleKey.Enter)
                 {
@@ -106,11 +99,11 @@ namespace DevTools
                     }
                 }
                 else
-                // handle all other keypresses
                 {
                     retString += readKeyResult.KeyChar;
                     Console.Write(readKeyResult.KeyChar);
                     curIndex++;
+                    ChangeUserTextColourLive(retString);
                 }
             }
             while (true);
@@ -1514,6 +1507,15 @@ namespace DevTools
             Colorful.Console.Write("-->", Color.FromArgb(255, 181, 158)); //Re-print the header
 
             PrintColour(userinput);
+        }
+        public static void ChangeUserTextColourLive(string userinput)
+        {
+            var x = Console.CursorLeft;
+            var y = Console.CursorTop;
+            x-= userinput.Length; //Get the start of the row
+            Console.SetCursorPosition(x, y);
+
+            PrintColour(userinput, false, false, false);
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
