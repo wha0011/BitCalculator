@@ -2023,11 +2023,29 @@ namespace DevTools
         }
         public static string ReplaceTempVariables(string sINPUT)
         {
+            foreach (var pair in networkingVariables)
+            {
+                if (sINPUT.StartsWith(pair.Key)) //Doing operation on a networking thingy?
+                {
+                    string operation = sINPUT.Split('.')[1]; //Find the function after the '.'
+                    DoNetworkingOperation(pair.Value, operation);
+                }
+            }
+
             foreach (var pair in tempVariables)
             {
                 sINPUT = ReplaceTempVariables(sINPUT, pair.Key, pair.Value);
             }
             return sINPUT;
+        }
+        public static void DoNetworkingOperation(Networking n, string operation)
+        {
+            if (operation.BeginsWith("send")) //User wants to send data?
+            {
+                string data = operation.Substring(5);
+                data = data.Substring(0,data.Length-1); //Remove send( and )
+                n.Send(data);
+            }
         }
         private static int NextOperatorIDX(string input, int currIDX)
         {

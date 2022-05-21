@@ -38,7 +38,7 @@ namespace DevTools
             Array.Copy(_buffer, dataBuf, recieved);
 
             string text = Encoding.ASCII.GetString(dataBuf);
-            RecieveMessage(text);
+            RecieveMessage("Client recieved: " + text);
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallback), socket);
         }
         private void ConnectLoop()

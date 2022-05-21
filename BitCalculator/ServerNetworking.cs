@@ -67,7 +67,7 @@ namespace DevTools
             byte[] recBuf = new byte[received];
             Array.Copy(buffer, recBuf, received);
             string text = Encoding.ASCII.GetString(recBuf);
-            RecieveMessage(text);
+            RecieveMessage("Server recieved: " + text);
 
             current.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, current);
         }
