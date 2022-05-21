@@ -14,21 +14,15 @@ namespace DevTools
         private int Port;
         private static readonly byte[] buffer = new byte[BUFFER_SIZE];
 
-        public Func<string, int> RecieveMessage;
+        public Func<string, bool> RecieveMessage;
 
-        public ServerNetworking(int Port, Func<string,int> RecieveMessage)
+        public ServerNetworking(int Port, Func<string,bool> RecieveMessage)
         {
             this.RecieveMessage = RecieveMessage;
             this.Port = Port;
-            //     Console.Title = "Server";
-
-            //     Console.WriteLine("Setting up server...");
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
             serverSocket.Listen(0);
             serverSocket.BeginAccept(AcceptCallback, null);
-            //      Console.WriteLine("Server setup complete");
-
-            Console.ReadLine(); // When we press enter close everything
         }
 
         private void AcceptCallback(IAsyncResult AR)
@@ -71,7 +65,7 @@ namespace DevTools
             byte[] recBuf = new byte[received];
             Array.Copy(buffer, recBuf, received);
             string text = Encoding.ASCII.GetString(recBuf);
-
+            RecieveMessage(text);
 
             current.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, current);
         }

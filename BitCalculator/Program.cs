@@ -8,6 +8,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace DevTools
 {
@@ -58,6 +59,12 @@ namespace DevTools
                     }
                     else
                     {
+                        ServerNetworking serverNetworking = new ServerNetworking(7777, NetworkingPrint);
+                        ClientNetworking clientNetworking = new ClientNetworking("127.0.0.1", 7777, NetworkingPrint);
+                        Thread.Sleep(1000);
+                        clientNetworking.Send("Hey server wassup");
+                        serverNetworking.SendToAll("Shut up dude");
+
                         userInput = ReadLineOrEsc();
                         ChangeUserTextColour(userInput);
                         DoMainMethod(userInput);
@@ -732,9 +739,10 @@ namespace DevTools
                 Console.WriteLine();
             }
         }
-        public static void NetworkingPrint(string toprint)
+        public static bool NetworkingPrint(string toprint)
         {
             Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            return false;
         }
         public static string GetLocalIPAddress()
         {

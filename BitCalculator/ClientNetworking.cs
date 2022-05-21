@@ -9,7 +9,7 @@ namespace DevTools
     public class ClientNetworking
     {
         private Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private static byte[] _buffer = new byte[10];
+        private static byte[] _buffer = new byte[1000];
         public Func<string,bool> RecieveMessage;
 
         public string IP;
@@ -61,8 +61,9 @@ namespace DevTools
                 }
             }
         }
-        public void Send(byte[] data)
+        public void Send(string text)
         {
+            byte[] data = Encoding.ASCII.GetBytes(text);
             _clientSocket.Send(data);
         }
     }
