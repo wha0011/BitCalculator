@@ -380,7 +380,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-             if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -823,10 +823,6 @@ namespace DevTools
             userINPUT = RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED")
-            {
-                return userINPUT;
-            }
             return userINPUT;
         }
         public static string RemoveLog(string userINPUT)
@@ -1986,6 +1982,10 @@ namespace DevTools
                     string[] data = variable.Split(',');
                     int port = int.Parse(data[0]);
                     string address = data[1];
+                    if (address == "localhost")
+                    {
+                        address = "127.0.0.1";
+                    }
                     ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
                     networkingVariables.Add(name,clientNetworking);
                     Thread.Sleep(1000);
@@ -2029,6 +2029,7 @@ namespace DevTools
                 {
                     string operation = sINPUT.Split('.')[1]; //Find the function after the '.'
                     DoNetworkingOperation(pair.Value, operation);
+                    return "CLOSE_CONDITION_PROCESSED";
                 }
             }
 
