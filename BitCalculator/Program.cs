@@ -588,6 +588,18 @@ namespace DevTools
                 PrintAti(userINPUT);
                 return;
             }
+            if (userINPUT.BeginsWith("nslookup")) //User wants to find IP of a server
+            {
+                string addresses = "";
+                foreach (var address in Dns.GetHostEntry(userINPUT.Substring(8)).AddressList)
+                {
+                    addresses += address;
+                    addresses += ',';
+                }
+                addresses = addresses.Substring(0,addresses.Length-1); //Remove the final comma
+                NetworkingPrint("Server IP: " + addresses);
+                return;
+            }
             if (userINPUT.BeginsWith("f")) //Flipping the binary result?
             {
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
@@ -2296,6 +2308,12 @@ namespace DevTools
             PrintColour("trig");
             PrintColour("log");
             PrintColour("ipconfig");
+            PrintColour("open");
+            PrintColour("tcp_client");
+            PrintColour("tcp_server");
+            PrintColour("udp_client");
+            PrintColour("udp_server");
+            PrintColour("nslookup");
             PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
