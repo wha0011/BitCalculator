@@ -60,5 +60,22 @@ namespace DevTools
 
             return new string[] {before,after};
         }
+        public static List<int> AllIndexs(this string s, string lookfor)
+        {
+            List<int> result = new List<int>();
+
+            string buffer = "";
+            for (int i = 0; i < s.Length; ++i)
+            {
+                buffer += s[i];
+                if (buffer.Contains(lookfor)) //Have we just reached the string
+                {
+                    buffer = ""; //Clear the buffer
+                    result.Add(i-lookfor.Length+1); //Return the start idx of the string we are looking for
+                }
+            }
+
+            return result;
+        }
     }
 }

@@ -760,12 +760,50 @@ namespace DevTools
             userINPUT = RemoveBinary(userINPUT);
             userINPUT = ReplaceVariables(userINPUT);
             userINPUT = RemoveTrig(userINPUT);
+            userINPUT = RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
             if (userINPUT == "CLOSE_CONDITION_PROCESSED")
             {
                 return userINPUT;
             }
+            return userINPUT;
+        }
+        public static string RemoveLog(string userINPUT)
+        {
+            List<int> logidxs = userINPUT.AllIndexs("log"); //Find the positions of all the log statements
+            var idx = userINPUT.IndexOf("log");
+            if (idx == -1)
+            {
+                return userINPUT;
+            }
+            int openingBracketIDX = NextBracket(userINPUT, idx);
+
+            var logbase = userINPUT.Substring(idx + 3, openingBracketIDX - idx - 3); //+3 is for the length of log
+            if (logbase == "")
+            {
+                logbase = "10"; //Default base is 10
+            }
+
+            var lognum = userINPUT.Substring(openingBracketIDX + 1, ClosingBracket(userINPUT, openingBracketIDX + 1) - openingBracketIDX - 1);
+
+            string before = userINPUT.Substring(0, idx); //Get the string that comes before this, up until idx
+            string after = userINPUT.Substring(ClosingBracket(userINPUT, openingBracketIDX + 1)+1); //End at the closing bracket
+            string replace = Math.Log(double.Parse(lognum), double.Parse(logbase)).ToString();
+            userINPUT = before + replace + after; //Modify the string
+
+            userINPUT = RemoveLog(userINPUT);
+
+            if (userINPUT.StartsWith("np")) //User doesn't want to print binary of the result
+            {
+                userINPUT = userINPUT.Substring(2);
+                noprint = true;
+            }
+            if (!userINPUT.StartsWith("doum"))
+            {
+                userINPUT = userINPUT.Insert(0, "doum");
+            }
+
             return userINPUT;
         }
         /// <summary>
