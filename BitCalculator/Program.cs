@@ -73,10 +73,12 @@ namespace DevTools
             }
         }
 
-        // returns null if user pressed Escape, or the contents of the line if they pressed Enter.
+        public static bool readingConsole = false;
+        static string retString = "";
         private static string ReadLineOrEsc()
         {
-            string retString = "";
+            retString = "";
+            readingConsole = true;
             int writeIDX = 0;
 
             do
@@ -87,6 +89,7 @@ namespace DevTools
                 if (readKeyResult.Key == ConsoleKey.Enter)
                 {
                     Console.WriteLine();
+                    readingConsole = false;
                     return retString;
                 }
 
@@ -785,6 +788,17 @@ namespace DevTools
         }
         public static bool NetworkingPrint(string toprint)
         {
+            if (readingConsole) //Are we currently reading user input?
+            {
+                var left = Console.CursorLeft;
+                Console.CursorLeft = 0;
+                Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+
+                Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
+
+                PrintColour(retString, false, false, false);
+                Console.CursorLeft = left; //Reset the left to its original position
+            }
             Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
             return false;
         }
