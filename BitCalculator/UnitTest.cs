@@ -18,6 +18,7 @@ namespace DevTools
             new UnitTest("nw np b_01010101010000101001010101 + 345", "22350766"),
             new UnitTest("nw np doum b_01010101010000101001010101 + 345", "Closest conversion: 22350766"),
             new UnitTest("nwnp doum #ffff + 3 - 2 + 4 - b_010101010101 + 0.0055", "Closest conversion: 64175.0055"),
+            new UnitTest("nw np log8(9) + log89(90) + log(10) + 10", "Closest conversion: 13.059130908796298"),
         };
 
         public string Input;

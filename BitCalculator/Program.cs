@@ -760,12 +760,50 @@ namespace DevTools
             userINPUT = RemoveBinary(userINPUT);
             userINPUT = ReplaceVariables(userINPUT);
             userINPUT = RemoveTrig(userINPUT);
+            userINPUT = RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
             if (userINPUT == "CLOSE_CONDITION_PROCESSED")
             {
                 return userINPUT;
             }
+            return userINPUT;
+        }
+        public static string RemoveLog(string userINPUT)
+        {
+            List<int> logidxs = userINPUT.AllIndexs("log"); //Find the positions of all the log statements
+            var idx = userINPUT.IndexOf("log");
+            if (idx == -1)
+            {
+                return userINPUT;
+            }
+            int openingBracketIDX = NextBracket(userINPUT, idx);
+
+            var logbase = userINPUT.Substring(idx + 3, openingBracketIDX - idx - 3); //+3 is for the length of log
+            if (logbase == "")
+            {
+                logbase = "10"; //Default base is 10
+            }
+
+            var lognum = userINPUT.Substring(openingBracketIDX + 1, ClosingBracket(userINPUT, openingBracketIDX + 1) - openingBracketIDX - 1);
+
+            string before = userINPUT.Substring(0, idx); //Get the string that comes before this, up until idx
+            string after = userINPUT.Substring(ClosingBracket(userINPUT, openingBracketIDX + 1)+1); //End at the closing bracket
+            string replace = Math.Log(double.Parse(lognum), double.Parse(logbase)).ToString();
+            userINPUT = before + replace + after; //Modify the string
+
+            userINPUT = RemoveLog(userINPUT);
+
+            if (userINPUT.StartsWith("np")) //User doesn't want to print binary of the result
+            {
+                userINPUT = userINPUT.Substring(2);
+                noprint = true;
+            }
+            if (!userINPUT.StartsWith("doum"))
+            {
+                userINPUT = userINPUT.Insert(0, "doum");
+            }
+
             return userINPUT;
         }
         /// <summary>
@@ -1407,8 +1445,31 @@ namespace DevTools
                     funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name)+name.Length+1), name));
                 }
             }
+
+            bool atsystem = false;
+            List<FuncLocation> sysfunclocations = new List<FuncLocation>();
+            foreach (var s in File.ReadAllLines(FuncFilePath))
+            {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    atsystem = true;
+                    continue;
+                }
+                if (!atsystem)
+                {
+                    continue;
+                }
+                var name = s.Split('(')[0];
+                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
+                {
+                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), name.Length, name));
+                }
+            }
             #endregion
-            funclocations = funclocations.OrderBy(f=>f.start).ToList();
+            funclocations = funclocations.OrderBy(f => f.start).ToList();
+            sysfunclocations = sysfunclocations.OrderBy(f => f.start).ToList();
+            //Order the functions so that the ones that appear first are at the start of the list
+
             if (workings && printWorkings == false)
             {
                 return;
@@ -1431,14 +1492,27 @@ namespace DevTools
             {
                 bool isyellow = false;
                 bool printingFunction = false;
+                bool printingsysFunction = false;
                 FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentsys = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
+                    if (currentsys.end == i)
+                    {
+                        printingsysFunction = false;
+                    }
+
                     if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
                     {
                         current = funclocations[0];
                         printingFunction = true;
                         funclocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (sysfunclocations.Count != 0 && sysfunclocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentsys = sysfunclocations[0];
+                        printingsysFunction = true;
+                        sysfunclocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -1461,6 +1535,10 @@ namespace DevTools
                         {
                             Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
                         }
+                    }
+                    else if (printingsysFunction)
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(247, 255, 161));
                     }
                     else
                     {
@@ -2059,6 +2137,7 @@ namespace DevTools
             PrintColour("dtv");
             PrintColour("exit");
             PrintColour("quit");
+            PrintColour("ran");
             PrintColour("alg");
             PrintColour("v");
             PrintColour("doub");
@@ -2088,6 +2167,7 @@ namespace DevTools
             PrintColour("booleans");
             PrintColour("bitmath");
             PrintColour("trig");
+            PrintColour("log");
             PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
