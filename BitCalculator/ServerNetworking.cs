@@ -42,7 +42,7 @@ namespace DevTools
 
             clientSockets.Add(socket);
             socket.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, socket);
-            Console.WriteLine("Client connected, waiting for request...");
+            RecieveMessage("Client connected, waiting for request...");
             serverSocket.BeginAccept(AcceptCallback, null);
         }
 
