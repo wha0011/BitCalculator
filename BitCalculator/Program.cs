@@ -792,14 +792,17 @@ namespace DevTools
             {
                 var left = Console.CursorLeft;
                 Console.CursorLeft = 0;
+                ClearCurrentConsoleLine();
                 Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
-
                 Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
                 PrintColour(retString, false, false, false);
                 Console.CursorLeft = left; //Reset the left to its original position
             }
-            Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            else
+            {
+                Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            }
             return false;
         }
         public static string GetLocalIPAddress()
