@@ -1530,7 +1530,10 @@ namespace DevTools
                 var name = s.Split('(')[0];
                 if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), v.IndexOf(name) + name.Length, name));
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                    }
                 }
             }
             #endregion
