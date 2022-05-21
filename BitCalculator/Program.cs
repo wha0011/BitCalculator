@@ -73,12 +73,14 @@ namespace DevTools
             }
         }
 
-        // returns null if user pressed Escape, or the contents of the line if they pressed Enter.
+        public static bool readingConsole = false;
+        static string retString = "";
         private static string ReadLineOrEsc()
         {
-            string retString = "";
+            retString = "";
+            readingConsole = true;
+            int writeIDX = 0;
 
-            int curIndex = 0;
             do
             {
                 ConsoleKeyInfo readKeyResult = Console.ReadKey(true);
@@ -87,28 +89,68 @@ namespace DevTools
                 if (readKeyResult.Key == ConsoleKey.Enter)
                 {
                     Console.WriteLine();
+                    readingConsole = false;
                     return retString;
                 }
 
-                // handle backspace
-                if (readKeyResult.Key == ConsoleKey.Backspace)
+                if (readKeyResult.Key == ConsoleKey.LeftArrow)
                 {
-                    if (curIndex > 0)
+                    writeIDX--;
+                    Console.CursorLeft--;
+                }
+                else if (readKeyResult.Key == ConsoleKey.RightArrow)
+                {
+                    if (retString.LettersLength()>writeIDX)//Not at end yet?
                     {
-                        retString = retString.Remove(retString.Length - 1);
+                        writeIDX++;
+                        Console.CursorLeft++;
+                    }
+                }
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow)
+                {
+                    
+                }
+
+                // handle backspace
+                else if (readKeyResult.Key == ConsoleKey.Backspace || readKeyResult.Key == ConsoleKey.Delete)
+                {
+                    if (writeIDX != 0)
+                    {
+                        retString = retString.Remove(writeIDX - 1, 1);
                         Console.Write(readKeyResult.KeyChar);
                         Console.Write(' ');
                         Console.Write(readKeyResult.KeyChar);
-                        curIndex--;
                         ChangeUserTextColourLive(retString);
+                        writeIDX--;
+                    }
+                    if (readKeyResult.Key == ConsoleKey.Delete)
+                    {
+                        Console.CursorLeft -= 2;
                     }
                 }
                 else
                 {
-                    retString += readKeyResult.KeyChar;
-                    Console.Write(readKeyResult.KeyChar);
-                    curIndex++;
+                    if (retString.Length == writeIDX)//Writing next character?
+                    {
+                        retString += readKeyResult.KeyChar;
+                        Console.Write(readKeyResult.KeyChar);
+                        writeIDX++;
+                    }
+                    else if (writeIDX >= 0)//We have moved the idx?
+                    {
+                        StringBuilder sb = new StringBuilder(retString);
+                        sb[writeIDX] = readKeyResult.KeyChar;
+                        retString = sb.ToString();
+
+                        writeIDX++;
+                        Console.Write(readKeyResult.KeyChar);
+                    }
                     ChangeUserTextColourLive(retString);
+                }
+                if (Console.CursorLeft <= 3)
+                {
+                   Console.CursorLeft = 3;
+                    writeIDX = 0;
                 }
             }
             while (true);
@@ -746,7 +788,21 @@ namespace DevTools
         }
         public static bool NetworkingPrint(string toprint)
         {
-            Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            if (readingConsole) //Are we currently reading user input?
+            {
+                var left = Console.CursorLeft;
+                Console.CursorLeft = 0;
+                ClearCurrentConsoleLine();
+                Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+                Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
+
+                PrintColour(retString, false, false, false);
+                Console.CursorLeft = left; //Reset the left to its original position
+            }
+            else
+            {
+                Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            }
             return false;
         }
         public static string GetLocalIPAddress()
@@ -1663,14 +1719,26 @@ namespace DevTools
 
             PrintColour(userinput);
         }
+        public static void ClearCurrentConsoleLine()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write(new string(' ', Console.WindowWidth));
+            Console.SetCursorPosition(0, currentLineCursor);
+        }
         public static void ChangeUserTextColourLive(string userinput)
         {
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
-            x-= userinput.Length; //Get the start of the row
-            Console.SetCursorPosition(x, y);
+
+            Console.SetCursorPosition(0, y);
+            ClearCurrentConsoleLine();
+            Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
+
+            Console.SetCursorPosition(3, y);
 
             PrintColour(userinput, false, false, false);
+            Console.SetCursorPosition(x, y);
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
