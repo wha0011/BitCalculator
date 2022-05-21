@@ -8,15 +8,17 @@ namespace DevTools
 {
     public class ClientNetworking
     {
-        private Socket _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private Socket _clientSocket;
         private static byte[] _buffer = new byte[1000];
         public Func<string,bool> RecieveMessage;
 
         public string IP;
         public int Port;
 
-        public ClientNetworking(string IP, int Port, Func<string, bool> RecieveMessage)
+        public ClientNetworking(string IP, int Port, Func<string, bool> RecieveMessage, ProtocolType protocolType)
         {
+            _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protocolType);
+
             this.IP = IP;
             this.Port = Port;
             this.RecieveMessage = RecieveMessage;

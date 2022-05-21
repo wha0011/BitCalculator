@@ -59,8 +59,8 @@ namespace DevTools
                     }
                     else
                     {
-                        ServerNetworking serverNetworking = new ServerNetworking(7777, NetworkingPrint);
-                        ClientNetworking clientNetworking = new ClientNetworking("127.0.0.1", 7777, NetworkingPrint);
+                        ServerNetworking serverNetworking = new ServerNetworking(7777, NetworkingPrint, ProtocolType.Tcp);
+                        ClientNetworking clientNetworking = new ClientNetworking("127.0.0.1", 7777, NetworkingPrint, ProtocolType.Tcp);
                         Thread.Sleep(1000);
                         clientNetworking.Send("Hey server wassup");
                         serverNetworking.SendToAll("Shut up dude");

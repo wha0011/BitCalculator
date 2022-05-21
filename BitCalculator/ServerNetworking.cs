@@ -8,7 +8,7 @@ namespace DevTools
 {
     class ServerNetworking
     {
-        private readonly Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private readonly Socket serverSocket;
         private readonly List<Socket> clientSockets = new List<Socket>();
         private const int BUFFER_SIZE = 2048;
         private int Port;
@@ -16,8 +16,10 @@ namespace DevTools
 
         public Func<string, bool> RecieveMessage;
 
-        public ServerNetworking(int Port, Func<string,bool> RecieveMessage)
+        public ServerNetworking(int Port, Func<string,bool> RecieveMessage, ProtocolType protocolType)
         {
+            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protocolType);
+
             this.RecieveMessage = RecieveMessage;
             this.Port = Port;
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
