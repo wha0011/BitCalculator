@@ -2126,6 +2126,7 @@ namespace DevTools
             PrintColour("booleans");
             PrintColour("bitmath");
             PrintColour("trig");
+            PrintColour("log");
             PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
