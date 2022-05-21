@@ -59,12 +59,6 @@ namespace DevTools
                     }
                     else
                     {
-                        ServerNetworking serverNetworking = new ServerNetworking(7777, NetworkingPrint, ProtocolType.Tcp);
-                        ClientNetworking clientNetworking = new ClientNetworking("127.0.0.1", 7777, NetworkingPrint, ProtocolType.Tcp);
-                        Thread.Sleep(1000);
-                        clientNetworking.Send("Hey server wassup");
-                        serverNetworking.SendToAll("Shut up dude");
-
                         userInput = ReadLineOrEsc();
                         ChangeUserTextColour(userInput);
                         DoMainMethod(userInput);
@@ -485,7 +479,6 @@ namespace DevTools
                 return;
             }
             #endregion
-
 
             if (userINPUT == "dt") //User wants to see the current date/time
             {
@@ -1962,8 +1955,56 @@ namespace DevTools
             return mainresult;
         }
         public static Dictionary<string, string> tempVariables = new Dictionary<string, string>();
+        public static Dictionary<string, Networking> networkingVariables = new Dictionary<string, Networking>();
         public static void DefineTempVariable(string variable)
         {
+            if (variable.Contains("=new")) //Wants to open a port?
+            {
+                string name = variable.Split('=')[0];
+                variable = variable.Substring(name.Length+1+3); //+1 is to remove the equals. +3 is for the 'new'
+
+                string[] variableData = variable.Split('_');
+                ProtocolType protocolType;
+                if (variableData[0] == "tcp") //Starting a TCP server?
+                {
+                    protocolType = ProtocolType.Tcp;
+                }
+                else if(variableData[0] == "udp")
+                {
+                    protocolType = ProtocolType.Udp;
+                }
+                else
+                {
+                    throw new Exception("Invalid protocol type: " + variableData[0]);
+                }
+
+                string networkingType = variableData[1].Split('(')[0];
+                if (networkingType == "client") //Creating a client?
+                {
+                    variable = variable.Substring(NextBracket(variable,0)+1); //Remove everything up to the opening bracket
+                    variable = variable.Substring(0,variable.Length-1); //Remove final bracket
+                    string[] data = variable.Split(',');
+                    int port = int.Parse(data[0]);
+                    string address = data[1];
+                    ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
+                    networkingVariables.Add(name,clientNetworking);
+                    Thread.Sleep(1000);
+                }
+                else if (networkingType == "server")
+                {
+                    variable = variable.Substring(NextBracket(variable, 0) + 1); //Remove everything up to the opening bracket
+                    variable = variable.Substring(0, variable.Length - 1); //Remove final bracket
+                    int port = int.Parse(variable);
+                    ServerNetworking serverNetworking = new ServerNetworking(port, NetworkingPrint, protocolType);
+                    networkingVariables.Add(name, serverNetworking);
+                }
+                else
+                {
+                    throw new Exception("Invalid networking type: " + networkingType);
+                }
+                return;
+            }
+
             string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1];

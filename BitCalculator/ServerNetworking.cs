@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DevTools
 {
-    class ServerNetworking
+    class ServerNetworking : Networking
     {
         private readonly Socket serverSocket;
         private readonly List<Socket> clientSockets = new List<Socket>();
@@ -71,13 +71,13 @@ namespace DevTools
 
             current.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, current);
         }
-        public void SendToAll(string message)
+        public override void Send(string text)
         {
             foreach (var client in clientSockets)
             {
                 try
                 {
-                    client.Send(Encoding.ASCII.GetBytes(message));
+                    client.Send(Encoding.ASCII.GetBytes(text));
                 }
                 catch
                 {

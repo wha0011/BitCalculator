@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DevTools
 {
-    public class ClientNetworking
+    public class ClientNetworking : Networking
     {
         private Socket _clientSocket;
         private static byte[] _buffer = new byte[1000];
@@ -62,8 +62,9 @@ namespace DevTools
                 {
                 }
             }
+            Send("Connected client");
         }
-        public void Send(string text)
+        public override void Send(string text)
         {
             byte[] data = Encoding.ASCII.GetBytes(text);
             _clientSocket.Send(data);
