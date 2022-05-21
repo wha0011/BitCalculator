@@ -77,5 +77,16 @@ namespace DevTools
 
             return result;
         }
+        public static int LettersLength(this string s)
+        {
+            for (int i = 0; i < s.Length; ++i)
+            {
+                if (char.IsWhiteSpace(s[i]))
+                {
+                    return i;
+                }
+            }
+            return s.Length;
+        }
     }
 }
