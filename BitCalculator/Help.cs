@@ -49,6 +49,7 @@ namespace DevTools
                                           + @"trig()///You can use trig functions such as *cos, arccos, tan, arctan, sin, arcsin* to do trig operations.<new>They are all used in the same format<new>They are used like this: *sin(90)*<new>This automatically does a *doum* operation, so you can use other math functions with it as well\\\" + "\n"
                                           + @"log()///You can do logarithimic functions specifying a base and a number<new>For example, *log8(10)* this has a base of *8*, and a num of *10*<new>If no base is specified, default is *10*<new>This automatically does a *doum* operation, so you can use other math functions with it as well\\\" + "\n"
                                           + @"ran()///Generates a random number, specify lower an upper bounds like so: *ran(lower,upper)*<new>Example usage: *ran(1,5)*\\\" + "\n"
+                                          + @"ipconfig()///Type *ipconfig* in plain text to veiw networking data.<new>Similiar to *ipconfig* in cmd\\\" + "\n"
             ;
     }
 }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -387,6 +390,11 @@ namespace DevTools
                 PrintColour(File.ReadAllText(FuncFilePath));
                 return;
             }
+            if (userINPUT == "ipconfig") //Show the user defined functions
+            {
+                PrintIPData();
+                return;
+            }
             if (userINPUT.ToLower() == "dv") //Display all the user defined variables
             {
                 foreach (var i in File.ReadAllLines(DataFilePath)) //Iterate through all the lines
@@ -690,6 +698,57 @@ namespace DevTools
                 printWorkings = !printWorkings; //Reset static variable
             }
         }
+
+        private static void PrintIPData()
+        {
+            Console.Write("Local IP: ");
+            NetworkingPrint(GetLocalIPAddress());
+
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in interfaces)
+            {
+                Console.Write("Name: ");
+                NetworkingPrint(adapter.Name);
+                Console.WriteLine(adapter.Description);
+                NetworkingPrint(String.Empty.PadLeft(adapter.Description.Length, '='));
+                NetworkingPrint("  Interface type .......................... : "+ adapter.NetworkInterfaceType);
+                NetworkingPrint("  Operational status ...................... : "+adapter.OperationalStatus);
+                string versions = "";
+
+                // Create a display string for the supported IP versions.
+                if (adapter.Supports(NetworkInterfaceComponent.IPv4))
+                {
+                    versions = "IPv4";
+                }
+                if (adapter.Supports(NetworkInterfaceComponent.IPv6))
+                {
+                    if (versions.Length > 0)
+                    {
+                        versions += " ";
+                    }
+                    versions += "IPv6";
+                }
+                NetworkingPrint("  IP version .............................. : " +versions);
+                Console.WriteLine();
+            }
+        }
+        public static void NetworkingPrint(string toprint)
+        {
+            Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+        }
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
         /// <summary>
         /// Weird math thingy
         /// </summary>
@@ -1462,7 +1521,7 @@ namespace DevTools
                 var name = s.Split('(')[0];
                 if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), name.Length, name));
+                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), v.IndexOf(name) + name.Length, name));
                 }
             }
             #endregion
@@ -2150,8 +2209,8 @@ namespace DevTools
             PrintColour("hrgb");
             PrintColour("asci");
             PrintColour("basci");
-            PrintColour("pnw");
-            PrintColour("fpnw");
+            PrintColour("pw");
+            PrintColour("fpw");
             PrintColour("cv");
             PrintColour("avg");
             PrintColour("r");
@@ -2168,6 +2227,7 @@ namespace DevTools
             PrintColour("bitmath");
             PrintColour("trig");
             PrintColour("log");
+            PrintColour("ipconfig");
             PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
