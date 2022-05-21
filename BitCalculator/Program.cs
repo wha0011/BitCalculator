@@ -1445,8 +1445,31 @@ namespace DevTools
                     funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name)+name.Length+1), name));
                 }
             }
+
+            bool atsystem = false;
+            List<FuncLocation> sysfunclocations = new List<FuncLocation>();
+            foreach (var s in File.ReadAllLines(FuncFilePath))
+            {
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    atsystem = true;
+                    continue;
+                }
+                if (!atsystem)
+                {
+                    continue;
+                }
+                var name = s.Split('(')[0];
+                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
+                {
+                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), name.Length, name));
+                }
+            }
             #endregion
-            funclocations = funclocations.OrderBy(f=>f.start).ToList();
+            funclocations = funclocations.OrderBy(f => f.start).ToList();
+            sysfunclocations = sysfunclocations.OrderBy(f => f.start).ToList();
+            //Order the functions so that the ones that appear first are at the start of the list
+
             if (workings && printWorkings == false)
             {
                 return;
@@ -1469,14 +1492,27 @@ namespace DevTools
             {
                 bool isyellow = false;
                 bool printingFunction = false;
+                bool printingsysFunction = false;
                 FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentsys = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
+                    if (currentsys.end == i)
+                    {
+                        printingsysFunction = false;
+                    }
+
                     if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
                     {
                         current = funclocations[0];
                         printingFunction = true;
                         funclocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (sysfunclocations.Count != 0 && sysfunclocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentsys = sysfunclocations[0];
+                        printingsysFunction = true;
+                        sysfunclocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -1499,6 +1535,10 @@ namespace DevTools
                         {
                             Colorful.Console.Write(c, Color.FromArgb(10, 181, 158));
                         }
+                    }
+                    else if (printingsysFunction)
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(247, 255, 161));
                     }
                     else
                     {
@@ -2097,6 +2137,7 @@ namespace DevTools
             PrintColour("dtv");
             PrintColour("exit");
             PrintColour("quit");
+            PrintColour("ran");
             PrintColour("alg");
             PrintColour("v");
             PrintColour("doub");

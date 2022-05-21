@@ -48,6 +48,7 @@ namespace DevTools
                                           + @"bitmath()///<< will shift the current binary values *1*'s to the left.<new>>> will do the same, except shift to the right<new>| will do a bitor on the values, for example *4|5*<new>Similiarly to the bitor, *^* does an exor, and *&* does a bitand<new>If you don't understand binary, don't bother using these\\\" + "\n"
                                           + @"trig()///You can use trig functions such as *cos, arccos, tan, arctan, sin, arcsin* to do trig operations.<new>They are all used in the same format<new>They are used like this: *sin(90)*<new>This automatically does a *doum* operation, so you can use other math functions with it as well\\\" + "\n"
                                           + @"log()///You can do logarithimic functions specifying a base and a number<new>For example, *log8(10)* this has a base of *8*, and a num of *10*<new>If no base is specified, default is *10*<new>This automatically does a *doum* operation, so you can use other math functions with it as well\\\" + "\n"
+                                          + @"ran()///Generates a random number, specify lower an upper bounds like so: *ran(lower,upper)*<new>Example usage: *ran(1,5)*\\\" + "\n"
             ;
     }
 }
