@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace DevTools
 {
@@ -376,7 +380,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-             if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -385,6 +389,11 @@ namespace DevTools
             if (userINPUT == "showfunc") //Show the user defined functions
             {
                 PrintColour(File.ReadAllText(FuncFilePath));
+                return;
+            }
+            if (userINPUT == "ipconfig") //Show the user defined functions
+            {
+                PrintIPData();
                 return;
             }
             if (userINPUT.ToLower() == "dv") //Display all the user defined variables
@@ -470,7 +479,6 @@ namespace DevTools
                 return;
             }
             #endregion
-
 
             if (userINPUT == "dt") //User wants to see the current date/time
             {
@@ -578,6 +586,18 @@ namespace DevTools
             if (userINPUT.BeginsWith("ati")) //Weird math thingy. Description in the PrintAti() function
             {
                 PrintAti(userINPUT);
+                return;
+            }
+            if (userINPUT.BeginsWith("nslookup")) //User wants to find IP of a server
+            {
+                string addresses = "";
+                foreach (var address in Dns.GetHostEntry(userINPUT.Substring(8)).AddressList)
+                {
+                    addresses += address;
+                    addresses += ',';
+                }
+                addresses = addresses.Substring(0,addresses.Length-1); //Remove the final comma
+                NetworkingPrint("Server IP: " + addresses);
                 return;
             }
             if (userINPUT.BeginsWith("f")) //Flipping the binary result?
@@ -690,6 +710,58 @@ namespace DevTools
                 printWorkings = !printWorkings; //Reset static variable
             }
         }
+
+        private static void PrintIPData()
+        {
+            Console.Write("Local IP: ");
+            NetworkingPrint(GetLocalIPAddress());
+
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in interfaces)
+            {
+                Console.Write("Name: ");
+                NetworkingPrint(adapter.Name);
+                Console.WriteLine(adapter.Description);
+                NetworkingPrint(String.Empty.PadLeft(adapter.Description.Length, '='));
+                NetworkingPrint("  Interface type .......................... : "+ adapter.NetworkInterfaceType);
+                NetworkingPrint("  Operational status ...................... : "+adapter.OperationalStatus);
+                string versions = "";
+
+                // Create a display string for the supported IP versions.
+                if (adapter.Supports(NetworkInterfaceComponent.IPv4))
+                {
+                    versions = "IPv4";
+                }
+                if (adapter.Supports(NetworkInterfaceComponent.IPv6))
+                {
+                    if (versions.Length > 0)
+                    {
+                        versions += " ";
+                    }
+                    versions += "IPv6";
+                }
+                NetworkingPrint("  IP version .............................. : " +versions);
+                Console.WriteLine();
+            }
+        }
+        public static bool NetworkingPrint(string toprint)
+        {
+            Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
+            return false;
+        }
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
         /// <summary>
         /// Weird math thingy
         /// </summary>
@@ -763,10 +835,6 @@ namespace DevTools
             userINPUT = RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED")
-            {
-                return userINPUT;
-            }
             return userINPUT;
         }
         public static string RemoveLog(string userINPUT)
@@ -1462,7 +1530,10 @@ namespace DevTools
                 var name = s.Split('(')[0];
                 if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    sysfunclocations.Add(new FuncLocation(v.IndexOf(name), name.Length, name));
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                    }
                 }
             }
             #endregion
@@ -1895,8 +1966,60 @@ namespace DevTools
             return mainresult;
         }
         public static Dictionary<string, string> tempVariables = new Dictionary<string, string>();
+        public static Dictionary<string, Networking> networkingVariables = new Dictionary<string, Networking>();
         public static void DefineTempVariable(string variable)
         {
+            if (variable.Contains("=new")) //Wants to open a port?
+            {
+                string name = variable.Split('=')[0];
+                variable = variable.Substring(name.Length+1+3); //+1 is to remove the equals. +3 is for the 'new'
+
+                string[] variableData = variable.Split('_');
+                ProtocolType protocolType;
+                if (variableData[0] == "tcp") //Starting a TCP server?
+                {
+                    protocolType = ProtocolType.Tcp;
+                }
+                else if(variableData[0] == "udp")
+                {
+                    protocolType = ProtocolType.Udp;
+                }
+                else
+                {
+                    throw new Exception("Invalid protocol type: " + variableData[0]);
+                }
+
+                string networkingType = variableData[1].Split('(')[0];
+                if (networkingType == "client") //Creating a client?
+                {
+                    variable = variable.Substring(NextBracket(variable,0)+1); //Remove everything up to the opening bracket
+                    variable = variable.Substring(0,variable.Length-1); //Remove final bracket
+                    string[] data = variable.Split(',');
+                    int port = int.Parse(data[0]);
+                    string address = data[1];
+                    if (address == "localhost")
+                    {
+                        address = "127.0.0.1";
+                    }
+                    ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
+                    networkingVariables.Add(name,clientNetworking);
+                    Thread.Sleep(1000);
+                }
+                else if (networkingType == "server")
+                {
+                    variable = variable.Substring(NextBracket(variable, 0) + 1); //Remove everything up to the opening bracket
+                    variable = variable.Substring(0, variable.Length - 1); //Remove final bracket
+                    int port = int.Parse(variable);
+                    ServerNetworking serverNetworking = new ServerNetworking(port, NetworkingPrint, protocolType);
+                    networkingVariables.Add(name, serverNetworking);
+                }
+                else
+                {
+                    throw new Exception("Invalid networking type: " + networkingType);
+                }
+                return;
+            }
+
             string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1];
@@ -1915,11 +2038,30 @@ namespace DevTools
         }
         public static string ReplaceTempVariables(string sINPUT)
         {
+            foreach (var pair in networkingVariables)
+            {
+                if (sINPUT.StartsWith(pair.Key)) //Doing operation on a networking thingy?
+                {
+                    string operation = sINPUT.Split('.')[1]; //Find the function after the '.'
+                    DoNetworkingOperation(pair.Value, operation);
+                    return "CLOSE_CONDITION_PROCESSED";
+                }
+            }
+
             foreach (var pair in tempVariables)
             {
                 sINPUT = ReplaceTempVariables(sINPUT, pair.Key, pair.Value);
             }
             return sINPUT;
+        }
+        public static void DoNetworkingOperation(Networking n, string operation)
+        {
+            if (operation.BeginsWith("send")) //User wants to send data?
+            {
+                string data = operation.Substring(5);
+                data = data.Substring(0,data.Length-1); //Remove send( and )
+                n.Send(data);
+            }
         }
         private static int NextOperatorIDX(string input, int currIDX)
         {
@@ -2150,8 +2292,8 @@ namespace DevTools
             PrintColour("hrgb");
             PrintColour("asci");
             PrintColour("basci");
-            PrintColour("pnw");
-            PrintColour("fpnw");
+            PrintColour("pw");
+            PrintColour("fpw");
             PrintColour("cv");
             PrintColour("avg");
             PrintColour("r");
@@ -2168,6 +2310,13 @@ namespace DevTools
             PrintColour("bitmath");
             PrintColour("trig");
             PrintColour("log");
+            PrintColour("ipconfig");
+            PrintColour("open");
+            PrintColour("tcp_client");
+            PrintColour("tcp_server");
+            PrintColour("udp_client");
+            PrintColour("udp_server");
+            PrintColour("nslookup");
             PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
