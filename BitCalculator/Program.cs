@@ -1563,7 +1563,7 @@ namespace DevTools
                 {
                     foreach (var idx in v.AllIndexs(name))
                     {
-                        if (idx >= 1 && !char.IsLetter(name[idx - 1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
                         {
                             if (idx + name.Length < v.Length && !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
                             {
