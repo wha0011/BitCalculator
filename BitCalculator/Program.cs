@@ -706,7 +706,11 @@ namespace DevTools
                 PrintColour(booleans, false); //Only do bool math, don't process following characters
                 return;
             }
-            userINPUT = BitCalculate(userINPUT, chosenType);
+            if (BitCalculate(userINPUT, chosenType) != userINPUT)
+            {
+                userINPUT = BitCalculate(userINPUT, chosenType);
+                PrintColour(userINPUT); //Only print out the answer if there has been a calculation
+            }
             ulong.TryParse(userINPUT, out ulong input);
             if (!noprint) //Are we printing the binary values?
             {
@@ -1597,7 +1601,7 @@ namespace DevTools
                 }
             }
 
-            List<FuncLocation> defineLocations = new List<FuncLocation>();
+            List<FuncLocation> variableLocations = new List<FuncLocation>();
             foreach (var s in File.ReadAllLines(DataFilePath))
             {
                 if (!s.Contains(',')) //No comma in the line?
@@ -1614,7 +1618,39 @@ namespace DevTools
                         {
                             if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
                             {
-                                defineLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (var name in tempVariables.Keys)
+            {
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (var name in networkingVariables.Keys)
+            {
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
                             }
                         }
                     }
@@ -1623,6 +1659,7 @@ namespace DevTools
             #endregion
             funclocations = funclocations.OrderBy(f => f.start).ToList();
             sysfunclocations = sysfunclocations.OrderBy(f => f.start).ToList();
+            variableLocations = variableLocations.OrderBy(f => f.start).ToList();
             //Order the functions so that the ones that appear first are at the start of the list
 
             if (workings && printWorkings == false)
@@ -1675,11 +1712,11 @@ namespace DevTools
                         printingsysFunction = true;
                         sysfunclocations.RemoveAt(0); //Remove it from the list
                     }
-                    if (defineLocations.Count != 0 && defineLocations[0].start == i) //Are we at the start idx of a system function?
+                    if (variableLocations.Count != 0 && variableLocations[0].start == i) //Are we at the start idx of a system function?
                     {
-                        currentdefine = defineLocations[0];
+                        currentdefine = variableLocations[0];
                         printingDefine = true;
-                        defineLocations.RemoveAt(0); //Remove it from the list
+                        variableLocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -3231,7 +3268,7 @@ namespace DevTools
                                     result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         operatorSet = true;
@@ -3266,7 +3303,7 @@ namespace DevTools
                                     result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         firstUlong = "";
@@ -3303,7 +3340,7 @@ namespace DevTools
                             result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                             break;
                     }
-                    PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
+                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
                     return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), chosenType);
                 }
             }
@@ -3375,7 +3412,7 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
                         }
                         operatorSet = true;
@@ -3403,7 +3440,7 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
                         }
                         firstUlong = "";
@@ -3431,7 +3468,7 @@ namespace DevTools
                             result = first - second;
                             break;
                     }
-                    PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
+                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
                     return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
                 }
             }
