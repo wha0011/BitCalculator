@@ -711,7 +711,10 @@ namespace DevTools
             if (BitCalculate(userINPUT, chosenType) != userINPUT)
             {
                 userINPUT = BitCalculate(userINPUT, chosenType);
-                PrintColour(userINPUT); //Only print out the answer if there has been a calculation
+                if (!noprint)
+                {
+                    PrintColour(userINPUT); //Only print out the answer if there has been a calculation
+                }
             }
             ulong.TryParse(userINPUT, out ulong input);
             if (!noprint) //Are we printing the binary values?
@@ -3033,7 +3036,7 @@ namespace DevTools
                     first = -first;
                 }
                 input = second * first;
-                PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
+                //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             else if (sINPUT.Contains("/"))
@@ -3059,7 +3062,7 @@ namespace DevTools
                     first = -first;
                 }
                 input = second / first;
-                PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
+                //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             return "0";
@@ -3089,7 +3092,7 @@ namespace DevTools
                 ulong.TryParse(strings[1], out first);
                 ulong.TryParse(strings[0], out second);
                 input = second * first;
-                PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
+                //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             else if (sINPUT.Contains("/"))
@@ -3112,7 +3115,7 @@ namespace DevTools
                 {
                     input = 0;
                 }
-                PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
+                //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             return "0";
@@ -3393,7 +3396,7 @@ namespace DevTools
         }
         private static string DoubleCalculate(string input)
         {
-            input = Regex.Replace(input, "--", "+");
+            input = Regex.Replace(input, "--", "-");
             var sINPUT = DoubleRemoveMultiplyDivide(input);
             if (sINPUT.Where(c=>c=='-').Count() == 1 && !sINPUT.Any(c=>c=='+') && sINPUT[0] == '-')
             {
@@ -3402,10 +3405,10 @@ namespace DevTools
             if (sINPUT.Contains('+') ||
                 sINPUT.Contains('-'))
             {
-                string firstUlong = "";
-                int firstUlongStart_IDX = 0;
+                string firstdouble = "";
+                int firstdoubleStart_IDX = 0;
                 bool firstTime = true;
-                string secondUlong = "";
+                string seconddouble = "";
                 char _operator = ' ';
                 bool operatorSet = false;
                 for (int i = 0; i < sINPUT.Length; i++)
@@ -3416,38 +3419,38 @@ namespace DevTools
                         //is it a number
                         if (!operatorSet)
                         {
-                            firstUlong += c;
+                            firstdouble += c;
                             if (firstTime)
                             {
                                 firstTime = false;
-                                firstUlongStart_IDX = i;
+                                firstdoubleStart_IDX = i;
                             }
                         }
                         else
                         {
-                            secondUlong += c;
+                            seconddouble += c;
                         }
                     }
                     else if (c == '+' || c == '-')
                     {
-                        if (secondUlong != "")
+                        if (seconddouble != "")
                         {
                             double result = 0ul;
-                            if (firstUlong == "" && _operator == '-')//negative number
+                            if (firstdouble == "" && _operator == '-')//negative number
                             {
                                 operatorSet = true;
-                                firstUlong = '-' + secondUlong;
-                                secondUlong = "";
+                                firstdouble = '-' + seconddouble;
+                                seconddouble = "";
                                 continue;
                             }
-                            if (firstUlong == "")
+                            if (firstdouble == "")
                             {
-                                firstUlong = lastInput.ToString();
-                                sINPUT = sINPUT.Insert(0, firstUlong);
-                                //firstUlongStart_IDX = 1;
+                                firstdouble = lastInput.ToString();
+                                sINPUT = sINPUT.Insert(0, firstdouble);
+                                //firstdoubleStart_IDX = 1;
                             }
-                            double first = double.Parse(firstUlong);
-                            double second = double.Parse(secondUlong);
+                            double first = double.Parse(firstdouble);
+                            double second = double.Parse(seconddouble);
                             switch (_operator)
                             {
                                 case '+':
@@ -3457,25 +3460,25 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
+                            return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
                         }
                         operatorSet = true;
                         _operator = c;
                     }
                     else
                     {
-                        if (secondUlong != "")
+                        if (seconddouble != "")
                         {
                             double result = 0ul;
-                            if (firstUlong == "")
+                            if (firstdouble == "")
                             {
-                                firstUlong = lastInput.ToString();
-                                sINPUT = sINPUT.Insert(0, firstUlong);
-                                //firstUlongStart_IDX = 1;
+                                firstdouble = lastInput.ToString();
+                                sINPUT = sINPUT.Insert(0, firstdouble);
+                                //firstdoubleStart_IDX = 1;
                             }
-                            double first = double.Parse(firstUlong);
-                            double second = double.Parse(secondUlong);
+                            double first = double.Parse(firstdouble);
+                            double second = double.Parse(seconddouble);
                             switch (_operator)
                             {
                                 case '+':
@@ -3485,25 +3488,25 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
+                            return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
                         }
-                        firstUlong = "";
+                        firstdouble = "";
                         operatorSet = false;
-                        secondUlong = "";
+                        seconddouble = "";
                     }
                 }
-                if (secondUlong != "")
+                if (seconddouble != "")
                 {
                     double result = 0ul;
-                    if (firstUlong == "")
+                    if (firstdouble == "")
                     {
-                        firstUlong = lastInput.ToString();
-                        sINPUT = sINPUT.Insert(0, firstUlong);
-                        //firstUlongStart_IDX = 1;
+                        firstdouble = lastInput.ToString();
+                        sINPUT = sINPUT.Insert(0, firstdouble);
+                        //firstdoubleStart_IDX = 1;
                     }
-                    double first = double.Parse(firstUlong);
-                    double second = double.Parse(secondUlong);
+                    double first = double.Parse(firstdouble);
+                    double second = double.Parse(seconddouble);
                     switch (_operator)
                     {
                         case '+':
@@ -3513,8 +3516,8 @@ namespace DevTools
                             result = first - second;
                             break;
                     }
-                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
+                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
+                    return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
                 }
             }
             return sINPUT;
