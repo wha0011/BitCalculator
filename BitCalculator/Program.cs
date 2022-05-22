@@ -742,7 +742,7 @@ namespace DevTools
             if (!ulong.TryParse(userINPUT, out ulong input))
             {
                 expectingError = true;
-                throw new Exception(string.Format("{0} is not a number", userINPUT));
+                throw new Exception(string.Format("'{0}' is not a number", userINPUT));
             }
             if (!noprint) //Are we printing the binary values?
             {
