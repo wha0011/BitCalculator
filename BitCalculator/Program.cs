@@ -68,13 +68,18 @@ namespace DevTools
                 {
                     //Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
-                    Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
+                    if (!expectingError)
+                    {
+                        Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
+                    }
+                    expectingError = false;
                 }
             }
         }
 
         public static bool readingConsole = false;
         static string retString = "";
+        public static bool expectingError;
         private static string ReadLineOrEsc()
         {
             retString = "";
@@ -339,7 +344,8 @@ namespace DevTools
                     }
                 }
             }
-            return "";
+            expectingError = true;
+            throw new Exception("Could not factorize");
         }
         static IEnumerable<int> GetFactors(int n)
         {
@@ -464,7 +470,21 @@ namespace DevTools
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = userINPUT.Substring(0,userINPUT.Length-1); //Remove brackets
-                int[] nums = userINPUT.Split(',').Select(s=>int.Parse(s)).ToArray();
+                int[] nums;
+                try
+                {
+                    nums = userINPUT.Split(',').Select(s => int.Parse(s)).ToArray();
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception("Arguments must be numbers");
+                }
+                if (nums.Length != 3)
+                {
+                    expectingError = true;
+                    throw new Exception("Expected 2 commas, recieved " + nums.Where(c=>c==',').Count());
+                }
                 FactoriseCrissCross(nums[0], nums[1], nums[2]);
                 return;
             }
@@ -690,14 +710,17 @@ namespace DevTools
             if (is32bit)
             {
                 chosenType = 'i';
+                PrintColour("Printing as 32 bit int...");
             }
             else if (is16bit)
             {
                 chosenType = 's';
+                PrintColour("Printing as 16 bit short...");
             }
             else if (is8bit)
             {
                 chosenType = 'b';
+                PrintColour("Printing as 8 bit byte...");
             } //Change the chosen output type depending on the specified bit length
               //Default is 64 bit ulong
 
@@ -716,7 +739,11 @@ namespace DevTools
                     PrintColour(userINPUT); //Only print out the answer if there has been a calculation
                 }
             }
-            ulong.TryParse(userINPUT, out ulong input);
+            if (!ulong.TryParse(userINPUT, out ulong input))
+            {
+                expectingError = true;
+                throw new Exception(string.Format("{0} is not a number", userINPUT));
+            }
             if (!noprint) //Are we printing the binary values?
             {
                 if (is32bit) //Print as 32 bit
@@ -813,6 +840,7 @@ namespace DevTools
                     return ip.ToString();
                 }
             }
+            expectingError = true;
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
 
@@ -1591,7 +1619,7 @@ namespace DevTools
                     continue;
                 }
                 var name = s.Split('(')[0];
-                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
+                if (v.Contains(name) && name.Length >= 1) //Name is in the users input?
                 {
                     foreach (var idx in v.AllIndexs(name))
                     {
@@ -1612,6 +1640,7 @@ namespace DevTools
                 if (!s.Contains(',')) //No comma in the line?
                 {
                     File.WriteAllText(DataFilePath, ""); //Clear the file
+                    expectingError = true;
                     throw new Exception("Variables file corrupted. File cleared");
                 }
                 var name = s.Split(',')[0];
@@ -2183,6 +2212,7 @@ namespace DevTools
                 }
                 else
                 {
+                    expectingError = true;
                     throw new Exception("Invalid protocol type: " + variableData[0]);
                 }
 
@@ -2204,6 +2234,7 @@ namespace DevTools
                     }
                     catch
                     {
+                        expectingError = true;
                         throw new Exception("Invalid IP address: " + address);
                     }
                     ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
@@ -2220,6 +2251,7 @@ namespace DevTools
                 }
                 else
                 {
+                    expectingError = true;
                     throw new Exception("Invalid networking type: " + networkingType);
                 }
                 return;
@@ -2612,6 +2644,16 @@ namespace DevTools
             }
             File.WriteAllLines(FuncFilePath, prev.ToArray());
 
+            if (!function.Contains(')'))
+            {
+                expectingError = true;
+                throw new Exception("Wrong formatting for declaring function.\nDid not include closing bracket");
+            }
+            if (function.Split(')')[1].Length == 0)
+            {
+                expectingError = true;
+                throw new Exception("Define an action to take place with the variable");
+            }
             string result = function + "\n" + File.ReadAllText(FuncFilePath);
 
             File.WriteAllText(FuncFilePath, result);
@@ -2681,77 +2723,78 @@ namespace DevTools
         }
         public static string ReplaceVariables(string input)
         {
-            try
+
+            string i = input;
+            foreach (var s in DefineVariableContents())
             {
-                string i = input;
-                foreach (var s in DefineVariableContents())
+                if (!s.Contains(','))
                 {
-                    if (!s.Contains(','))
-                    {
-                        File.WriteAllText(DataFilePath, "");
-                        PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
-                        return "";
-                    }
-
-                    var ss = s.SplitAtFirst(',');
-                    i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
+                    File.WriteAllText(DataFilePath, "");
+                    PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                    return "";
                 }
-                foreach (var s in File.ReadAllLines(FuncFilePath))
-                {
-                    if (s == "")
-                    {
-                        continue;
-                    }
-                    if (s == "SYSTEM FUNCTIONS:")
-                    {
-                        break;
-                    }
-                    if (!s.Contains('('))
-                    {
-                        File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS);
-                        PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
-                        return "";
-                    }
-                    var name = s.Split('(')[0];
-                    if (i.Contains(name))
-                    {
-                        string replacestring = s;
-                        int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
-                        replacestring = replacestring.Substring(closingBracketidx + 1);
 
-                        int valuesstartidx = i.IndexOf(name) + name.Length+1;
-                        string[] values = i.Substring(valuesstartidx, ClosingBracket(i, valuesstartidx) - valuesstartidx).Split(',');
-                        string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
-                        Dictionary<string, int> variableValues = new Dictionary<string, int>();
-                        //Iterate through here and add the variable values to the variable names
-                        //swap out the variable values for the variable names in the function stored file
-                        //Replace the function text with the text found in the file
-
-                        for (int idx = 0; idx < values.Length; ++idx)
-                        {
-                            replacestring = ReplaceTempVariables(replacestring, names[idx], values[idx]);
-                        }
-                        if (replacestring.Contains("///"))
-                        {
-                            replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
-                        }
-                        string before = i.Substring(0, i.IndexOf(name));
-                        string after = i.Substring(ClosingBracket(i, i.IndexOf(name) + name.Length + 1)+1);
-                        i = before + replacestring + after;
-                        return ReplaceVariables(i);
-                    }
-                }
-                if (i != input)
-                {
-                    PrintColour(i, true);
-                }
-                i = RemoveRandom(i);
-                return i;
+                var ss = s.SplitAtFirst(',');
+                i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
             }
-            catch
+            foreach (var s in File.ReadAllLines(FuncFilePath))
             {
-                throw new Exception("Ya might wanna check ur usage of that function");
+                if (s == "")
+                {
+                    continue;
+                }
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
+                if (!s.Contains('('))
+                {
+                    File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS);
+                    PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
+                    return "";
+                }
+                var name = s.Split('(')[0];
+                if (i.Contains(name))
+                {
+                    string replacestring = s;
+                    int closingBracketidx = ClosingBracket(replacestring, name.Length + 1);
+                    replacestring = replacestring.Substring(closingBracketidx + 1);
+
+                    int valuesstartidx = i.IndexOf(name) + name.Length + 1;
+                    string[] values = i.Substring(valuesstartidx, ClosingBracket(i, valuesstartidx) - valuesstartidx).Split(',');
+                    string[] names = s.Substring(name.Length + 1, ClosingBracket(s, name.Length + 1) - name.Length - 1).Split(',');
+                    Dictionary<string, int> variableValues = new Dictionary<string, int>();
+
+                    if (values.Length != names.Length)
+                    {
+                        expectingError = true;
+                        throw new Exception(string.Format("Recieved {0} arguments, expected {1}", values.Length, names.Length));
+                    }
+
+                    //Iterate through here and add the variable values to the variable names
+                    //swap out the variable values for the variable names in the function stored file
+                    //Replace the function text with the text found in the file
+
+                    for (int idx = 0; idx < values.Length; ++idx)
+                    {
+                        replacestring = ReplaceTempVariables(replacestring, names[idx], values[idx]);
+                    }
+                    if (replacestring.Contains("///"))
+                    {
+                        replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
+                    }
+                    string before = i.Substring(0, i.IndexOf(name));
+                    string after = i.Substring(ClosingBracket(i, i.IndexOf(name) + name.Length + 1) + 1);
+                    i = before + replacestring + after;
+                    return ReplaceVariables(i);
+                }
             }
+            if (i != input)
+            {
+                PrintColour(i, true);
+            }
+            i = RemoveRandom(i);
+            return i;
         }
         public static string RemoveAndReplace(int startIDX, int endIDX, string replaceWith, string input)
         {
@@ -2826,7 +2869,8 @@ namespace DevTools
                         int nextBracketIDX = NextBracket(s, i);
                         if (nextBracketIDX == -1)
                         {
-                            throw new Exception();
+                            expectingError = true;
+                            throw new Exception("Some weird sh*t is happening");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
@@ -2905,7 +2949,8 @@ namespace DevTools
                         int nextBracketIDX = NextBracket(s, i);
                         if (nextBracketIDX == -1)
                         {
-                            throw new Exception();
+                            expectingError = true;
+                            throw new Exception("Some weird sh*t is happening");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
