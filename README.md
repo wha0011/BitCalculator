@@ -1,4 +1,4 @@
-# BitCalculator
+# DevTools
 A fancy calculator pretty much.
 Comes with a bunch of tools useful for dev's.
 Easy way to veiw binary for different numbers in different formats.
