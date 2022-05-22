@@ -1553,9 +1553,18 @@ namespace DevTools
                     break;
                 }
                 var name = s.Split('(')[0];
-                if (v.Contains(name)) //Name is in the users input?
+                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name)+name.Length+1), name));
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx >= 1 && !char.IsLetter(name[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length < v.Length && !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name) + name.Length + 1), name));
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1577,7 +1586,13 @@ namespace DevTools
                 {
                     foreach (var idx in v.AllIndexs(name))
                     {
-                        sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                        if (idx == 0 || !char.IsLetter(name[idx-1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
                     }
                 }
             }
