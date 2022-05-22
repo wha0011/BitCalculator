@@ -1656,10 +1656,37 @@ namespace DevTools
                     }
                 }
             }
+
+            List<FuncLocation> speechLocations = new List<FuncLocation>();
+            bool lookingForSpeech = false;
+            int lastidx = -1;
+            for (int i = 0; i < v.Length; ++i)
+            {
+                char c = v[i];
+                if (c == '\"') //In speechmarks?
+                {
+                    if (lookingForSpeech)
+                    {
+                        lookingForSpeech = false;
+                        speechLocations.Add(new FuncLocation(lastidx, i+1, ""));
+                        lastidx = -1;
+                    }
+                    else
+                    {
+                        lastidx = i;
+                        lookingForSpeech = true;
+                    }
+                }
+            }
+            if (lastidx != -1) //Is there a lonely speech mark?
+            {
+                speechLocations.Add(new FuncLocation(lastidx, v.Length, "")); //All text after that speech mark is marked as text   
+            }
             #endregion
             funclocations = funclocations.OrderBy(f => f.start).ToList();
             sysfunclocations = sysfunclocations.OrderBy(f => f.start).ToList();
             variableLocations = variableLocations.OrderBy(f => f.start).ToList();
+            speechLocations = speechLocations.OrderBy(f => f.start).ToList();
             //Order the functions so that the ones that appear first are at the start of the list
 
             if (workings && printWorkings == false)
@@ -1686,9 +1713,11 @@ namespace DevTools
                 bool printingFunction = false;
                 bool printingsysFunction = false;
                 bool printingDefine = false;
+                bool printingSpeech = false;
                 FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 FuncLocation currentsys = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 FuncLocation currentdefine = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentspeech = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
                     if (currentsys.end == i)
@@ -1698,6 +1727,10 @@ namespace DevTools
                     if (currentdefine.end == i)
                     {
                         printingDefine = false;
+                    }
+                    if (currentspeech.end == i)
+                    {
+                        printingSpeech = false;
                     }
 
                     if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
@@ -1717,6 +1750,12 @@ namespace DevTools
                         currentdefine = variableLocations[0];
                         printingDefine = true;
                         variableLocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (speechLocations.Count != 0 && speechLocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentspeech = speechLocations[0];
+                        printingSpeech = true;
+                        speechLocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -1743,6 +1782,10 @@ namespace DevTools
                     else if (printingsysFunction)
                     {
                         Colorful.Console.Write(c, Color.FromArgb(247, 255, 161));
+                    }
+                    else if (printingSpeech)
+                    {
+                        Colorful.Console.Write(c, Color.Beige);
                     }
                     else if (printingDefine)
                     {
