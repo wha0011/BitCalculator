@@ -106,13 +106,13 @@ namespace DevTools
                         Console.CursorLeft++;
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow)
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete)
                 {
                     
                 }
 
                 // handle backspace
-                else if (readKeyResult.Key == ConsoleKey.Backspace || readKeyResult.Key == ConsoleKey.Delete)
+                else if (readKeyResult.Key == ConsoleKey.Backspace)
                 {
                     if (writeIDX != 0)
                     {
@@ -122,10 +122,6 @@ namespace DevTools
                         Console.Write(readKeyResult.KeyChar);
                         ChangeUserTextColourLive(retString);
                         writeIDX--;
-                    }
-                    if (readKeyResult.Key == ConsoleKey.Delete)
-                    {
-                        Console.CursorLeft -= 2;
                     }
                 }
                 else
