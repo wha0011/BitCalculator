@@ -66,7 +66,7 @@ namespace DevTools
                 }
                 catch (Exception e)
                 {
-                    Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
+                    //Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                 }
@@ -108,7 +108,7 @@ namespace DevTools
                 }
                 else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete)
                 {
-                    
+                    //Do nothing, just dont run other functions
                 }
 
                 // handle backspace
@@ -530,14 +530,7 @@ namespace DevTools
             }
             if (userINPUT.BeginsWith("var"))
             {
-                try
-                {
-                    DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
-                }
-                catch
-                {
-                    throw new Exception("Could not define variable.\nThis may be because the variable has already been defined. Read documentation to see how to modify a variable");
-                }
+                DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("np")) //Does the user not want to print the binary value of the final result?
@@ -2064,6 +2057,14 @@ namespace DevTools
                     if (address == "localhost")
                     {
                         address = "127.0.0.1";
+                    }
+                    try
+                    {
+                        IPAddress.Parse(address);
+                    }
+                    catch
+                    {
+                        throw new Exception("Invalid IP address: " + address);
                     }
                     ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
                     networkingVariables.Add(name,clientNetworking);

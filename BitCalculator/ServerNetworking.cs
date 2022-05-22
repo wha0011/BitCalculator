@@ -14,13 +14,13 @@ namespace DevTools
         private int Port;
         private static readonly byte[] buffer = new byte[BUFFER_SIZE];
 
-        public Func<string, bool> RecieveMessage;
+        public Func<string, bool> Log;
 
-        public ServerNetworking(int Port, Func<string,bool> RecieveMessage, ProtocolType protocolType)
+        public ServerNetworking(int Port, Func<string,bool> Log, ProtocolType protocolType)
         {
             serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protocolType);
 
-            this.RecieveMessage = RecieveMessage;
+            this.Log = Log;
             this.Port = Port;
             serverSocket.Bind(new IPEndPoint(IPAddress.Any, Port));
             serverSocket.Listen(0);
@@ -42,7 +42,7 @@ namespace DevTools
 
             clientSockets.Add(socket);
             socket.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, socket);
-            RecieveMessage("Client connected, waiting for request...");
+            Log("Client connected, waiting for request...");
             serverSocket.BeginAccept(AcceptCallback, null);
         }
 
@@ -57,7 +57,7 @@ namespace DevTools
             }
             catch (SocketException)
             {
-                Console.WriteLine("Client forcefully disconnected");
+                Log("Client forcefully disconnected");
                 // Don't shutdown because the socket may be disposed and its disconnected anyway.
                 current.Close();
                 clientSockets.Remove(current);
@@ -67,7 +67,7 @@ namespace DevTools
             byte[] recBuf = new byte[received];
             Array.Copy(buffer, recBuf, received);
             string text = Encoding.ASCII.GetString(recBuf);
-            RecieveMessage("Server recieved: " + text);
+            Log("Server recieved: " + text);
 
             current.BeginReceive(buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, current);
         }
@@ -77,7 +77,9 @@ namespace DevTools
             {
                 try
                 {
-                    client.Send(Encoding.ASCII.GetBytes(text));
+                    byte[] data = Encoding.ASCII.GetBytes(text);
+                    client.Send(data);
+                    Log(string.Format("Sent {0} bytes of data", data.Length));
                 }
                 catch
                 {
