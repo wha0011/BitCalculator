@@ -1586,11 +1586,35 @@ namespace DevTools
                 {
                     foreach (var idx in v.AllIndexs(name))
                     {
-                        if (idx == 0 || !char.IsLetter(name[idx-1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(v[idx-1])) //Is this the start of the word?
                         {
                             if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
                             {
                                 sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<FuncLocation> defineLocations = new List<FuncLocation>();
+            foreach (var s in File.ReadAllLines(DataFilePath))
+            {
+                if (!s.Contains(',')) //No comma in the line?
+                {
+                    File.WriteAllText(DataFilePath, ""); //Clear the file
+                    throw new Exception("Variables file corrupted. File cleared");
+                }
+                var name = s.Split(',')[0];
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                defineLocations.Add(new FuncLocation(idx, idx + name.Length, name));
                             }
                         }
                     }
@@ -1624,13 +1648,19 @@ namespace DevTools
                 bool isyellow = false;
                 bool printingFunction = false;
                 bool printingsysFunction = false;
+                bool printingDefine = false;
                 FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 FuncLocation currentsys = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentdefine = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
                     if (currentsys.end == i)
                     {
                         printingsysFunction = false;
+                    }
+                    if (currentdefine.end == i)
+                    {
+                        printingDefine = false;
                     }
 
                     if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
@@ -1644,6 +1674,12 @@ namespace DevTools
                         currentsys = sysfunclocations[0];
                         printingsysFunction = true;
                         sysfunclocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (defineLocations.Count != 0 && defineLocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentdefine = defineLocations[0];
+                        printingDefine = true;
+                        defineLocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -1670,6 +1706,10 @@ namespace DevTools
                     else if (printingsysFunction)
                     {
                         Colorful.Console.Write(c, Color.FromArgb(247, 255, 161));
+                    }
+                    else if (printingDefine)
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(168, 0, 149));
                     }
                     else
                     {
