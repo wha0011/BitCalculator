@@ -106,7 +106,7 @@ namespace DevTools
                         Console.CursorLeft++;
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete)
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab)
                 {
                     //Do nothing, just dont run other functions
                 }
