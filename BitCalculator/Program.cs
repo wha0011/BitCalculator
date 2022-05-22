@@ -129,7 +129,8 @@ namespace DevTools
                     if (retString.Length == writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar;
-                        Console.Write(readKeyResult.KeyChar);
+                        //Console.Write(readKeyResult.KeyChar);
+                        Console.CursorLeft++;
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
@@ -139,7 +140,8 @@ namespace DevTools
                         retString = sb.ToString();
 
                         writeIDX++;
-                        Console.Write(readKeyResult.KeyChar);
+                        Console.CursorLeft++;
+                        //Console.Write(readKeyResult.KeyChar);
                     }
                     ChangeUserTextColourLive(retString);
                 }
