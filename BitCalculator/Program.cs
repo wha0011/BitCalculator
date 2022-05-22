@@ -44,7 +44,7 @@ namespace DevTools
                     string userInput = "";
                     if (args.Length != 0 && first) //Are we opening a file?
                     {
-                        PrintColour("Opening file: " + args[0]);
+                        PrintColour("Opening file: " + args[0]); //Inform the user
                         var extension = args[0].Split('.')[1]; //Get the file extension from the filepath
                         if (extension != "dcode")
                         {
@@ -59,16 +59,17 @@ namespace DevTools
                     }
                     else
                     {
-                        userInput = ReadLineOrEsc();
-                        ChangeUserTextColour(userInput);
-                        DoMainMethod(userInput);
+                        userInput = ReadLineOrEsc(); //Custom readline method to read text
+                        ChangeUserTextColour(userInput); //Change colour of the header to show command has been processed
+                        DoMainMethod(userInput); //Run users command
                     }
                 }
                 catch (Exception e)
                 {
-                    //Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
+                    //Catch any error
+
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
-                    if (!expectingError)
+                    if (!expectingError) //IF this error was thrown externally of the application, show stack trace for debugging purposes (still in beta)
                     {
                         Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                     }
@@ -77,9 +78,11 @@ namespace DevTools
             }
         }
 
-        public static bool readingConsole = false;
-        static string retString = "";
-        public static bool expectingError;
+        public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
+        //This will not print out a stack trace
+
+        public static bool readingConsole = false; //Staticbool that shows for async methods whether we are currently reading text from the console
+        static string retString = ""; //Buffer for the readline function
         private static string ReadLineOrEsc()
         {
             retString = "";
@@ -90,20 +93,19 @@ namespace DevTools
             {
                 ConsoleKeyInfo readKeyResult = Console.ReadKey(true);
 
-                // handle Enter
-                if (readKeyResult.Key == ConsoleKey.Enter)
+                if (readKeyResult.Key == ConsoleKey.Enter) //Return the buffer
                 {
                     Console.WriteLine();
                     readingConsole = false;
                     return retString;
                 }
 
-                if (readKeyResult.Key == ConsoleKey.LeftArrow)
+                if (readKeyResult.Key == ConsoleKey.LeftArrow) //Move left
                 {
                     writeIDX--;
                     Console.CursorLeft--;
                 }
-                else if (readKeyResult.Key == ConsoleKey.RightArrow)
+                else if (readKeyResult.Key == ConsoleKey.RightArrow) //Mofe right
                 {
                     if (retString.LettersLength()>writeIDX)//Not at end yet?
                     {
@@ -114,41 +116,40 @@ namespace DevTools
                 else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab)
                 {
                     //Do nothing, just dont run other functions
+
+                    //Delete does not work in this application as it moves the cursor uncrontrollably
+                    //To avoid this error, we just don't cater for it
                 }
 
                 // handle backspace
                 else if (readKeyResult.Key == ConsoleKey.Backspace)
                 {
-                    if (writeIDX != 0)
+                    if (writeIDX != 0) //Don't delete characters before the first one
                     {
-                        retString = retString.Remove(writeIDX - 1, 1);
-                        Console.Write(readKeyResult.KeyChar);
-                        Console.Write(' ');
-                        Console.Write(readKeyResult.KeyChar);
-                        ChangeUserTextColourLive(retString);
-                        writeIDX--;
+                        retString = retString.Remove(writeIDX - 1, 1); //Remove current char from the buffer
+                        ChangeUserTextColourLive(retString); //Change user text colour
+                        Console.CursorLeft--; //Move the cursor to its new position
+                        writeIDX--; //Update current writeIDX
                     }
                 }
                 else
                 {
                     if (retString.Length == writeIDX)//Writing next character?
                     {
-                        retString += readKeyResult.KeyChar;
-                        //Console.Write(readKeyResult.KeyChar);
-                        Console.CursorLeft++;
+                        retString += readKeyResult.KeyChar; //Add to the buffer
+                        Console.CursorLeft++; //Move the cursor right
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
                     {
                         StringBuilder sb = new StringBuilder(retString);
-                        sb[writeIDX] = readKeyResult.KeyChar;
-                        retString = sb.ToString();
+                        sb[writeIDX] = readKeyResult.KeyChar; //Replace specific position in string
+                        retString = sb.ToString(); //Update string
 
                         writeIDX++;
                         Console.CursorLeft++;
-                        //Console.Write(readKeyResult.KeyChar);
                     }
-                    ChangeUserTextColourLive(retString);
+                    ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
                 if (Console.CursorLeft <= 3)
                 {
