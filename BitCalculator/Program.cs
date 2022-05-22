@@ -66,7 +66,7 @@ namespace DevTools
                 }
                 catch (Exception e)
                 {
-                    Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
+                    //Colorful.Console.WriteLine("INVALID", Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
                     Colorful.Console.WriteLine(e.StackTrace, Color.FromArgb(255, 10, 10));
                 }
@@ -106,13 +106,13 @@ namespace DevTools
                         Console.CursorLeft++;
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow)
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete)
                 {
-                    
+                    //Do nothing, just dont run other functions
                 }
 
                 // handle backspace
-                else if (readKeyResult.Key == ConsoleKey.Backspace || readKeyResult.Key == ConsoleKey.Delete)
+                else if (readKeyResult.Key == ConsoleKey.Backspace)
                 {
                     if (writeIDX != 0)
                     {
@@ -122,10 +122,6 @@ namespace DevTools
                         Console.Write(readKeyResult.KeyChar);
                         ChangeUserTextColourLive(retString);
                         writeIDX--;
-                    }
-                    if (readKeyResult.Key == ConsoleKey.Delete)
-                    {
-                        Console.CursorLeft -= 2;
                     }
                 }
                 else
@@ -534,14 +530,7 @@ namespace DevTools
             }
             if (userINPUT.BeginsWith("var"))
             {
-                try
-                {
-                    DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
-                }
-                catch
-                {
-                    throw new Exception("Could not define variable.\nThis may be because the variable has already been defined. Read documentation to see how to modify a variable");
-                }
+                DefineTempVariable(userINPUT.Substring(3)); //Define a new temporary variable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("np")) //Does the user not want to print the binary value of the final result?
@@ -717,7 +706,11 @@ namespace DevTools
                 PrintColour(booleans, false); //Only do bool math, don't process following characters
                 return;
             }
-            userINPUT = BitCalculate(userINPUT, chosenType);
+            if (BitCalculate(userINPUT, chosenType) != userINPUT)
+            {
+                userINPUT = BitCalculate(userINPUT, chosenType);
+                PrintColour(userINPUT); //Only print out the answer if there has been a calculation
+            }
             ulong.TryParse(userINPUT, out ulong input);
             if (!noprint) //Are we printing the binary values?
             {
@@ -1564,9 +1557,18 @@ namespace DevTools
                     break;
                 }
                 var name = s.Split('(')[0];
-                if (v.Contains(name)) //Name is in the users input?
+                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name)+name.Length+1), name));
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx >= 1 && !char.IsLetter(name[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length < v.Length && !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                funclocations.Add(new FuncLocation(v.IndexOf(name), ClosingBracket(v, v.IndexOf(name) + name.Length + 1), name));
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1588,13 +1590,103 @@ namespace DevTools
                 {
                     foreach (var idx in v.AllIndexs(name))
                     {
-                        sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                        if (idx == 0 || !char.IsLetter(v[idx-1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
                     }
                 }
+            }
+
+            List<FuncLocation> variableLocations = new List<FuncLocation>();
+            foreach (var s in File.ReadAllLines(DataFilePath))
+            {
+                if (!s.Contains(',')) //No comma in the line?
+                {
+                    File.WriteAllText(DataFilePath, ""); //Clear the file
+                    throw new Exception("Variables file corrupted. File cleared");
+                }
+                var name = s.Split(',')[0];
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (var name in tempVariables.Keys)
+            {
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (var name in networkingVariables.Keys)
+            {
+                if (v.Contains(name)) //Name is in the users input?
+                {
+                    foreach (var idx in v.AllIndexs(name))
+                    {
+                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        {
+                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            {
+                                variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<FuncLocation> speechLocations = new List<FuncLocation>();
+            bool lookingForSpeech = false;
+            int lastidx = -1;
+            for (int i = 0; i < v.Length; ++i)
+            {
+                char c = v[i];
+                if (c == '\"') //In speechmarks?
+                {
+                    if (lookingForSpeech)
+                    {
+                        lookingForSpeech = false;
+                        speechLocations.Add(new FuncLocation(lastidx, i+1, ""));
+                        lastidx = -1;
+                    }
+                    else
+                    {
+                        lastidx = i;
+                        lookingForSpeech = true;
+                    }
+                }
+            }
+            if (lastidx != -1) //Is there a lonely speech mark?
+            {
+                speechLocations.Add(new FuncLocation(lastidx, v.Length, "")); //All text after that speech mark is marked as text   
             }
             #endregion
             funclocations = funclocations.OrderBy(f => f.start).ToList();
             sysfunclocations = sysfunclocations.OrderBy(f => f.start).ToList();
+            variableLocations = variableLocations.OrderBy(f => f.start).ToList();
+            speechLocations = speechLocations.OrderBy(f => f.start).ToList();
             //Order the functions so that the ones that appear first are at the start of the list
 
             if (workings && printWorkings == false)
@@ -1620,13 +1712,25 @@ namespace DevTools
                 bool isyellow = false;
                 bool printingFunction = false;
                 bool printingsysFunction = false;
+                bool printingDefine = false;
+                bool printingSpeech = false;
                 FuncLocation current = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 FuncLocation currentsys = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentdefine = new FuncLocation(int.MaxValue, int.MaxValue, "");
+                FuncLocation currentspeech = new FuncLocation(int.MaxValue, int.MaxValue, "");
                 for (int i = 0; i < v.Length; i++)
                 {
                     if (currentsys.end == i)
                     {
                         printingsysFunction = false;
+                    }
+                    if (currentdefine.end == i)
+                    {
+                        printingDefine = false;
+                    }
+                    if (currentspeech.end == i)
+                    {
+                        printingSpeech = false;
                     }
 
                     if (funclocations.Count != 0 && funclocations[0].start == i) //Are we at the start idx of a function?
@@ -1640,6 +1744,18 @@ namespace DevTools
                         currentsys = sysfunclocations[0];
                         printingsysFunction = true;
                         sysfunclocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (variableLocations.Count != 0 && variableLocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentdefine = variableLocations[0];
+                        printingDefine = true;
+                        variableLocations.RemoveAt(0); //Remove it from the list
+                    }
+                    if (speechLocations.Count != 0 && speechLocations[0].start == i) //Are we at the start idx of a system function?
+                    {
+                        currentspeech = speechLocations[0];
+                        printingSpeech = true;
+                        speechLocations.RemoveAt(0); //Remove it from the list
                     }
 
                     char c = v[i];
@@ -1666,6 +1782,14 @@ namespace DevTools
                     else if (printingsysFunction)
                     {
                         Colorful.Console.Write(c, Color.FromArgb(247, 255, 161));
+                    }
+                    else if (printingSpeech)
+                    {
+                        Colorful.Console.Write(c, Color.Beige);
+                    }
+                    else if (printingDefine)
+                    {
+                        Colorful.Console.Write(c, Color.FromArgb(168, 0, 149));
                     }
                     else
                     {
@@ -2068,6 +2192,14 @@ namespace DevTools
                     if (address == "localhost")
                     {
                         address = "127.0.0.1";
+                    }
+                    try
+                    {
+                        IPAddress.Parse(address);
+                    }
+                    catch
+                    {
+                        throw new Exception("Invalid IP address: " + address);
                     }
                     ClientNetworking clientNetworking = new ClientNetworking(address, port, NetworkingPrint, protocolType);
                     networkingVariables.Add(name,clientNetworking);
@@ -3179,7 +3311,7 @@ namespace DevTools
                                     result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         operatorSet = true;
@@ -3214,7 +3346,7 @@ namespace DevTools
                                     result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         firstUlong = "";
@@ -3251,7 +3383,7 @@ namespace DevTools
                             result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                             break;
                     }
-                    PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
+                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
                     return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), chosenType);
                 }
             }
@@ -3323,7 +3455,7 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
                         }
                         operatorSet = true;
@@ -3351,7 +3483,7 @@ namespace DevTools
                                     result = first - second;
                                     break;
                             }
-                            PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
+                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
                             return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT));
                         }
                         firstUlong = "";
@@ -3379,7 +3511,7 @@ namespace DevTools
                             result = first - second;
                             break;
                     }
-                    PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
+                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
                     return DoubleCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
                 }
             }

@@ -10,18 +10,18 @@ namespace DevTools
     {
         private Socket _clientSocket;
         private static byte[] _buffer = new byte[1000];
-        public Func<string,bool> RecieveMessage;
+        public Func<string,bool> Log;
 
         public string IP;
         public int Port;
 
-        public ClientNetworking(string IP, int Port, Func<string, bool> RecieveMessage, ProtocolType protocolType)
+        public ClientNetworking(string IP, int Port, Func<string, bool> Log, ProtocolType protocolType)
         {
             _clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, protocolType);
 
             this.IP = IP;
             this.Port = Port;
-            this.RecieveMessage = RecieveMessage;
+            this.Log = Log;
             SetupClient();
         }
 
@@ -32,14 +32,21 @@ namespace DevTools
         }
         private void RecieveCallback(IAsyncResult AR)
         {
-            Socket socket = (Socket)AR.AsyncState;
-            int recieved = socket.EndReceive(AR);
-            byte[] dataBuf = new byte[recieved];
-            Array.Copy(_buffer, dataBuf, recieved);
+            try
+            {
+                Socket socket = (Socket)AR.AsyncState;
+                int recieved = socket.EndReceive(AR);
+                byte[] dataBuf = new byte[recieved];
+                Array.Copy(_buffer, dataBuf, recieved);
 
-            string text = Encoding.ASCII.GetString(dataBuf);
-            RecieveMessage("Client recieved: " + text);
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallback), socket);
+                string text = Encoding.ASCII.GetString(dataBuf);
+                Log("Client recieved: " + text);
+                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(RecieveCallback), socket);
+            }
+            catch
+            {
+                Log("Server forcefully disconnected");
+            }
         }
         private void ConnectLoop()
         {
@@ -68,6 +75,7 @@ namespace DevTools
         {
             byte[] data = Encoding.ASCII.GetBytes(text);
             _clientSocket.Send(data);
+            Log(string.Format("Sent {0} bytes of data", data.Length));
         }
     }
 }
