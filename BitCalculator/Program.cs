@@ -34,6 +34,7 @@ namespace DevTools
         {
             CheckDirectories(); //See if the file storing directories exist, if not, then create them
             SetupConsole();
+            PortSniffer portSniffer = new PortSniffer(7777, NetworkingPrint);
 
             bool first = true;
             while (true)
