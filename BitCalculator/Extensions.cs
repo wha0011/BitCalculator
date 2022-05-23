@@ -164,7 +164,7 @@ namespace DevTools
         /// <param name="sINPUT"></param>
         /// <param name="curridx">where to search from in the string</param>
         /// <returns></returns>
-        private static int ClosingBracket(this string sINPUT, int curridx)
+        public static int ClosingBracket(this string sINPUT, int curridx)
         {
             int amountOfOpenBrackets = 1; //Assume that whatever is giving this string to us has alredy found an open bracket
             int amountOfClosingBrackets = 0; //We will need to look for the closing bracket
@@ -187,7 +187,7 @@ namespace DevTools
             return sINPUT.Length - 1; //No closing bracket was found! just return the end of the string
         }
 
-        private static int NextOperatorIDX(this string input, int currIDX)
+        public static int NextOperatorIDX(this string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -264,7 +264,7 @@ namespace DevTools
             return input.Length;
         }
 
-        private static int LastOperatorIDX(this string input, int currIDX)
+        public static int LastOperatorIDX(this string input, int currIDX)
         {
             for (int i = currIDX; i > -1; --i)
             {

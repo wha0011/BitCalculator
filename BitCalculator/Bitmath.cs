@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DevTools
 {
@@ -72,7 +74,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
+                            return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         operatorSet = true;
                         _operator = c;
@@ -84,7 +86,7 @@ namespace DevTools
                             ulong result = 0ul;
                             if (firstUlong == "")
                             {
-                                firstUlong = lastInput.ToString();
+                                firstUlong = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstUlong);
                                 //firstUlongStart_IDX = 1;
                             }
@@ -107,7 +109,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
+                            return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
                         }
                         firstUlong = "";
                         operatorSet = false;
@@ -119,7 +121,7 @@ namespace DevTools
                     ulong result = 0ul;
                     if (firstUlong == "")
                     {
-                        firstUlong = lastInput.ToString();
+                        firstUlong = Program.lastInput.ToString();
                         sINPUT = sINPUT.Insert(0, firstUlong);
                         //firstUlongStart_IDX = 1;
                     }
@@ -144,7 +146,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return BitCalculate(RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), chosenType);
+                    return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), chosenType);
                 }
             }
             return sINPUT;
@@ -200,7 +202,7 @@ namespace DevTools
                             }
                             if (firstdouble == "")
                             {
-                                firstdouble = lastInput.ToString();
+                                firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -216,7 +218,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
+                            return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
                         }
                         operatorSet = true;
                         _operator = c;
@@ -228,7 +230,7 @@ namespace DevTools
                             double result = 0ul;
                             if (firstdouble == "")
                             {
-                                firstdouble = lastInput.ToString();
+                                firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -244,7 +246,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
+                            return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
                         }
                         firstdouble = "";
                         operatorSet = false;
@@ -272,7 +274,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
+                    return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
                 }
             }
             return sINPUT;
@@ -347,7 +349,7 @@ namespace DevTools
         private static string CalcTrig(string sINPUT, int stringIDX, MathAngleType mathAngleType)
         {
             string fixedval = sINPUT.Substring(0, stringIDX - 3); //Find the math that happens before it
-            int nextOperaror = ClosingBracket(sINPUT, stringIDX + 1); //The next operator
+            int nextOperaror = sINPUT.ClosingBracket(stringIDX + 1); //The next operator
             //BUG IF IT INCLUDES E-...d
             string result = DoubleRemoveBrackets(sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1)); //Find the number between the brackets
             double calcNum = DegreeToRadian(double.Parse(result)); //Convert it from degrees to radians
@@ -373,7 +375,7 @@ namespace DevTools
                     break;
             }
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-            PrintColour(string.Format("{0}({1}) = {2}", mathAngleType.ToString(), result, calcNum), true);
+            CustomConsole.PrintColour(string.Format("{0}({1}) = {2}", mathAngleType.ToString(), result, calcNum), true);
             string return_result = fixedval + calcNum + afterThat;
 
             if (return_result.StartsWith("arc")) //Was this an arc operation?
@@ -382,12 +384,12 @@ namespace DevTools
             }
             if (return_result.StartsWith("nw"))
             {
-                printWorkings = false;
+                Program.printWorkings = false;
                 return_result = return_result.Substring(2);
             }
             if (return_result.StartsWith("np"))
             {
-                noprint = true;
+                Program.noprint = true;
                 return_result = return_result.Substring(2);
             }
             if (return_result.Length <= 3 || return_result.Substring(0, 4) != "doum")
@@ -408,7 +410,7 @@ namespace DevTools
 
                 if (c == ')')
                 {
-                    string betweenBrackets = TextBetween(s, firstBracketIDX + 1, i - 1);
+                    string betweenBrackets = Program.TextBetween(s, firstBracketIDX + 1, i - 1);
                     string total = DoubleCalculate(betweenBrackets);
                     string nextString = "";
                     for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -439,15 +441,15 @@ namespace DevTools
                 {
                     if (addingToBuffer == true)
                     {
-                        int nextBracketIDX = NextBracket(s, i);
+                        int nextBracketIDX = s.NextBracket(i);
                         if (nextBracketIDX == -1)
                         {
-                            expectingError = true;
+                            Program.expectingError = true;
                             throw new Exception("Some weird sh*t is happening");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
-                            string betweenBrackets = TextBetween(s, i + 1, nextBracketIDX - 1);
+                            string betweenBrackets = Program.TextBetween(s, i + 1, nextBracketIDX - 1);
                             string total = DoubleCalculate(betweenBrackets);
                             string nextString = "";
                             for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -488,7 +490,7 @@ namespace DevTools
 
                 if (c == ')')
                 {
-                    string betweenBrackets = TextBetween(s, firstBracketIDX + 1, i - 1);
+                    string betweenBrackets = Program.TextBetween(s, firstBracketIDX + 1, i - 1);
                     string total = BitCalculate(betweenBrackets, chosenType);
                     string nextString = "";
                     for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -519,15 +521,15 @@ namespace DevTools
                 {
                     if (addingToBuffer == true)
                     {
-                        int nextBracketIDX = NextBracket(s, i);
+                        int nextBracketIDX = s.NextBracket(i);
                         if (nextBracketIDX == -1)
                         {
-                            expectingError = true;
+                            Program.expectingError = true;
                             throw new Exception("Some weird sh*t is happening");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
-                            string betweenBrackets = TextBetween(s, i + 1, nextBracketIDX - 1);
+                            string betweenBrackets = Program.TextBetween(s, i + 1, nextBracketIDX - 1);
                             string total = BitCalculate(betweenBrackets, chosenType);
                             string nextString = "";
                             for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -565,7 +567,7 @@ namespace DevTools
                 {
                     if (input[i] == '/' || input[i] == '*')
                     {
-                        int lastOperatorIDX = LastOperatorIDX(input, i - 2);
+                        int lastOperatorIDX = input.LastOperatorIDX(i - 2);
                         int nextOperatorIDX = DoubleNextOperatorIDX(input, i + 1);
                         string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
                         string result = DoubleCalculateMultiplyDivide(sub);
@@ -591,7 +593,7 @@ namespace DevTools
                     input[i] == '&' ||
                     input[i] == '|' ||
                     char.IsLetter(input[i]))
-                    && (i == 0 | !IsOperator(input[i - 1])))
+                    && (i == 0 | !input[i - 1].IsOperator()))
                 {
                     return i;
                 }
@@ -618,8 +620,8 @@ namespace DevTools
                 {
                     if (input[i] == '/' || input[i] == '*')
                     {
-                        int lastOperatorIDX = LastOperatorIDX(input, i - 2);
-                        int nextOperatorIDX = NextOperatorIDX(input, i + 1);
+                        int lastOperatorIDX = input.LastOperatorIDX(i - 2);
+                        int nextOperatorIDX = input.NextOperatorIDX(i + 1);
                         string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
                         string result = CalculateMultiplyDivide(sub);
                         string toReturn = string.Format("{0}{1}{2}", input.Substring(0, lastOperatorIDX == 0 ? 0 : lastOperatorIDX + 1), result, input.Substring(nextOperatorIDX, input.Length - nextOperatorIDX));
@@ -637,7 +639,7 @@ namespace DevTools
                 var strings = sINPUT.Split('*');
                 if (strings[0] == "")
                 {
-                    strings[0] = lastInput.ToString();
+                    strings[0] = Program.lastInput.ToString();
                 }
                 double first = 0;
                 double second = 0;
@@ -663,7 +665,7 @@ namespace DevTools
                 var strings = sINPUT.Split('/');
                 if (strings[0] == "")
                 {
-                    strings[0] = lastInput.ToString();
+                    strings[0] = Program.lastInput.ToString();
                 }
                 double first = 0;
                 double second = 0;
@@ -745,7 +747,7 @@ namespace DevTools
             {
                 return userINPUT;
             }
-            int openingBracketIDX = NextBracket(userINPUT, idx);
+            int openingBracketIDX = userINPUT.NextBracket(idx);
 
             var logbase = userINPUT.Substring(idx + 3, openingBracketIDX - idx - 3); //+3 is for the length of log
             if (logbase == "")
@@ -753,10 +755,10 @@ namespace DevTools
                 logbase = "10"; //Default base is 10
             }
 
-            var lognum = userINPUT.Substring(openingBracketIDX + 1, ClosingBracket(userINPUT, openingBracketIDX + 1) - openingBracketIDX - 1);
+            var lognum = userINPUT.Substring(openingBracketIDX + 1, userINPUT.ClosingBracket(openingBracketIDX + 1) - openingBracketIDX - 1);
 
             string before = userINPUT.Substring(0, idx); //Get the string that comes before this, up until idx
-            string after = userINPUT.Substring(ClosingBracket(userINPUT, openingBracketIDX + 1) + 1); //End at the closing bracket
+            string after = userINPUT.Substring(userINPUT.ClosingBracket(openingBracketIDX + 1) + 1); //End at the closing bracket
             string replace = Math.Log(double.Parse(lognum), double.Parse(logbase)).ToString();
             userINPUT = before + replace + after; //Modify the string
 
@@ -765,7 +767,7 @@ namespace DevTools
             if (userINPUT.StartsWith("np")) //User doesn't want to print binary of the result
             {
                 userINPUT = userINPUT.Substring(2);
-                noprint = true;
+                Program.noprint = true;
             }
             if (!userINPUT.StartsWith("doum"))
             {
@@ -792,7 +794,7 @@ namespace DevTools
                 int.TryParse(strings[1], out first);
                 ulong.TryParse(strings[0], out second);
                 input = (second << first);
-                PrintColour(string.Format("{0} << {1} = {2}", second, first, input), true);
+                CustomConsole.PrintColour(string.Format("{0} << {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             else if (sINPUT.Contains(">>"))
@@ -844,12 +846,12 @@ namespace DevTools
                     if (buffer.Contains("<<") || buffer.Contains(">>")) //Did we just get a <<?
                     {
                         buffer = ""; //Reset the bugger
-                        int lastOperatorIDX = LastOperatorIDX(input, i - 2);
-                        if ((lastOperatorIDX != 0 || IsOperator(input[0])) && i >= 2)
+                        int lastOperatorIDX = input.LastOperatorIDX(i - 2);
+                        if ((lastOperatorIDX != 0 || input[0].IsOperator()) && i >= 2)
                         {
                             ++lastOperatorIDX;
                         }
-                        int nextOperatorIDX = NextOperatorIDX(input, i + 1);
+                        int nextOperatorIDX = input.NextOperatorIDX(i + 1);
                         string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
                         string result = CalculateBitShift(sub, chosenType);
                         string toReturn = string.Format("{0}{1}{2}", input.Substring(0, lastOperatorIDX), result, input.Substring(nextOperatorIDX, input.Length - nextOperatorIDX));

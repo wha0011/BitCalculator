@@ -30,6 +30,7 @@ namespace DevTools
         public static ulong lastInput = 0ul;
         static bool defaultFlipVal = false;
         public static string lastprint;
+        public static bool printWorkings;
         static void Main(string[] args)
         {
             CheckDirectories(); //See if the file storing directories exist, if not, then create them
@@ -164,7 +165,7 @@ namespace DevTools
         /// Write snazzy text in the console that is big
         /// </summary>
         /// <param name="text">text to print</param>
-        static bool noprint = false;
+        public static bool noprint = false;
         public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
             noprint = false;
