@@ -32,14 +32,14 @@ namespace DevTools
                 if (readKeyResult.Key == ConsoleKey.LeftArrow) //Move left
                 {
                     writeIDX--;
-                    Console.CursorLeft--;
+                    Console.SetCursorPosition(Console.CursorLeft-1, Console.CursorTop);
                 }
                 else if (readKeyResult.Key == ConsoleKey.RightArrow) //Mofe right
                 {
                     if (retString.LettersLength() > writeIDX)//Not at end yet?
                     {
                         writeIDX++;
-                        Console.CursorLeft++;
+                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
                     }
                 }
                 else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab)
@@ -57,7 +57,7 @@ namespace DevTools
                     {
                         retString = retString.Remove(writeIDX - 1, 1); //Remove current char from the buffer
                         ChangeUserTextColourLive(retString); //Change user text colour
-                        Console.CursorLeft--; //Move the cursor to its new position
+                                            Console.SetCursorPosition(Console.CursorLeft-1, Console.CursorTop); //Move the cursor to its new position
                         writeIDX--; //Update current writeIDX
                     }
                 }
@@ -66,7 +66,7 @@ namespace DevTools
                     if (retString.Length == writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar; //Add to the buffer
-                        Console.CursorLeft++; //Move the cursor right
+                                            Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop); //Move the cursor right
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
@@ -76,7 +76,7 @@ namespace DevTools
                         retString = sb.ToString(); //Update string
 
                         writeIDX++;
-                        Console.CursorLeft++;
+                                            Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
@@ -451,6 +451,7 @@ namespace DevTools
         }
         public static void ChangeUserTextColourLive(string userinput)
         {
+            Console.CursorVisible = false;
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
 
@@ -462,6 +463,7 @@ namespace DevTools
 
             PrintColour(userinput, false, false, false);
             Console.SetCursorPosition(x, y);
+            Console.CursorVisible = true;
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
