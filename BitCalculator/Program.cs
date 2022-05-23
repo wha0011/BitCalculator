@@ -288,7 +288,7 @@ namespace DevTools
             //Show value as decimal
             if (userINPUT.BeginsWith("doub")) //User wants to show value as double
             {
-                CustomConsole.PrintDouble(DoubleToBin(double.Parse(userINPUT.Substring(4)))); //Print the new double value
+                CustomConsole.PrintDouble(double.Parse(userINPUT.Substring(4)).AsBinary()); //Print the new double value
                 double userDoubleInput = double.Parse(userINPUT.Substring(4));
                 CustomConsole.PrintColour("Closest conversion: " + userDoubleInput.ToString(), true); //Show the conversion
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(userDoubleInput), 2);
@@ -297,7 +297,7 @@ namespace DevTools
             }
             if (userINPUT.BeginsWith("float")) //User wants to show value as float
             {
-                CustomConsole.PrintFloat(FloatToBin(float.Parse(userINPUT.Substring(5)))); //Print the new float value
+                CustomConsole.PrintFloat(float.Parse(userINPUT.Substring(5)).AsBinary()); //Print the new float value
                 float userFloatInput = float.Parse(userINPUT.Substring(5));
                 CustomConsole.PrintColour("Closest conversion: " + userFloatInput.ToString(), true); //Show the conversion
                 string bitconv = Convert.ToString(BitConverter.SingleToInt32Bits(userFloatInput), 2);
@@ -308,7 +308,7 @@ namespace DevTools
             //Show previous bitset as decimal
             if (userINPUT == "adv") //Show previous bitset as a double
             {
-                CustomConsole.PrintDouble(DoubleToBin(BitConverter.Int64BitsToDouble((long)lastInput)));
+                CustomConsole.PrintDouble(BitConverter.Int64BitsToDouble((long)lastInput).AsBinary());
                 CustomConsole.PrintColour("Double is: " + BitConverter.Int64BitsToDouble((long)lastInput), false);
                 return;
             }
@@ -316,7 +316,7 @@ namespace DevTools
             {
                 int lastinput__int = int.Parse(lastInput.ToString());
                 float int32bits = BitConverter.ToSingle(BitConverter.GetBytes(lastinput__int));
-                CustomConsole.PrintFloat(FloatToBin(int32bits));
+                CustomConsole.PrintFloat(int32bits.AsBinary());
                 CustomConsole.PrintColour("Float is: " + BitConverter.Int32BitsToSingle(int.Parse(lastInput.ToString())), false);
                 return;
             }
@@ -479,7 +479,7 @@ namespace DevTools
                 //Print the value as a double
                 if (!noprint)
                 {
-                    CustomConsole.PrintDouble(DoubleToBin(double.Parse(userINPUT)));
+                    CustomConsole.PrintDouble(double.Parse(userINPUT).AsBinary());
                 }
                 CustomConsole.PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString());
                 double d = double.Parse(userINPUT);
@@ -530,15 +530,15 @@ namespace DevTools
             {
                 if (is32bit) //Print as 32 bit
                 {
-                    CustomConsole.PrintColour(UlongToBin(input, flipped).Substring(66), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(66), false, true);
                 }
                 else if (is16bit) //Print as 16 bit
                 {
-                    CustomConsole.PrintColour(UlongToBin(input, flipped).Substring(101), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(101), false, true);
                 }
                 else if (is8bit) //Print as 8 bit
                 {
-                    CustomConsole.PrintColour(UlongToBin(input, flipped).Substring(118), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(118), false, true);
                 }
                 else //Print as ulong
                 {
@@ -546,7 +546,7 @@ namespace DevTools
                     {
                         return;
                     }
-                    CustomConsole.PrintColour(UlongToBin(input, flipped), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped), false, true);
                 }
             }
             else
@@ -888,77 +888,6 @@ namespace DevTools
                 n.Send(data);
             }
         }
-
-        public static string DoubleToBin(double input, bool flipped = false)
-        {
-            string binVal = Convert.ToString(BitConverter.DoubleToInt64Bits(input), 2);
-            string result = "";
-            for (int i = 0; i < 64-binVal.Length; ++i)
-            {
-                result += '0';
-            }
-            result += binVal;
-            string[] thirdResult = new string[8];
-            int currIDX = 0;
-            for (int i = 0; i < 64; ++i)
-            {
-                if (i % 8 == 0 && i != 0)
-                {
-                    ++currIDX;
-                }
-                thirdResult[currIDX] += result[i];
-                thirdResult[currIDX] += ' ';
-            }
-            string finalResult = "";
-            for (int i = 0; i < thirdResult.Length; ++i)
-            {
-                if (flipped)
-                {
-                    finalResult += new string(thirdResult[i].Reverse().ToArray());
-                }
-                else
-                {
-                    finalResult += thirdResult[i];
-                }
-                finalResult += '\n';
-            }
-            return finalResult;
-        }
-        public static string FloatToBin(float input, bool flipped = false)
-        {
-            string binVal = Convert.ToString(BitConverter.SingleToInt32Bits(input), 2);
-            string result = "";
-            for (int i = 0; i < 32 - binVal.Length; ++i)
-            {
-                result += '0';
-            }
-            result += binVal;
-            string[] thirdResult = new string[8];
-            int currIDX = 0;
-            for (int i = 0; i < 32; ++i)
-            {
-                if (i % 8 == 0 && i != 0)
-                {
-                    ++currIDX;
-                }
-                thirdResult[currIDX] += result[i];
-                thirdResult[currIDX] += ' ';
-            }
-            string finalResult = "";
-            for (int i = 0; i < thirdResult.Length; ++i)
-            {
-                if (flipped)
-                {
-                    finalResult += new string(thirdResult[i].Reverse().ToArray());
-                }
-                else
-                {
-                    finalResult += thirdResult[i];
-                }
-                finalResult += '\n';
-            }
-            return finalResult;
-        }
         private static void PrintHelp()
         {
             WriteHelp("Welcome to DevTools 2022");
@@ -1099,47 +1028,6 @@ namespace DevTools
                 }
             }
             return input;
-        }
-        public static string UlongToBin(ulong input, bool flipped)
-        {
-            string firstResult = "";
-            while (input >= 1)
-            {
-                ulong remainder = input % 2;
-                firstResult = remainder + firstResult;
-                input /= 2;
-            }
-            string secondResult = "";
-            for (int i = 64 - firstResult.Length; i > 0; --i)
-            {
-                secondResult += "0";
-            }
-            secondResult += firstResult;
-            string[] thirdResult = new string[8];
-            int currIDX = 0;
-            for (int i = 0; i < 64; ++i)
-            {
-                if (i % 8 == 0 && i != 0)
-                {
-                    ++currIDX;
-                }
-                thirdResult[currIDX] += secondResult[i];
-                thirdResult[currIDX] += ' ';
-            }
-            string finalResult = "";
-            for (int i = 0; i < thirdResult.Length; ++i)
-            {
-                if (flipped)
-                {
-                    finalResult += new string(thirdResult[i].Reverse().ToArray());
-                }
-                else
-                {
-                    finalResult += thirdResult[i];
-                }
-                finalResult += '\n';
-            }
-            return finalResult;
         }
     }
 }

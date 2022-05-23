@@ -386,6 +386,120 @@ namespace DevTools
             return result;
         }
 
+        public static string AsBinary(this ulong input, bool flipped)
+        {
+            string firstResult = "";
+            while (input >= 1)
+            {
+                ulong remainder = input % 2;
+                firstResult = remainder + firstResult;
+                input /= 2;
+            }
+            string secondResult = "";
+            for (int i = 64 - firstResult.Length; i > 0; --i)
+            {
+                secondResult += "0";
+            }
+            secondResult += firstResult;
+            string[] thirdResult = new string[8];
+            int currIDX = 0;
+            for (int i = 0; i < 64; ++i)
+            {
+                if (i % 8 == 0 && i != 0)
+                {
+                    ++currIDX;
+                }
+                thirdResult[currIDX] += secondResult[i];
+                thirdResult[currIDX] += ' ';
+            }
+            string finalResult = "";
+            for (int i = 0; i < thirdResult.Length; ++i)
+            {
+                if (flipped)
+                {
+                    finalResult += new string(thirdResult[i].Reverse().ToArray());
+                }
+                else
+                {
+                    finalResult += thirdResult[i];
+                }
+                finalResult += '\n';
+            }
+            return finalResult;
+        }
+
+        public static string AsBinary(this double input, bool flipped = false)
+        {
+            string binVal = Convert.ToString(BitConverter.DoubleToInt64Bits(input), 2);
+            string result = "";
+            for (int i = 0; i < 64 - binVal.Length; ++i)
+            {
+                result += '0';
+            }
+            result += binVal;
+            string[] thirdResult = new string[8];
+            int currIDX = 0;
+            for (int i = 0; i < 64; ++i)
+            {
+                if (i % 8 == 0 && i != 0)
+                {
+                    ++currIDX;
+                }
+                thirdResult[currIDX] += result[i];
+                thirdResult[currIDX] += ' ';
+            }
+            string finalResult = "";
+            for (int i = 0; i < thirdResult.Length; ++i)
+            {
+                if (flipped)
+                {
+                    finalResult += new string(thirdResult[i].Reverse().ToArray());
+                }
+                else
+                {
+                    finalResult += thirdResult[i];
+                }
+                finalResult += '\n';
+            }
+            return finalResult;
+        }
+        public static string AsBinary(this float input, bool flipped = false)
+        {
+            string binVal = Convert.ToString(BitConverter.SingleToInt32Bits(input), 2);
+            string result = "";
+            for (int i = 0; i < 32 - binVal.Length; ++i)
+            {
+                result += '0';
+            }
+            result += binVal;
+            string[] thirdResult = new string[8];
+            int currIDX = 0;
+            for (int i = 0; i < 32; ++i)
+            {
+                if (i % 8 == 0 && i != 0)
+                {
+                    ++currIDX;
+                }
+                thirdResult[currIDX] += result[i];
+                thirdResult[currIDX] += ' ';
+            }
+            string finalResult = "";
+            for (int i = 0; i < thirdResult.Length; ++i)
+            {
+                if (flipped)
+                {
+                    finalResult += new string(thirdResult[i].Reverse().ToArray());
+                }
+                else
+                {
+                    finalResult += thirdResult[i];
+                }
+                finalResult += '\n';
+            }
+            return finalResult;
+        }
+
+
     }
 
 }
