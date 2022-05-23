@@ -224,7 +224,7 @@ namespace DevTools
                 Networking.PrintIPData();
                 return;
             }
-            if (userINPUT.ToLower() == "dv") //Display all the user defined variables
+            if (userINPUT == "dv") //Display all the user defined variables
             {
                 foreach (var i in File.ReadAllLines(DataFilePath)) //Iterate through all the lines
                 {
@@ -233,7 +233,7 @@ namespace DevTools
                 }
                 return;
             }
-            if (userINPUT.ToLower() == "dtv") //Display all the user defined temp variables
+            if (userINPUT == "dtv") //Display all the user defined temp variables
             {
                 foreach (var i in Variables.tempVariables) //Iterate through all the variables
                 {
@@ -947,16 +947,16 @@ namespace DevTools
         {
             CustomConsole.ShowDescription(s.Insert(0,@"///") + @"\\\");
         }
-        static string DataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\DevTools";
+        static readonly string DataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\DevTools";
 
-        static string DataFile = @"\data.txt";
-        public static string DataFilePath = DataDirectory + DataFile;
+        static readonly string DataFile = @"\data.txt";
+        public readonly static string DataFilePath = DataDirectory + DataFile;
                       
-        static string WorkingsFile = @"\workings.txt";
-        public static string WorkingsFilePath = DataDirectory + WorkingsFile;
+        static readonly string WorkingsFile = @"\workings.txt";
+        public readonly static string WorkingsFilePath = DataDirectory + WorkingsFile;
 
-        static string funcsFile = @"\funcs.txt";
-        public static string FuncFilePath = DataDirectory + funcsFile;
+        static readonly string funcsFile = @"\funcs.txt";
+        public readonly static string FuncFilePath = DataDirectory + funcsFile;
         
         /// <summary>
         /// Looks for boolean statements: ==,!=,>,<. Processes their values
