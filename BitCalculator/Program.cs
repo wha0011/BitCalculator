@@ -551,7 +551,7 @@ namespace DevTools
             }
             else
             {
-                CustomConsole.PrintColour(input.ToString());
+                CustomConsole.PrintColour(input.ToString()); //Instead of printing a binary result, print out the result as plain text
             }
             lastInput = input; //Assign lastinput
             if (resetworkings) //Are we resetting the modified printworkings value
@@ -837,8 +837,6 @@ namespace DevTools
         /// You type in hrgb #ffffff
         /// An voila, it converts it into rgb(255,255,255)
         /// NOT to be used in conjunction with other things
-        /// 
-        /// So far this works, so eh, cant be bothered documenting it
         /// </summary>
         /// <param name="hexVal"></param>
         public static void HEX_to_RGB(string hexVal)
