@@ -7,73 +7,73 @@ namespace DevTools
 {
     static class BinaryNumASCI
     {
-        public static string[] NO_0 = new string[] {"00111100" ,
+        public static readonly string[] NO_0 = new string[] {"00111100" ,
                                     "01000010" ,
                                     "01000010" ,
                                     "01000010" ,
                                     "00111100"};
 
-        public static string[] NO_1 = new string[] {"00011000" ,
+        public static readonly string[] NO_1 = new string[] {"00011000" ,
                                     "00101000" ,
                                     "00001000" ,
                                     "00001000" ,
                                     "00111100"};
 
-        public static string[] NO_2 = new string[] {"00111100" ,
+        public static readonly string[] NO_2 = new string[] {"00111100" ,
                                     "01000100" ,
                                     "00011000" ,
                                     "00100000" ,
                                     "01111100" };
 
-        public static string[] NO_3 = new string[] {"00111100" ,
+        public static readonly string[] NO_3 = new string[] {"00111100" ,
                                     "00000010" ,
                                     "00001100" ,
                                     "00000010" ,
                                     "00111100" };
 
-        public static string[] NO_4 = new string[] {"00001100" ,
+        public static readonly string[] NO_4 = new string[] {"00001100" ,
                                     "00010100" ,
                                     "00100100" ,
                                     "01111111" ,
                                     "00000100" };
 
-        public static string[] NO_5 = new string[] {"01111110" ,
+        public static readonly string[] NO_5 = new string[] {"01111110" ,
                                     "01000000" ,
                                     "01111110" ,
                                     "00000010" ,
                                     "01111110"};
 
-        public static string[] NO_6 = new string[] {"01111110" ,
+        public static readonly string[] NO_6 = new string[] {"01111110" ,
                                     "01000000" ,
                                     "01111110" ,
                                     "01000010" ,
                                     "01111110" };
 
-        public static string[] NO_7 = new string[] {"01111110" ,
+        public static readonly string[] NO_7 = new string[] {"01111110" ,
                                     "00000100" ,
                                     "00001000" ,
                                     "00010000" ,
                                     "00100000" };
 
-        public static string[] NO_8 = new string[] {"01111110" ,
+        public static readonly string[] NO_8 = new string[] {"01111110" ,
                                     "01000010" ,
                                     "01111110" ,
                                     "01000010" ,
                                     "01111110" };
 
-        public static string[] NO_9 = new string[] {"00111110" ,
+        public static readonly string[] NO_9 = new string[] {"00111110" ,
                                     "00100010" ,
                                     "00111110" ,
                                     "00000010" ,
                                     "00000010" };
 
-        public static string[] Minus = new string[] {"00000000" ,
+        public static readonly string[] Minus = new string[] {"00000000" ,
                                      "00000000" ,
                                      "01111110" ,
                                      "00000000" ,
                                      "00000000" };
 
-        public static string[] Decimal = new string[] {"000000000" ,
+        public static readonly string[] Decimal = new string[] {"000000000" ,
                                        "000000000" ,
                                        "000000000" ,
                                        "000111000" ,
