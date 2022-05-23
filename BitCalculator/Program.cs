@@ -1044,7 +1044,7 @@ namespace DevTools
         {
             if (input.Contains('<'))
             {
-                var strings = SplitAt(input, '<');
+                var strings = input.Split('<');
                 strings[0] = Bitmath.BitCalculate(strings[0], type);
                 strings[1] = Bitmath.BitCalculate(strings[1], type);
                 if (ulong.Parse(strings[0])<ulong.Parse(strings[1]))
@@ -1058,7 +1058,7 @@ namespace DevTools
             }
             if (input.Contains('>'))
             {
-                var strings = SplitAt(input, '>');
+                var strings = input.Split('>');
                 strings[0] = Bitmath.BitCalculate(strings[0], type);
                 strings[1] = Bitmath.BitCalculate(strings[1], type);
                 if (ulong.Parse(strings[0]) > ulong.Parse(strings[1]))
@@ -1100,37 +1100,6 @@ namespace DevTools
             }
             return input;
         }
-        private static List<string> SplitAt(string input, char v)
-        {
-            List<string> result = new List<string>();
-            string buffer = "";
-            bool nextCantBeV = false;
-            foreach (var c in input)
-            {
-                if (c == v && nextCantBeV)
-                {
-                    nextCantBeV = false;
-                    buffer += c;
-                    continue;
-                }
-                if (nextCantBeV)
-                {
-                    result.Add(buffer.RemoveLast());
-                    buffer = "";
-                    nextCantBeV = false;
-                    buffer += c;
-                    continue;
-                }
-                if (c == v && buffer.Length != 0 && buffer[buffer.Length - 1] != v)
-                {
-                    nextCantBeV = true;
-                }
-                buffer += c;
-            }
-            result.Add(buffer);
-            return result;
-        }
-
         public static string UlongToBin(ulong input, bool flipped)
         {
             string firstResult = "";
