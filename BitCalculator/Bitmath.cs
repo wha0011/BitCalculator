@@ -74,7 +74,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
+                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()), chosenType);
                         }
                         operatorSet = true;
                         _operator = c;
@@ -109,7 +109,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), chosenType);
+                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()), chosenType);
                         }
                         firstUlong = "";
                         operatorSet = false;
@@ -146,7 +146,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return BitCalculate(Program.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), chosenType);
+                    return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString()), chosenType);
                 }
             }
             return sINPUT;
@@ -218,7 +218,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
                         }
                         operatorSet = true;
                         _operator = c;
@@ -246,7 +246,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
                         }
                         firstdouble = "";
                         operatorSet = false;
@@ -274,7 +274,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(Program.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT));
+                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString()));
                 }
             }
             return sINPUT;
@@ -410,7 +410,7 @@ namespace DevTools
 
                 if (c == ')')
                 {
-                    string betweenBrackets = Program.TextBetween(s, firstBracketIDX + 1, i - 1);
+                    string betweenBrackets = s.TextBetween(firstBracketIDX + 1, i - 1);
                     string total = DoubleCalculate(betweenBrackets);
                     string nextString = "";
                     for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -449,7 +449,7 @@ namespace DevTools
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
-                            string betweenBrackets = Program.TextBetween(s, i + 1, nextBracketIDX - 1);
+                            string betweenBrackets = s.TextBetween(i + 1, nextBracketIDX - 1);
                             string total = DoubleCalculate(betweenBrackets);
                             string nextString = "";
                             for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -490,7 +490,7 @@ namespace DevTools
 
                 if (c == ')')
                 {
-                    string betweenBrackets = Program.TextBetween(s, firstBracketIDX + 1, i - 1);
+                    string betweenBrackets = s.TextBetween(firstBracketIDX + 1, i - 1);
                     string total = BitCalculate(betweenBrackets, chosenType);
                     string nextString = "";
                     for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -529,7 +529,7 @@ namespace DevTools
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
-                            string betweenBrackets = Program.TextBetween(s, i + 1, nextBracketIDX - 1);
+                            string betweenBrackets = s.TextBetween( i + 1, nextBracketIDX - 1);
                             string total = BitCalculate(betweenBrackets, chosenType);
                             string nextString = "";
                             for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
@@ -688,57 +688,6 @@ namespace DevTools
             return "0";
         }
         static string prevanswer = "";
-        static int GCD(int[] numbers)
-        {
-            return numbers.Aggregate(GCD);
-        }
-        static int GCD(int a, int b)
-        {
-            return b == 0 ? a : GCD(b, a % b);
-        }
-        private static string CalculateMultiplyDivide(string sINPUT)
-        {
-            if (sINPUT.Contains("*"))
-            {
-                ulong input;
-                var strings = sINPUT.Split('*');
-                if (strings[0] == "")
-                {
-                    strings[0] = Program.lastInput.ToString();
-                }
-                var first = 0ul;
-                var second = 0ul;
-                ulong.TryParse(strings[1], out first);
-                ulong.TryParse(strings[0], out second);
-                input = second * first;
-                //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
-                return input.ToString();
-            }
-            else if (sINPUT.Contains("/"))
-            {
-                ulong input;
-                var strings = sINPUT.Split('/');
-                if (strings[0] == "")
-                {
-                    strings[0] = Program.lastInput.ToString();
-                }
-                var first = 0ul;
-                var second = 0ul;
-                ulong.TryParse(strings[1], out first);
-                ulong.TryParse(strings[0], out second);
-                if (first != 0)
-                {
-                    input = second / first;
-                }
-                else
-                {
-                    input = 0;
-                }
-                //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
-                return input.ToString();
-            }
-            return "0";
-        }
         public static string RemoveLog(string userINPUT)
         {
             List<int> logidxs = userINPUT.AllIndexs("log"); //Find the positions of all the log statements
@@ -860,6 +809,49 @@ namespace DevTools
                 }
             }
             return input;
+        }
+        private static string CalculateMultiplyDivide(string sINPUT)
+        {
+            if (sINPUT.Contains("*"))
+            {
+                ulong input;
+                var strings = sINPUT.Split('*');
+                if (strings[0] == "")
+                {
+                    strings[0] = Program.lastInput.ToString();
+                }
+                var first = 0ul;
+                var second = 0ul;
+                ulong.TryParse(strings[1], out first);
+                ulong.TryParse(strings[0], out second);
+                input = second * first;
+                //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
+                return input.ToString();
+            }
+            else if (sINPUT.Contains("/"))
+            {
+                ulong input;
+                var strings = sINPUT.Split('/');
+                if (strings[0] == "")
+                {
+                    strings[0] = Program.lastInput.ToString();
+                }
+                var first = 0ul;
+                var second = 0ul;
+                ulong.TryParse(strings[1], out first);
+                ulong.TryParse(strings[0], out second);
+                if (first != 0)
+                {
+                    input = second / first;
+                }
+                else
+                {
+                    input = 0;
+                }
+                //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
+                return input.ToString();
+            }
+            return "0";
         }
 
     }

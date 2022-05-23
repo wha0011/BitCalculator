@@ -367,5 +367,25 @@ namespace DevTools
                 return sINPUT;
             }
         }
+        public static string RemoveAndReplace(this string input, int startIDX, int endIDX, string replaceWith)
+        {
+            return input.Substring(0, startIDX) + replaceWith + input.Substring(endIDX, input.Length - endIDX);
+        }
+
+        public static string TextBetween(this string input, int startIDX, int endIDX)
+        {
+            string result = "";
+            if (endIDX == input.Length)
+            {
+                endIDX -= 1;
+            }
+            for (int i = startIDX; i < endIDX + 1; ++i)
+            {
+                result += input[i];
+            }
+            return result;
+        }
+
     }
+
 }

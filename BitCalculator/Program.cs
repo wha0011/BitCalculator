@@ -1013,6 +1013,7 @@ namespace DevTools
             CustomConsole.PrintColour("tcp_server");
             CustomConsole.PrintColour("udp_client");
             CustomConsole.PrintColour("udp_server");
+            CustomConsole.PrintColour("send");
             CustomConsole.PrintColour("nslookup");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
@@ -1032,23 +1033,6 @@ namespace DevTools
         static string funcsFile = @"\funcs.txt";
         public static string FuncFilePath = DataDirectory + funcsFile;
         
-        public static string RemoveAndReplace(int startIDX, int endIDX, string replaceWith, string input)
-        {
-            return input.Substring(0, startIDX) + replaceWith + input.Substring(endIDX, input.Length - endIDX);
-        }
-        public static string TextBetween(string input, int startIDX, int endIDX)
-        {
-            string result = "";
-            if (endIDX == input.Length)
-            {
-                endIDX -= 1;
-            }
-            for (int i = startIDX; i < endIDX + 1; ++i)
-            {
-                result += input[i];
-            }
-            return result;
-        }
         /// <summary>
         /// Looks for boolean statements: ==,!=,>,<. Processes their values
         /// RETURNED VALUE IS A STRING. DO NOT PROCESS AS BOOL
