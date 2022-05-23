@@ -37,13 +37,13 @@ namespace DevTools
             var result = Program.lastprint;
             if (result == ExpectedOutput)
             {
-                Program.PrintError("Test passed");
+                CustomConsole.PrintError("Test passed");
                 return true;
             }
             else
             {
-                Program.PrintError("Test failed");
-                Program.PrintError(String.Format("Expected: {0}, Recieved: {1}", ExpectedOutput, result));
+                CustomConsole.PrintError("Test failed");
+                CustomConsole.PrintError(String.Format("Expected: {0}, Recieved: {1}", ExpectedOutput, result));
                 return false;
             }
         }
