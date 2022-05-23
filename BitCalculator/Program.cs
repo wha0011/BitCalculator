@@ -967,7 +967,7 @@ namespace DevTools
         /// <returns></returns>
         public static string CheckForBooleans(string input, char type)
         {
-            if (input.Contains('<'))
+            if (input.Contains('<') && !input.Contains("<<"))
             {
                 var strings = input.Split('<');
                 strings[0] = Bitmath.BitCalculate(strings[0], type);
@@ -981,7 +981,7 @@ namespace DevTools
                     return "false";
                 }
             }
-            if (input.Contains('>'))
+            if (input.Contains('>') && !input.Contains(">>"))
             {
                 var strings = input.Split('>');
                 strings[0] = Bitmath.BitCalculate(strings[0], type);

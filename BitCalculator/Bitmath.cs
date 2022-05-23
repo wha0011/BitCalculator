@@ -742,7 +742,7 @@ namespace DevTools
                 int.TryParse(strings[1], out first);
                 ulong.TryParse(strings[0], out second);
                 input = (second << first);
-                CustomConsole.PrintColour(string.Format("{0} << {1} = {2}", second, first, input), true);
+                //CustomConsole.PrintColour(string.Format("{0} << {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             else if (sINPUT.Contains(">>"))
@@ -772,7 +772,7 @@ namespace DevTools
                 int.TryParse(strings[1], out first);
                 ulong.TryParse(strings[0], out second);
                 input = (second >> first);
-                CustomConsole.PrintColour(string.Format("{0} >> {1} = {2}", second, first, input), true);
+                //CustomConsole.PrintColour(string.Format("{0} >> {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             return "0";
