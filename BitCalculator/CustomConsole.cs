@@ -12,6 +12,7 @@ namespace DevTools
     {
         public static bool readingConsole = false; //Staticbool that shows for async methods whether we are currently reading text from the console
         static string retString = ""; //Buffer for the readline function
+        static int readlines = 1;
         public static string ReadLineOrEsc()
         {
             retString = "";
@@ -67,7 +68,13 @@ namespace DevTools
                     if (retString.Length == writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar; //Add to the buffer
-                                            Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop); //Move the cursor right
+                        if(Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
+                        {
+                            ++readlines; //Tell other functions that we are reading more lines now
+                            Console.CursorTop++; //Go to the next line
+                            Console.CursorLeft = 3; //Do not put text behind the header
+                        }
+                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop); //Move the cursor right
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
@@ -77,11 +84,11 @@ namespace DevTools
                         retString = sb.ToString(); //Update string
 
                         writeIDX++;
-                                            Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
+                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
-                if (Console.CursorLeft <= 3)
+                if (Console.CursorLeft <= 2)
                 {
                     Console.CursorLeft = 3;
                     writeIDX = 0;
@@ -111,6 +118,8 @@ namespace DevTools
 
         public static void SetupConsole()
         {
+            Console.SetWindowSize(150,30);
+
             Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
 
             Colorful.Console.Clear();
@@ -118,6 +127,7 @@ namespace DevTools
             Colorful.Console.WriteAsciiStyled("Dev Tools 2022", new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
             Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
             Colorful.Console.ForegroundColor = Color.FromArgb(10, 181, 158);
+            
         }
 
         struct FuncLocation
@@ -456,7 +466,7 @@ namespace DevTools
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
 
-            Console.SetCursorPosition(0, y);
+            Console.SetCursorPosition(0, y-readlines);
             ClearCurrentConsoleLine();
             Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
