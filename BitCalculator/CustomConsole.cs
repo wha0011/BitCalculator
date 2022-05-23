@@ -42,7 +42,8 @@ namespace DevTools
                         Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab)
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab || 
+                         readKeyResult.Key == ConsoleKey.LeftWindows || readKeyResult.Key == ConsoleKey.RightWindows)
                 {
                     //Do nothing, just dont run other functions
 
