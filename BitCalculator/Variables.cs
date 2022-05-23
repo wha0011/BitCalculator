@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace DevTools
@@ -262,6 +263,82 @@ namespace DevTools
             }
             return result;
         }
+        public static string ReplaceVariables(string input)
+        {
+
+            string i = input;
+            foreach (var s in Variables.DefineVariableContents())
+            {
+                if (!s.Contains(','))
+                {
+                    File.WriteAllText(Program.DataFilePath, "");
+                    CustomConsole.PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                    return "";
+                }
+
+                var ss = s.SplitAtFirst(',');
+                i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
+            }
+            foreach (var s in File.ReadAllLines(Program.FuncFilePath))
+            {
+                if (s == "")
+                {
+                    continue;
+                }
+                if (s == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
+                if (!s.Contains('('))
+                {
+                    File.WriteAllText(Program.FuncFilePath, Help.DEFAULTFUNCS);
+                    CustomConsole.PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
+                    return "";
+                }
+                var name = s.Split('(')[0];
+                if (i.Contains(name))
+                {
+                    string replacestring = s;
+                    int closingBracketidx = replacestring.ClosingBracket(name.Length + 1);
+                    replacestring = replacestring.Substring(closingBracketidx + 1);
+
+                    int valuesstartidx = i.IndexOf(name) + name.Length + 1;
+                    string[] values = i.Substring(valuesstartidx, i.ClosingBracket(valuesstartidx) - valuesstartidx).Split(',');
+                    string[] names = s.Substring(name.Length + 1, s.ClosingBracket(name.Length + 1) - name.Length - 1).Split(',');
+                    Dictionary<string, int> variableValues = new Dictionary<string, int>();
+
+                    if (values.Length != names.Length)
+                    {
+                        Program.expectingError = true;
+                        throw new Exception(string.Format("Recieved {0} arguments, expected {1}", values.Length, names.Length));
+                    }
+
+                    //Iterate through here and add the variable values to the variable names
+                    //swap out the variable values for the variable names in the function stored file
+                    //Replace the function text with the text found in the file
+
+                    for (int idx = 0; idx < values.Length; ++idx)
+                    {
+                        replacestring = Variables.ReplaceTempVariables(replacestring, names[idx], values[idx]);
+                    }
+                    if (replacestring.Contains("///"))
+                    {
+                        replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
+                    }
+                    string before = i.Substring(0, i.IndexOf(name));
+                    string after = i.Substring(i.ClosingBracket(i.IndexOf(name) + name.Length + 1) + 1);
+                    i = before + replacestring + after;
+                    return ReplaceVariables(i);
+                }
+            }
+            if (i != input)
+            {
+                CustomConsole.PrintColour(i, true);
+            }
+            i = Program.RemoveRandom(i);
+            return i;
+        }
+
         private static bool ContainsVariable(string input, string variableName)
         {
             string result = "";

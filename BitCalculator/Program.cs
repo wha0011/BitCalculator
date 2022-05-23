@@ -603,7 +603,7 @@ namespace DevTools
             userINPUT = Variables.ReplaceTempVariables(userINPUT);
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
-            userINPUT = ReplaceVariables(userINPUT);
+            userINPUT = Variables.ReplaceVariables(userINPUT);
             userINPUT = Bitmath.RemoveTrig(userINPUT);
             userINPUT = Bitmath.RemoveLog(userINPUT);
 
@@ -617,7 +617,7 @@ namespace DevTools
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
-        private static string RemoveRandom(string sINPUT)
+        public static string RemoveRandom(string sINPUT)
         {
             if (sINPUT.Contains("ran(")) //Is the ran function in the users input
             {
@@ -1032,81 +1032,6 @@ namespace DevTools
         static string funcsFile = @"\funcs.txt";
         public static string FuncFilePath = DataDirectory + funcsFile;
         
-        public static string ReplaceVariables(string input)
-        {
-
-            string i = input;
-            foreach (var s in Variables.DefineVariableContents())
-            {
-                if (!s.Contains(','))
-                {
-                    File.WriteAllText(DataFilePath, "");
-                    CustomConsole.PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
-                    return "";
-                }
-
-                var ss = s.SplitAtFirst(',');
-                i = Regex.Replace(i, ss[0], "(" + ss[1] + ")");
-            }
-            foreach (var s in File.ReadAllLines(FuncFilePath))
-            {
-                if (s == "")
-                {
-                    continue;
-                }
-                if (s == "SYSTEM FUNCTIONS:")
-                {
-                    break;
-                }
-                if (!s.Contains('('))
-                {
-                    File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS);
-                    CustomConsole.PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
-                    return "";
-                }
-                var name = s.Split('(')[0];
-                if (i.Contains(name))
-                {
-                    string replacestring = s;
-                    int closingBracketidx = replacestring.ClosingBracket(name.Length + 1);
-                    replacestring = replacestring.Substring(closingBracketidx + 1);
-
-                    int valuesstartidx = i.IndexOf(name) + name.Length + 1;
-                    string[] values = i.Substring(valuesstartidx, i.ClosingBracket(valuesstartidx) - valuesstartidx).Split(',');
-                    string[] names = s.Substring(name.Length + 1, s.ClosingBracket(name.Length + 1) - name.Length - 1).Split(',');
-                    Dictionary<string, int> variableValues = new Dictionary<string, int>();
-
-                    if (values.Length != names.Length)
-                    {
-                        expectingError = true;
-                        throw new Exception(string.Format("Recieved {0} arguments, expected {1}", values.Length, names.Length));
-                    }
-
-                    //Iterate through here and add the variable values to the variable names
-                    //swap out the variable values for the variable names in the function stored file
-                    //Replace the function text with the text found in the file
-
-                    for (int idx = 0; idx < values.Length; ++idx)
-                    {
-                        replacestring = Variables.ReplaceTempVariables(replacestring, names[idx], values[idx]);
-                    }
-                    if (replacestring.Contains("///"))
-                    {
-                        replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
-                    }
-                    string before = i.Substring(0, i.IndexOf(name));
-                    string after = i.Substring(i.ClosingBracket(i.IndexOf(name) + name.Length + 1) + 1);
-                    i = before + replacestring + after;
-                    return ReplaceVariables(i);
-                }
-            }
-            if (i != input)
-            {
-                CustomConsole.PrintColour(i, true);
-            }
-            i = RemoveRandom(i);
-            return i;
-        }
         public static string RemoveAndReplace(int startIDX, int endIDX, string replaceWith, string input)
         {
             return input.Substring(0, startIDX) + replaceWith + input.Substring(endIDX, input.Length - endIDX);
