@@ -558,7 +558,6 @@ namespace DevTools
         #region printDecimals
         /// <summary>
         /// Prints a double decimal values binary output
-        /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
         /// </summary>
         /// <param name="input"></param>
         public static void PrintDouble(string input)
@@ -595,7 +594,6 @@ namespace DevTools
         }
         /// <summary>
         /// Prints a float decimal values binary output
-        /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
         /// </summary>
         /// <param name="input"></param>
         public static void PrintFloat(string input)

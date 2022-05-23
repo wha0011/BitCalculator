@@ -418,7 +418,7 @@ namespace DevTools
             bool is32bit = false;
             bool is16bit = false;
             bool is8bit = false;
-            if (userINPUT.BeginsWith("ati")) //Weird math thingy. Description in the PrintAti() function
+            if (userINPUT.BeginsWith("ati")) //Weird math. Description in the PrintAti() function
             {
                 PrintAti(userINPUT);
                 return;
@@ -657,8 +657,6 @@ namespace DevTools
         /// Removes boolean questions
         /// 4==4?3:2
         /// Replaces this entire statement with the new result
-        /// 
-        /// THIS CODE IS FULL OF BUGS
         /// REQUIRES FIXING
         /// </summary>
         /// <param name="sINPUT"></param>

@@ -350,7 +350,6 @@ namespace DevTools
         {
             string fixedval = sINPUT.Substring(0, stringIDX - 3); //Find the math that happens before it
             int nextOperaror = sINPUT.ClosingBracket(stringIDX + 1); //The next operator
-            //BUG IF IT INCLUDES E-...d
             string result = DoubleRemoveBrackets(sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1)); //Find the number between the brackets
             double calcNum = DegreeToRadian(double.Parse(result)); //Convert it from degrees to radians
             switch (mathAngleType)
@@ -794,7 +793,7 @@ namespace DevTools
                     buffer += input[i];
                     if (buffer.Contains("<<") || buffer.Contains(">>")) //Did we just get a <<?
                     {
-                        buffer = ""; //Reset the bugger
+                        buffer = ""; //Reset the buffer
                         int lastOperatorIDX = input.LastOperatorIDX(i - 2);
                         if ((lastOperatorIDX != 0 || input[0].IsOperator()) && i >= 2)
                         {

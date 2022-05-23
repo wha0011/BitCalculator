@@ -7,7 +7,7 @@ namespace DevTools
     public static class Help
     {
         public static string DEFAULTFUNCS = @"SYSTEM FUNCTIONS:" + "\n"
-                                          + @"loop(i)///Does a loop thingy<new>Specify the amount of times you want to loop in the brackets.<new>Put 'i' everywhere that you want the int of the amount of iterations to be<new>For example, *loop(10):asci(i)*<new>This will print in a cool asci font the numbers from 0,9\\\" + "\n"
+                                          + @"loop(i)///Does a for loop<new>Specify the amount of times you want to loop in the brackets.<new>Put 'i' everywhere that you want the int of the amount of iterations to be<new>For example, *loop(10):asci(i)*<new>This will print in a cool asci font the numbers from 0,9\\\" + "\n"
                                           + @"#define()///*#define bob = 2* will replace everywhere in any line of code you ever write again where you put *bob*, and change it to *2*<new>For example, *ran(bob,5)* will change to *ran(2,5)*\\\" + "\n"
                                           + @"#defunc()///Allows you to define a function with paramaters.<new>For example, *#defunc bob(x)asci(ran(0,x))*<new>This will print out a random number between 0,the inputted variable.<new>Everywhere you type in *x* or whatever the variable name specified is, will be replaced with the users input.<new>This can be called like *bob(5)*, and will replace everywhere you put *x* with *5*\\\" + "\n"
                                           + @"#delfunc()///Allows you to delete a defined function.<new>For example *#delfunc bob* will delete the function bob\\\" + "\n"
