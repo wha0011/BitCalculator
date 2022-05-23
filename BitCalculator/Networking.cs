@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 
 namespace DevTools
@@ -12,20 +13,20 @@ namespace DevTools
         {
 
         }
-        private static void PrintIPData()
+        public static void PrintIPData()
         {
             Console.Write("Local IP: ");
-            NetworkingPrint(GetLocalIPAddress());
+            CustomConsole.NetworkingPrint(GetLocalIPAddress());
 
             NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface adapter in interfaces)
             {
                 Console.Write("Name: ");
-                NetworkingPrint(adapter.Name);
+                CustomConsole.NetworkingPrint(adapter.Name);
                 Console.WriteLine(adapter.Description);
-                NetworkingPrint(String.Empty.PadLeft(adapter.Description.Length, '='));
-                NetworkingPrint("  Interface type .......................... : " + adapter.NetworkInterfaceType);
-                NetworkingPrint("  Operational status ...................... : " + adapter.OperationalStatus);
+                CustomConsole.NetworkingPrint(String.Empty.PadLeft(adapter.Description.Length, '='));
+                CustomConsole.NetworkingPrint("  Interface type .......................... : " + adapter.NetworkInterfaceType);
+                CustomConsole.NetworkingPrint("  Operational status ...................... : " + adapter.OperationalStatus);
                 string versions = "";
 
                 // Create a display string for the supported IP versions.
@@ -55,7 +56,7 @@ namespace DevTools
                     return ip.ToString();
                 }
             }
-            expectingError = true;
+            Program.expectingError = true;
             throw new Exception("No network adapters with an IPv4 address in the system!");
         }
     }

@@ -167,7 +167,7 @@ namespace DevTools
                 for (int i = 0; i < v.Length; i++)
                 {
                     char c = v[i];
-                    if (isyellow && !Program.IsOperator(c) && c != ' ')
+                    if (isyellow && !c.IsOperator() && c != ' ')
                     {
                         Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                         continue;
@@ -182,7 +182,7 @@ namespace DevTools
                         isyellow = true;
                         Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                     }
-                    else if (Program.IsOperator(c) || c == ' ')
+                    else if (c.IsOperator() || c == ' ')
                     {
                         isyellow = false;
                         Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));

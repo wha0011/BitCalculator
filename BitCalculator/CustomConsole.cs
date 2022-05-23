@@ -12,7 +12,7 @@ namespace DevTools
     {
         public static bool readingConsole = false; //Staticbool that shows for async methods whether we are currently reading text from the console
         static string retString = ""; //Buffer for the readline function
-        private static string ReadLineOrEsc()
+        public static string ReadLineOrEsc()
         {
             retString = "";
             readingConsole = true;
@@ -108,7 +108,7 @@ namespace DevTools
             return false;
         }
 
-        private static void SetupConsole()
+        public static void SetupConsole()
         {
             Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
 
@@ -392,7 +392,7 @@ namespace DevTools
                     }
                     else
                     {
-                        if (isyellow && !IsOperator(c) && c != ' ')
+                        if (isyellow && !c.IsOperator() && c != ' ')
                         {
                             Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                             continue;
@@ -407,7 +407,7 @@ namespace DevTools
                             isyellow = true;
                             Colorful.Console.Write(c, Color.FromArgb(234, 255, 0));
                         }
-                        else if (IsOperator(c) || c == ' ')
+                        else if (c.IsOperator() || c == ' ')
                         {
                             isyellow = false;
                             Colorful.Console.Write(c, Color.FromArgb(130, 253, 255));
@@ -427,7 +427,7 @@ namespace DevTools
             {
                 Colorful.Console.WriteLine();
             }
-            lastprint = v;
+            Program.lastprint = v;
         }
         public static void ChangeUserTextColour(string userinput)
         {
@@ -492,7 +492,7 @@ namespace DevTools
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
-        private static string ShowDescription(string sINPUT)
+        public static string ShowDescription(string sINPUT)
         {
             sINPUT = Regex.Replace(sINPUT, @"<new>", "\n"); //Replace all \n with new lines
 
@@ -561,9 +561,9 @@ namespace DevTools
         /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
         /// </summary>
         /// <param name="input"></param>
-        private static void PrintDouble(string input)
+        public static void PrintDouble(string input)
         {
-            var res = Regex.Replace(RemoveSpaces(input), "\n", ""); //Remove all spaces, new lines or blanks from string
+            var res = Regex.Replace(input.RemoveSpaces(), "\n", ""); //Remove all spaces, new lines or blanks from string
 
 
             for (int i = 0; i < 64; ++i)
@@ -598,9 +598,9 @@ namespace DevTools
         /// So far NO bugs exist. Will not be documented, because I have no f*cking idea how it works
         /// </summary>
         /// <param name="input"></param>
-        private static void PrintFloat(string input)
+        public static void PrintFloat(string input)
         {
-            var res = Regex.Replace(RemoveSpaces(input), "\n", "");
+            var res = Regex.Replace(input.RemoveSpaces(), "\n", "");
             for (int i = 0; i < 32; ++i)
             {
                 if (i == 0)
@@ -635,7 +635,7 @@ namespace DevTools
         /// Prints Hex in a snazzy colour
         /// </summary>
         /// <param name="v"></param>
-        private static void PrintHex(string v)
+        public static void PrintHex(string v)
         {
             Colorful.Console.WriteLine(v.Insert(0, "#"), Color.FromArgb(234, 255, 0));
         }

@@ -8,7 +8,7 @@ namespace DevTools
 {
     internal class Bitmath
     {
-        private static string BitCalculate(string input, char chosenType)
+        public static string BitCalculate(string input, char chosenType)
         {
             var sINPUT = RemoveMultiplyDivide(RemoveBitShift(input, chosenType));
 
@@ -151,7 +151,7 @@ namespace DevTools
             }
             return sINPUT;
         }
-        private static string DoubleCalculate(string input)
+        public static string DoubleCalculate(string input)
         {
             input = Regex.Replace(input, "--", "-");
             var sINPUT = DoubleRemoveMultiplyDivide(input);
@@ -295,7 +295,7 @@ namespace DevTools
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
-        private static string RemoveTrig(string sINPUT)
+        public static string RemoveTrig(string sINPUT)
         {
             if (sINPUT.Contains("sin(") ||
                 sINPUT.Contains("arcsin(") ||
@@ -399,7 +399,7 @@ namespace DevTools
             return RemoveTrig(return_result);
         }
 
-        static string DoubleRemoveBrackets(string s)
+        public static string DoubleRemoveBrackets(string s)
         {
             string buffer = "";
             int firstBracketIDX = 0;
@@ -479,7 +479,7 @@ namespace DevTools
             }
             return s;
         }
-        static string RemoveBrackets(string s, char chosenType)
+        public static string RemoveBrackets(string s, char chosenType)
         {
             string buffer = "";
             int firstBracketIDX = 0;
@@ -824,7 +824,7 @@ namespace DevTools
                 int.TryParse(strings[1], out first);
                 ulong.TryParse(strings[0], out second);
                 input = (second >> first);
-                PrintColour(string.Format("{0} >> {1} = {2}", second, first, input), true);
+                CustomConsole.PrintColour(string.Format("{0} >> {1} = {2}", second, first, input), true);
                 return input.ToString();
             }
             return "0";

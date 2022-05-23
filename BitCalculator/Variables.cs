@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -19,7 +20,7 @@ namespace DevTools
                     return true;
                 }
             }
-            foreach (var line in File.ReadAllLines(FuncFilePath))
+            foreach (var line in File.ReadAllLines(Program.FuncFilePath))
             {
                 if (line.Split('(')[0] == name) //Does it exist?
                 {
@@ -35,7 +36,7 @@ namespace DevTools
             }
             return false;
         }
-        static void DefineVariable(string variable)
+        public static void DefineVariable(string variable)
         {
             string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
@@ -43,12 +44,12 @@ namespace DevTools
             string variableName = variable.Substring(7, equalsIDX - 6);
             if (variableName.Any(c => !char.IsLetter(c) && c != ' '))
             {
-                PrintColour("Invalid variable name", false);
+                CustomConsole.PrintColour("Invalid variable name", false);
                 return;
             }
             if (VariableExists(variableName))
             {
-                PrintError("Variable is already defined");
+                CustomConsole.PrintError("Variable is already defined");
                 return;
             }
             List<string> contents = DefineVariableContents(variableName, value);
@@ -56,11 +57,11 @@ namespace DevTools
             {
                 contents.Add(string.Format("{0},{1}", variableName, value));
             }
-            File.WriteAllLines(DataFilePath, contents);
+            File.WriteAllLines(Program.DataFilePath, contents);
         }
         public static List<string> DefineVariableContents(string variableName = "", string value = "")
         {
-            List<string> contents = File.ReadAllLines(DataFilePath).ToList();
+            List<string> contents = File.ReadAllLines(Program.DataFilePath).ToList();
             for (int i = 0; i < contents.Count; i++)
             {
                 string s = contents[i];
@@ -70,21 +71,21 @@ namespace DevTools
                     var ss = s.SplitAtFirst(',');
                     ss[1] = value;
                     contents[i] = ss[0] + ',' + ss[1];
-                    File.WriteAllLines(DataFilePath, contents);
+                    File.WriteAllLines(Program.DataFilePath, contents);
                 }
             }
 
             return contents;
         }
-        static void DefineFunction(string function)
+        public static void DefineFunction(string function)
         {
             function = function.Substring("#defunc".Length);
 
-            var prev = File.ReadAllLines(FuncFilePath).ToList();
+            var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
             var name = function.Substring(0, function.IndexOf('('));
             if (VariableExists(name))
             {
-                PrintError("Variable is already defined");
+                CustomConsole.PrintError("Variable is already defined");
                 return;
             }
             List<string> toremove = new List<string>();
@@ -105,25 +106,25 @@ namespace DevTools
             {
                 prev.Remove(s);
             }
-            File.WriteAllLines(FuncFilePath, prev.ToArray());
+            File.WriteAllLines(Program.FuncFilePath, prev.ToArray());
 
             if (!function.Contains(')'))
             {
-                expectingError = true;
+                Program.expectingError = true;
                 throw new Exception("Wrong formatting for declaring function.\nDid not include closing bracket");
             }
             if (function.Split(')')[1].Length == 0)
             {
-                expectingError = true;
+                Program.expectingError = true;
                 throw new Exception("Define an action to take place with the variable");
             }
-            string result = function + "\n" + File.ReadAllText(FuncFilePath);
+            string result = function + "\n" + File.ReadAllText(Program.FuncFilePath);
 
-            File.WriteAllText(FuncFilePath, result);
+            File.WriteAllText(Program.FuncFilePath, result);
         }
-        static void DeleteFunction(string name)
+        public static void DeleteFunction(string name)
         {
-            var prev = File.ReadAllLines(FuncFilePath).ToList();
+            var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
             List<string> toremove = new List<string>();
             foreach (var s in prev)
             {
@@ -142,13 +143,13 @@ namespace DevTools
             {
                 prev.Remove(s);
             }
-            File.WriteAllLines(FuncFilePath, prev.ToArray());
+            File.WriteAllLines(Program.FuncFilePath, prev.ToArray());
         }
-        static void PrintDescription(string name)
+        public static void PrintDescription(string name)
         {
-            var prev = File.ReadAllLines(FuncFilePath).ToList();
+            var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
             var nextidx = 0;
-            for (int i = 0; i < prev.Count; i++)
+            for (int i = 0; i < prev.Count(); i++)
             {
                 string? s = prev[i];
                 if (s == "SYSTEM FUNCTIONS:")
@@ -160,7 +161,7 @@ namespace DevTools
                 var substr = s.Substring(0, bracketidx);
                 if (substr == name) //Already defined function
                 {
-                    ShowDescription(s);
+                    CustomConsole.ShowDescription(s);
                 }
             }
             for (int i = nextidx; i < prev.Count; i++)
@@ -171,17 +172,17 @@ namespace DevTools
                 var substr = s.Substring(0, bracketidx);
                 if (substr == name) //Already defined function
                 {
-                    ShowDescription(s);
+                    CustomConsole.ShowDescription(s);
                 }
             }
         }
-        static void PrintDescription()
+        public static void PrintDescription()
         {
-            var prev = File.ReadAllLines(FuncFilePath).ToList();
+            var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
             foreach (var s in prev)
             {
-                PrintColour(s + ":");
-                ShowDescription(s);
+                CustomConsole.PrintColour(s + ":");
+                CustomConsole.ShowDescription(s);
             }
         }
 
@@ -192,7 +193,7 @@ namespace DevTools
         /// <param name="variableName"></param>
         /// <param name="variableValue"></param>
         /// <returns></returns>
-        private static string ReplaceTempVariables(string input, char variableName, string variableValue)
+        public static string ReplaceTempVariables(string input, char variableName, string variableValue)
         {
             string result = "";
             for (int i = 0; i < input.Length; ++i)
@@ -200,7 +201,7 @@ namespace DevTools
                 char c = input[i];
                 if (c == variableName)
                 {
-                    if ((input.Length - 1 == i || IsOperator(input[i + 1])) && (i == 0 || IsOperator(input[i - 1])))
+                    if ((input.Length - 1 == i || input[i + 1].IsOperator()) && (i == 0 || input[i - 1].IsOperator()))
                     {
                         result += variableValue;
                     }
@@ -233,7 +234,7 @@ namespace DevTools
         /// <param name="variableName"></param>
         /// <param name="variableValue"></param>
         /// <returns></returns>
-        private static string ReplaceTempVariables(string input, string variableName, string variableValue)
+        public static string ReplaceTempVariables(string input, string variableName, string variableValue)
         {
             string result = "";
             for (int i = 0; i < input.Length; ++i)
@@ -241,20 +242,20 @@ namespace DevTools
                 char c = input[i];
                 string currentVar = "";
                 result += c;
-                if (result.Length >= variableName.Length && !IsOperator(input[i]) && !char.IsDigit(input[i]))
+                if (result.Length >= variableName.Length && !input[i].IsOperator() && !char.IsDigit(input[i]))
                 {
                     currentVar = result.Substring(i - variableName.Length + 1);
                 }
                 if (currentVar == variableName) //Is this the current variable we are working on
                 {
                     if (input.Length == result.Length //Are we at the end of the line?
-                    || (IsOperator(input[i + 1]) //At the end of the variable. i.e. there isn't a letter or number after the variable, but an operator
-                    && (i == variableName.Length - 1 || IsOperator(input[i - variableName.Length]))))
+                    || (input[i + 1].IsOperator() //At the end of the variable. i.e. there isn't a letter or number after the variable, but an operator
+                    && (i == variableName.Length - 1 || input[i - variableName.Length].IsOperator())))
 
                     {
                         result = result.Substring(0, result.Length - variableName.Length) + input.Substring(i + 1, input.Length - 1 - i);
                         result = result.Insert(i - variableName.Length + 1, "(" + variableValue + ")");
-                        PrintColour(variableName + " --> " + variableValue, true);
+                        CustomConsole.PrintColour(variableName + " --> " + variableValue, true);
                         return ReplaceTempVariables(result, variableName, variableValue);
                     }
                 }
@@ -273,7 +274,7 @@ namespace DevTools
                 {
                     currentVar = result.Substring(i - variableName.Length + 1);
                 }
-                if (currentVar == variableName && (input.Length - result.Length == 0 || IsOperator(input[i + 1])) && (i == variableName.Length - 1 || IsOperator(input[i - variableName.Length])))
+                if (currentVar == variableName && (input.Length - result.Length == 0 || input[i + 1].IsOperator()) && (i == variableName.Length - 1 || input[i - variableName.Length].IsOperator()))
                 {
                     return true;
                 }
@@ -311,7 +312,7 @@ namespace DevTools
                             if (currentVar == variableName && (userINPUT.Length - result.Length == 0 || (userINPUT[i + 1]) == '=') && (i == variableName.Length - 1 || (userINPUT[i - variableName.Length]) == '='))
                             {
                                 //The last x characters of result are a variable and the next character is an '=' sign
-                                var value = BitCalculate(RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2)), 'u'), 'u');
+                                var value = Bitmath.BitCalculate(Bitmath.RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2)), 'u'), 'u');
                                 if (value != "null")
                                 {
                                     toreplace.Add(variableName, value);
@@ -438,7 +439,7 @@ namespace DevTools
                 if (sINPUT.StartsWith(pair.Key)) //Doing operation on a networking thingy?
                 {
                     string operation = sINPUT.Split('.')[1]; //Find the function after the '.'
-                    DoNetworkingOperation(pair.Value, operation);
+                    Program.DoNetworkingOperation(pair.Value, operation);
                     return "CLOSE_CONDITION_PROCESSED";
                 }
             }
@@ -453,9 +454,9 @@ namespace DevTools
         /// Deletes the variable as the name specifies
         /// </summary>
         /// <param name="input"></param>
-        private static void DeleteVariable(string input)
+        public static void DeleteVariable(string input)
         {
-            List<string> variables = File.ReadAllLines(DataFilePath).ToList(); //Find a list of all the variables
+            List<string> variables = File.ReadAllLines(Program.DataFilePath).ToList(); //Find a list of all the variables
             var copy = new List<string>();
             foreach (var v in variables)
             {
@@ -471,9 +472,9 @@ namespace DevTools
             }
             foreach (var v in copy)
             {
-                PrintColour(v, true); //Print out the rest of the variables defined
+                CustomConsole.PrintColour(v, true); //Print out the rest of the variables defined
             }
-            File.WriteAllLines(DataFilePath, copy); //Write the new variable set to the file
+            File.WriteAllLines(Program.DataFilePath, copy); //Write the new variable set to the file
         }
     }
 }

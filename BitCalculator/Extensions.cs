@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -89,11 +90,11 @@ namespace DevTools
             }
             return s.Length;
         }
-        private static string RemoveLineBreaks(this string v)
+        public static string RemoveLineBreaks(this string v)
         {
             return Regex.Replace(Regex.Replace(v, "\n", ""), "\r", "");
         }
-        private static string RemoveSpaces(this string input)
+        public static string RemoveSpaces(this string input)
         {
             string result = "";
             bool inSpeech = false;
@@ -147,7 +148,7 @@ namespace DevTools
             }
             return -1;
         }
-        private static string RemoveLast(this string buffer)
+        public static string RemoveLast(this string buffer)
         {
             if (buffer == "")
             {
@@ -208,7 +209,7 @@ namespace DevTools
             }
             return input.Length;
         }
-        private static int NextOperatorIDX_NoLetter(this string input, int currIDX)
+        public static int NextOperatorIDX_NoLetter(this string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -231,7 +232,7 @@ namespace DevTools
             return input.Length;
         }
 
-        private static int NextOperatorIDX_NoBrackets(this string input, int currIDX)
+        public static int NextOperatorIDX_NoBrackets(this string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -252,7 +253,7 @@ namespace DevTools
             }
             return input.Length;
         }
-        private static int NextColonIDX(this string input, int currIDX)
+        public static int NextColonIDX(this string input, int currIDX)
         {
             for (int i = currIDX; i < input.Length; i++)
             {
@@ -285,7 +286,7 @@ namespace DevTools
             return 0;
         }
 
-        private static int LastAsterixIDX(this string input, int currIDX)
+        public static int LastAsterixIDX(this string input, int currIDX)
         {
             for (int i = currIDX; i > -1; --i)
             {
@@ -297,7 +298,7 @@ namespace DevTools
             return -1;
         }
 
-        private static int LastNegOperatorIDX(this string input, int currIDX)
+        public static int LastNegOperatorIDX(this string input, int currIDX)
         {
             for (int i = currIDX; i > -1; --i)
             {
@@ -350,7 +351,7 @@ namespace DevTools
         /// </summary>
         /// <param name="sINPUT"></param>
         /// <returns></returns>
-        private static string RemoveComments(this string sINPUT)
+        public static string RemoveComments(this string sINPUT)
         {
             if (sINPUT.Contains(@"//") && sINPUT.Contains(@"\\") && !sINPUT.Contains("#defunc"))
             {
