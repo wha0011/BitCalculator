@@ -12,8 +12,28 @@ namespace DevTools
     {
         public static bool readingConsole = false; //Staticbool that shows for async methods whether we are currently reading text from the console
         static string retString = ""; //Buffer for the readline function
+
+        public static char[,] GetWrittenText()
+        {
+            var width = Console.WindowWidth;
+            char[,] result = new char[width, retString.Length / width + 1];
+            for (int y = 0; y < result.GetLength(1); ++y) //Iterate through rows
+            {
+                for (int x = 0; x < width; ++x) //Iterate through letters in row
+                {
+                    if (x+width*y >= retString.Length)
+                    {
+                        return result;
+                    }
+                    result[x, y] = retString[x+width*y]; //Add the position
+                }
+            }
+            return result;
+        }
+        public static int startline;
         public static string ReadLineOrEsc()
         {
+            startline = Console.CursorTop;
             retString = "";
             readingConsole = true;
             int writeIDX = 0;
@@ -26,23 +46,25 @@ namespace DevTools
                 {
                     Console.WriteLine();
                     readingConsole = false;
+                    //Console.CursorTop = startline;
                     return retString;
                 }
 
                 if (readKeyResult.Key == ConsoleKey.LeftArrow) //Move left
                 {
                     writeIDX--;
-                    Console.CursorLeft--;
+                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
                 }
                 else if (readKeyResult.Key == ConsoleKey.RightArrow) //Mofe right
                 {
-                    if (retString.LettersLength() > writeIDX)//Not at end yet?
+                    if (retString.Length > writeIDX)//Not at end yet?
                     {
                         writeIDX++;
-                        Console.CursorLeft++;
+                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab)
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab ||
+                         readKeyResult.Key == ConsoleKey.LeftWindows || readKeyResult.Key == ConsoleKey.RightWindows || readKeyResult.Key == ConsoleKey.Escape)
                 {
                     //Do nothing, just dont run other functions
 
@@ -57,16 +79,31 @@ namespace DevTools
                     {
                         retString = retString.Remove(writeIDX - 1, 1); //Remove current char from the buffer
                         ChangeUserTextColourLive(retString); //Change user text colour
-                        Console.CursorLeft--; //Move the cursor to its new position
+                        try
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop); //Move the cursor to its new position
+                        }
+                        catch
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft + Console.WindowWidth - 1, Console.CursorTop - 1); //Move the cursor to its new position
+                        }
                         writeIDX--; //Update current writeIDX
                     }
                 }
                 else
                 {
-                    if (retString.Length == writeIDX)//Writing next character?
+                    if (retString.Length <= writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar; //Add to the buffer
-                        Console.CursorLeft++; //Move the cursor right
+                        if (Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
+                        {
+                            Console.CursorTop++; //Go to the next line
+                            Console.CursorLeft = 0; //Do not put text behind the header
+                        }
+                        else
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop); //Move the cursor right
+                        }
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
@@ -76,11 +113,11 @@ namespace DevTools
                         retString = sb.ToString(); //Update string
 
                         writeIDX++;
-                        Console.CursorLeft++;
+                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
-                if (Console.CursorLeft <= 3)
+                if (Console.CursorLeft <= 2 && Console.CursorTop == startline)
                 {
                     Console.CursorLeft = 3;
                     writeIDX = 0;
@@ -108,8 +145,16 @@ namespace DevTools
             return false;
         }
 
+        static Size consoleSize = new Size(50,30);
+
+        static System.Timers.Timer checkTimer = new System.Timers.Timer();
         public static void SetupConsole()
         {
+            Console.SetWindowSize(50,30);
+            checkTimer.Interval = 10;
+            checkTimer.Elapsed += new System.Timers.ElapsedEventHandler(TimerTick);
+            checkTimer.Start();
+
             Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
 
             Colorful.Console.Clear();
@@ -117,6 +162,16 @@ namespace DevTools
             Colorful.Console.WriteAsciiStyled("Dev Tools 2022", new Colorful.StyleSheet(Color.FromArgb(122, 224, 255)));
             Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
             Colorful.Console.ForegroundColor = Color.FromArgb(10, 181, 158);
+            
+        }
+
+        public static void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (Console.WindowWidth != consoleSize.Width) //Console size has been changed?
+            {
+                startline = Console.CursorTop - GetWrittenText().GetLength(1)+1;
+                consoleSize.Width = Console.WindowWidth;
+            }
         }
 
         struct FuncLocation
@@ -451,17 +506,26 @@ namespace DevTools
         }
         public static void ChangeUserTextColourLive(string userinput)
         {
+            Console.CursorVisible = false;
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
 
-            Console.SetCursorPosition(0, y);
-            ClearCurrentConsoleLine();
+            var arry = GetWrittenText();
+            for (int i = startline; i <= y+1; ++i)
+            {
+                Console.SetCursorPosition(0, i);
+                ClearCurrentConsoleLine();
+            }
+
+
+            Console.SetCursorPosition(0, startline);
             Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
-            Console.SetCursorPosition(3, y);
+            Console.SetCursorPosition(3, startline);
 
-            PrintColour(userinput, false, false, false);
+            PrintColour(userinput.ToLower(), false, false, false);
             Console.SetCursorPosition(x, y);
+            Console.CursorVisible = true;
         }
         public static bool printWorkings = true;
         public static void PrintError(string errorMessage)

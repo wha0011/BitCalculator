@@ -124,7 +124,7 @@ namespace DevTools
                 }
                 if (!inSpeech && !isComment)
                 {
-                    if (c != ' ')
+                    if (c != ' ' && c != '\0')
                     {
                         result += c.ToString().ToLower()[0];
                     }

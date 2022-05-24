@@ -61,7 +61,6 @@ namespace DevTools
                     else
                     {
                         userInput = CustomConsole.ReadLineOrEsc(); //Custom readline method to read text
-                        CustomConsole.ChangeUserTextColour(userInput); //Change colour of the header to show command has been processed
                         DoMainMethod(userInput); //Run users command
                     }
                 }
@@ -895,7 +894,6 @@ namespace DevTools
             CustomConsole.PrintColour("#defunc");
             CustomConsole.PrintColour("#delfunc");
             CustomConsole.PrintColour("#del");
-            CustomConsole.PrintColour("nw");
             CustomConsole.PrintColour("showfunc");
             CustomConsole.PrintColour("dv");
             CustomConsole.PrintColour("dtv");
@@ -914,11 +912,9 @@ namespace DevTools
             CustomConsole.PrintColour("hrgb");
             CustomConsole.PrintColour("asci");
             CustomConsole.PrintColour("basci");
-            CustomConsole.PrintColour("pw");
-            CustomConsole.PrintColour("fpw");
             CustomConsole.PrintColour("cv");
             CustomConsole.PrintColour("avg");
-            CustomConsole.PrintColour("r");
+            CustomConsole.PrintColour("f");
             CustomConsole.PrintColour("rf");
             CustomConsole.PrintColour("ati");
             CustomConsole.PrintColour("i");
