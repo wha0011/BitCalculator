@@ -375,12 +375,12 @@ namespace DevTools
             }
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
             CustomConsole.PrintColour(string.Format("{0}({1}) = {2}", mathAngleType.ToString(), result, calcNum), true);
+            if (fixedval.EndsWith("arc")) //Fixed val has "arc" on the end of it? This happens for arccos, arcsin, and arctan operations
+            {
+                fixedval = fixedval.Substring(0,fixedval.Length-3);
+            }
             string return_result = fixedval + calcNum + afterThat;
 
-            if (return_result.StartsWith("arc")) //Was this an arc operation?
-            {
-                return_result = return_result.Substring(3); //Remove it
-            }
             if (return_result.StartsWith("nw"))
             {
                 Program.printWorkings = false;
