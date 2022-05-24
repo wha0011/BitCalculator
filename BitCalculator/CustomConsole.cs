@@ -46,6 +46,7 @@ namespace DevTools
                 {
                     Console.WriteLine();
                     readingConsole = false;
+                    //Console.CursorTop = startline;
                     return retString;
                 }
 
@@ -148,9 +149,15 @@ namespace DevTools
             return false;
         }
 
+        static Size consoleSize = new Size(50,30);
+
+        static System.Timers.Timer checkTimer = new System.Timers.Timer();
         public static void SetupConsole()
         {
             Console.SetWindowSize(50,30);
+            checkTimer.Interval = 10;
+            checkTimer.Elapsed += new System.Timers.ElapsedEventHandler(TimerTick);
+            checkTimer.Start();
 
             Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
 
@@ -160,6 +167,15 @@ namespace DevTools
             Colorful.Console.WriteLine("Type help to show all functions", Color.FromArgb(122, 224, 255));
             Colorful.Console.ForegroundColor = Color.FromArgb(10, 181, 158);
             
+        }
+
+        public static void TimerTick(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (Console.WindowWidth != consoleSize.Width) //Console size has been changed?
+            {
+                startline = Console.CursorTop - GetWrittenText().GetLength(1)+1;
+                consoleSize.Width = Console.WindowWidth;
+            }
         }
 
         struct FuncLocation

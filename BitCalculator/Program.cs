@@ -61,7 +61,6 @@ namespace DevTools
                     else
                     {
                         userInput = CustomConsole.ReadLineOrEsc(); //Custom readline method to read text
-                        CustomConsole.ChangeUserTextColour(userInput); //Change colour of the header to show command has been processed
                         DoMainMethod(userInput); //Run users command
                     }
                 }
