@@ -129,7 +129,7 @@ namespace DevTools
                 Variables.PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
-            if (userINPUT == "UNITTEST")
+            if (userINPUT.ToLower() == "unittest")
             {
                 foreach (var test in UnitTest.unitTests)
                 {
