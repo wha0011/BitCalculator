@@ -30,8 +30,10 @@ namespace DevTools
             }
             return result;
         }
+        public static int startline;
         public static string ReadLineOrEsc()
         {
+            startline = Console.CursorTop;
             retString = "";
             readingConsole = true;
             int writeIDX = 0;
@@ -93,15 +95,18 @@ namespace DevTools
                 }
                 else
                 {
-                    if (retString.Length == writeIDX)//Writing next character?
+                    if (retString.Length >= writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar; //Add to the buffer
-                        if(Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
+                        if (Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
                         {
                             Console.CursorTop++; //Go to the next line
-                            Console.CursorLeft = 3; //Do not put text behind the header
+                            Console.CursorLeft = 0; //Do not put text behind the header
                         }
-                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop); //Move the cursor right
+                        else
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop); //Move the cursor right
+                        }
                         writeIDX++;
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
@@ -115,7 +120,7 @@ namespace DevTools
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
-                if (Console.CursorLeft <= 2)
+                if (Console.CursorLeft <= 2 && Console.CursorTop == startline)
                 {
                     Console.CursorLeft = 3;
                     writeIDX = 0;
@@ -145,7 +150,7 @@ namespace DevTools
 
         public static void SetupConsole()
         {
-            Console.SetWindowSize(150,30);
+            Console.SetWindowSize(50,30);
 
             Colorful.Console.BackgroundColor = Color.FromArgb(0, 16, 29); //Change the background colour to the snazzy blue
 
@@ -493,11 +498,15 @@ namespace DevTools
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
 
-            Console.SetCursorPosition(0, y);
+            var arry = GetWrittenText();
+            Console.SetCursorPosition(0, startline);
+
+
+
             ClearCurrentConsoleLine();
             Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
-            Console.SetCursorPosition(3, y);
+            Console.SetCursorPosition(3, startline);
 
             PrintColour(userinput.ToLower(), false, false, false);
             Console.SetCursorPosition(x, y);
