@@ -444,7 +444,7 @@ namespace DevTools
                         if (nextBracketIDX == -1)
                         {
                             Program.expectingError = true;
-                            throw new Exception("Some weird sh*t is happening");
+                            throw new Exception("No closing bracket was included");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
