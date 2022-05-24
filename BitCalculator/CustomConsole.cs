@@ -57,7 +57,7 @@ namespace DevTools
                 }
                 else if (readKeyResult.Key == ConsoleKey.RightArrow) //Mofe right
                 {
-                    if (retString.LettersLength() > writeIDX)//Not at end yet?
+                    if (retString.Length > writeIDX)//Not at end yet?
                     {
                         writeIDX++;
                         Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
@@ -70,17 +70,6 @@ namespace DevTools
 
                     //Delete does not work in this application as it moves the cursor uncrontrollably
                     //To avoid this error, we just don't cater for it
-
-                    var arry = GetWrittenText();
-                    Console.WriteLine();
-                    for (var y = 0; y < arry.GetLength(1); ++y)
-                    {
-                        for (var x = 0; x < arry.GetLength(0); ++x)
-                        {
-                            Console.Write(arry[x, y]);
-                        }
-                        Console.WriteLine();
-                    }
                 }
 
                 // handle backspace
@@ -103,7 +92,7 @@ namespace DevTools
                 }
                 else
                 {
-                    if (retString.Length >= writeIDX)//Writing next character?
+                    if (retString.Length <= writeIDX)//Writing next character?
                     {
                         retString += readKeyResult.KeyChar; //Add to the buffer
                         if (Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
