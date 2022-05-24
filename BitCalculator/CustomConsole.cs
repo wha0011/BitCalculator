@@ -12,7 +12,24 @@ namespace DevTools
     {
         public static bool readingConsole = false; //Staticbool that shows for async methods whether we are currently reading text from the console
         static string retString = ""; //Buffer for the readline function
-        static int readlines = 1;
+
+        public static char[,] GetWrittenText()
+        {
+            var width = Console.WindowWidth;
+            char[,] result = new char[width, retString.Length / width + 1];
+            for (int y = 0; y < result.GetLength(1); ++y) //Iterate through rows
+            {
+                for (int x = 0; x < width; ++x) //Iterate through letters in row
+                {
+                    if (x+width*y >= retString.Length)
+                    {
+                        return result;
+                    }
+                    result[x, y] = retString[x+width*y]; //Add the position
+                }
+            }
+            return result;
+        }
         public static string ReadLineOrEsc()
         {
             retString = "";
@@ -44,12 +61,23 @@ namespace DevTools
                     }
                 }
                 else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab || 
-                         readKeyResult.Key == ConsoleKey.LeftWindows || readKeyResult.Key == ConsoleKey.RightWindows)
+                         readKeyResult.Key == ConsoleKey.LeftWindows || readKeyResult.Key == ConsoleKey.RightWindows || readKeyResult.Key == ConsoleKey.Escape)
                 {
                     //Do nothing, just dont run other functions
 
                     //Delete does not work in this application as it moves the cursor uncrontrollably
                     //To avoid this error, we just don't cater for it
+
+                    var arry = GetWrittenText();
+                    Console.WriteLine();
+                    for (var y = 0; y < arry.GetLength(1); ++y)
+                    {
+                        for (var x = 0; x < arry.GetLength(0); ++x)
+                        {
+                            Console.Write(arry[x,y]);
+                        }
+                        Console.WriteLine();
+                    }
                 }
 
                 // handle backspace
@@ -70,7 +98,6 @@ namespace DevTools
                         retString += readKeyResult.KeyChar; //Add to the buffer
                         if(Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
                         {
-                            ++readlines; //Tell other functions that we are reading more lines now
                             Console.CursorTop++; //Go to the next line
                             Console.CursorLeft = 3; //Do not put text behind the header
                         }
@@ -466,13 +493,13 @@ namespace DevTools
             var x = Console.CursorLeft;
             var y = Console.CursorTop;
 
-            Console.SetCursorPosition(0, y-readlines);
+            Console.SetCursorPosition(0, y);
             ClearCurrentConsoleLine();
             Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
             Console.SetCursorPosition(3, y);
 
-            PrintColour(userinput, false, false, false);
+            PrintColour(userinput.ToLower(), false, false, false);
             Console.SetCursorPosition(x, y);
             Console.CursorVisible = true;
         }
