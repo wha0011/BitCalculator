@@ -529,7 +529,7 @@ namespace DevTools
             {
                 if (is32bit) //Print as 32 bit
                 {
-                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(66), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(67), false, true);
                 }
                 else if (is16bit) //Print as 16 bit
                 {
