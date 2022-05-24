@@ -517,7 +517,7 @@ namespace DevTools
 
             Console.SetCursorPosition(3, startline);
 
-            PrintColour(userinput.ToLower(), false, false, false);
+            PrintColour(userinput, false, false, false);
             Console.SetCursorPosition(x, y);
             Console.CursorVisible = true;
         }
