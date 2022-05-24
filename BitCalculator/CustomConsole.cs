@@ -150,7 +150,7 @@ namespace DevTools
         static System.Timers.Timer checkTimer = new System.Timers.Timer();
         public static void SetupConsole()
         {
-            Console.SetWindowSize(50,30);
+            Console.SetWindowSize(150,30);
             checkTimer.Interval = 10;
             checkTimer.Elapsed += new System.Timers.ElapsedEventHandler(TimerTick);
             checkTimer.Start();
