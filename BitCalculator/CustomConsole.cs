@@ -53,17 +53,17 @@ namespace DevTools
                 if (readKeyResult.Key == ConsoleKey.LeftArrow) //Move left
                 {
                     writeIDX--;
-                    Console.SetCursorPosition(Console.CursorLeft-1, Console.CursorTop);
+                    Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
                 }
                 else if (readKeyResult.Key == ConsoleKey.RightArrow) //Mofe right
                 {
                     if (retString.LettersLength() > writeIDX)//Not at end yet?
                     {
                         writeIDX++;
-                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
+                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
                     }
                 }
-                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab || 
+                else if (readKeyResult.Key == ConsoleKey.UpArrow || readKeyResult.Key == ConsoleKey.DownArrow || readKeyResult.Key == ConsoleKey.Delete || readKeyResult.Key == ConsoleKey.Tab ||
                          readKeyResult.Key == ConsoleKey.LeftWindows || readKeyResult.Key == ConsoleKey.RightWindows || readKeyResult.Key == ConsoleKey.Escape)
                 {
                     //Do nothing, just dont run other functions
@@ -77,7 +77,7 @@ namespace DevTools
                     {
                         for (var x = 0; x < arry.GetLength(0); ++x)
                         {
-                            Console.Write(arry[x,y]);
+                            Console.Write(arry[x, y]);
                         }
                         Console.WriteLine();
                     }
@@ -90,7 +90,14 @@ namespace DevTools
                     {
                         retString = retString.Remove(writeIDX - 1, 1); //Remove current char from the buffer
                         ChangeUserTextColourLive(retString); //Change user text colour
-                                            Console.SetCursorPosition(Console.CursorLeft-1, Console.CursorTop); //Move the cursor to its new position
+                        try
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop); //Move the cursor to its new position
+                        }
+                        catch
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft + Console.WindowWidth - 1, Console.CursorTop - 1); //Move the cursor to its new position
+                        }
                         writeIDX--; //Update current writeIDX
                     }
                 }
@@ -117,7 +124,7 @@ namespace DevTools
                         retString = sb.ToString(); //Update string
 
                         writeIDX++;
-                        Console.SetCursorPosition(Console.CursorLeft+1, Console.CursorTop);
+                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
@@ -515,11 +522,14 @@ namespace DevTools
             var y = Console.CursorTop;
 
             var arry = GetWrittenText();
+            for (int i = startline; i <= y+1; ++i)
+            {
+                Console.SetCursorPosition(0, i);
+                ClearCurrentConsoleLine();
+            }
+
+
             Console.SetCursorPosition(0, startline);
-
-
-
-            ClearCurrentConsoleLine();
             Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
             Console.SetCursorPosition(3, startline);
