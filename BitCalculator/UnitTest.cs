@@ -12,7 +12,7 @@ namespace DevTools
             new UnitTest("#del bob; #define bob = 2; nw np bob + 7", "9"),
             new UnitTest("alg(7,-11,-6)", "(1x-2)(7x+3)"),
             new UnitTest("nw np tan(70)", "Closest conversion: 2.7474774194546216"),
-    //        new UnitTest("loop 10: nw np i", "0\n1\n2\n3\n4\n5\n6\n7\n8\n9"),
+            new UnitTest("arcsin(45) + arccos(45)", "Closest conversion: 1.5707963267948966"),
             new UnitTest("hrgb ffffff", "rgb(255,255,255);"),
             new UnitTest("nw np tan(70)+sin(90)-arccos(60)-40+6.75532-3", "Closest conversion: -49.75532"),
             new UnitTest("nw np b_01010101010000101001010101 + 345", "22350766"),

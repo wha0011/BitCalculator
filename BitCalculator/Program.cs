@@ -129,7 +129,7 @@ namespace DevTools
                 Variables.PrintDescription(userINPUT.Substring(5)); //Print the help
                 return;
             }
-            if (userINPUT == "UNITTEST")
+            if (userINPUT.ToLower() == "unittest")
             {
                 foreach (var test in UnitTest.unitTests)
                 {
@@ -966,8 +966,8 @@ namespace DevTools
             if (input.Contains('<') && !input.Contains("<<"))
             {
                 var strings = input.Split('<');
-                strings[0] = Bitmath.BitCalculate(strings[0], type);
-                strings[1] = Bitmath.BitCalculate(strings[1], type);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type),type);
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type),type);
                 if (ulong.Parse(strings[0])<ulong.Parse(strings[1]))
                 {
                     return "true";
@@ -993,9 +993,9 @@ namespace DevTools
             }
             if (input.Contains("=="))
             {
-                string[] strings=  input.Split(new string[] { "==" }, StringSplitOptions.None); 
-                strings[0] = Bitmath.BitCalculate(strings[0], type);
-                strings[1] = Bitmath.BitCalculate(strings[1], type);
+                string[] strings=  input.Split(new string[] { "==" }, StringSplitOptions.None);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type), type);
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type), type);
                 if (ulong.Parse(strings[0]) == ulong.Parse(strings[1]))
                 {
                     return "true";
@@ -1008,8 +1008,8 @@ namespace DevTools
             if (input.Contains("!="))
             {
                 string[] strings = input.Split(new string[] { "!=" }, StringSplitOptions.None);
-                strings[0] = Bitmath.BitCalculate(strings[0], type);
-                strings[1] = Bitmath.BitCalculate(strings[1], type);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type), type);
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type), type);
                 if (ulong.Parse(strings[0]) != ulong.Parse(strings[1]))
                 {
                     return "true";
