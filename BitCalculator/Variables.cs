@@ -214,7 +214,7 @@ namespace DevTools
                 if (!s.Contains(','))
                 {
                     File.WriteAllText(Program.DataFilePath, "");
-                    CustomConsole.PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE", false);
+                    CustomConsole.PrintColour("All variables cleared because of invalid input. DO NOT EDIT THE VARIABLES FILE");
                     return "";
                 }
 
@@ -234,7 +234,7 @@ namespace DevTools
                 if (!s.Contains('('))
                 {
                     File.WriteAllText(Program.FuncFilePath, Help.DEFAULTFUNCS);
-                    CustomConsole.PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE", false);
+                    CustomConsole.PrintColour("All FUNCTIONS cleared because of invalid input. DO NOT EDIT THE functions FILE");
                     return "";
                 }
                 var name = s.Split('(')[0];
@@ -282,7 +282,7 @@ namespace DevTools
             }
             if (i != input)
             {
-                CustomConsole.PrintColour(i, true);
+                CustomConsole.PrintColour(i);
             }
             i = Program.RemoveRandom(i);
             return i;
@@ -499,9 +499,22 @@ namespace DevTools
             }
             foreach (var v in copy)
             {
-                CustomConsole.PrintColour(v, true); //Print out the rest of the variables defined
+                CustomConsole.PrintColour(v); //Print out the rest of the variables defined
             }
             File.WriteAllLines(Program.DataFilePath, copy); //Write the new variable set to the file
+        }
+        public static List<string> UserVariables()
+        {
+            List<string> result = new List<string>();
+            foreach (var line in File.ReadAllLines(Program.FuncFilePath))
+            {
+                if (line == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
+                result.Add(line);
+            }
+            return result;
         }
     }
 }

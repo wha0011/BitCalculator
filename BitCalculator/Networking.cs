@@ -13,6 +13,38 @@ namespace DevTools
         {
 
         }
+        public static void PingHost(string nameOrAddress)
+        {
+            bool pingable = false;
+            Ping pinger = null;
+
+            try
+            {
+                CustomConsole.NetworkingPrint(string.Format("Pinging {0} with 32 bytes of data", nameOrAddress));
+                pinger = new Ping();
+                PingReply reply = pinger.Send(nameOrAddress);
+                pingable = reply.Status == IPStatus.Success;
+                if (pingable)
+                {
+                    CustomConsole.NetworkingPrint(string.Format("Reply from {0}, Time={1}ms", nameOrAddress, reply.RoundtripTime));
+                }
+                else
+                {
+                    CustomConsole.NetworkingPrint(string.Format("Ping request to {0} failed", nameOrAddress));
+                }
+            }
+            catch (PingException)
+            {
+                // Discard PingExceptions and return false;
+            }
+            finally
+            {
+                if (pinger != null)
+                {
+                    pinger.Dispose();
+                }
+            }
+        }
         public static void PrintIPData()
         {
             Console.Write("Local IP: ");

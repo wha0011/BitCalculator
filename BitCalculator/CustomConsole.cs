@@ -140,7 +140,7 @@ namespace DevTools
                 Colorful.Console.WriteLine(toprint, Color.FromArgb(184, 186, 255));
                 Colorful.Console.Write("-->", Color.FromArgb(10, 181, 158)); //Header for text
 
-                PrintColour(retString, false, false, false);
+                PrintColour(retString, false, false);
                 Console.CursorLeft = left; //Reset the left to its original position
             }
             else
@@ -191,14 +191,14 @@ namespace DevTools
                 this.end = end;
                 this.name = name;
             }
-        }
+        }       
         /// <summary>
         /// An extension method for Colourful.Console.Writeline()
         /// </summary>
         /// <param name="vlower"></param>
         /// <param name="workings"></param>
         /// <param name="isBin"></param>
-        public static void PrintColour(string v, bool workings = false, bool isBin = false, bool writeline = true)
+        public static void PrintColour(string v, bool isBin = false, bool writeline = true)
         {
             var vlower = v.ToLower();
 
@@ -344,10 +344,6 @@ namespace DevTools
             speechLocations = speechLocations.OrderBy(f => f.start).ToList();
             //Order the functions so that the ones that appear first are at the start of the list
 
-            if (workings && printWorkings == false)
-            {
-                return;
-            }
             if (isBin)
             {
                 foreach (var c in v)
@@ -524,11 +520,10 @@ namespace DevTools
 
             Console.SetCursorPosition(3, startline);
 
-            PrintColour(userinput, false, false, false);
+            PrintColour(userinput, false, false);
             Console.SetCursorPosition(x, y);
             Console.CursorVisible = true;
         }
-        public static bool printWorkings = true;
         public static void PrintError(string errorMessage)
         {
             Colorful.Console.WriteLine(errorMessage, Color.Red);
@@ -605,7 +600,7 @@ namespace DevTools
                             Colorful.Console.Write(c.s, Color.Beige);
                             break;
                         case PrintType.Command:
-                            PrintColour(c.s, false, false, false);
+                            PrintColour(c.s, false, false);
                             break;
                     }
                 }
