@@ -181,13 +181,11 @@ namespace DevTools
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
-                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("#defunc"))
             {
-                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
@@ -204,15 +202,6 @@ namespace DevTools
                 return;
             }
             var resetworkings = false;
-            if (userINPUT.BeginsWith("nw")) //User wants to print with no workings?
-            {
-                printWorkings = false; //Stop printing workings
-                userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
-                if (!resetworkings)
-                {
-                    resetworkings = true; //Change the workings value back to normal when we are done
-                }
-            }
 
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
@@ -388,21 +377,6 @@ namespace DevTools
                 PrintHelp();
                 return;
             }
-            if (userINPUT.StartsWith("pw")) //Change the default value for printing workings or not
-            {
-                string value = userINPUT.Substring(3); //Remove start bracket
-                value = value.Substring(0,value.Length-1); //Removing ending bracket
-                printWorkings = bool.Parse(value);
-                return;
-            }
-            if (userINPUT.ToLower() == "fpw") //Change the value for printing workings of not.. Write it to a file
-            {
-                string value = userINPUT.Substring(4); //Remove start bracket
-                value = value.Substring(0, value.Length - 1); //Removing ending bracket
-                printWorkings = bool.Parse(value);
-                File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
-                return;
-            }
             if (userINPUT.ToLower() == "cv") //Delete all variables
             {
                 File.WriteAllText(DataFilePath, "");
@@ -440,6 +414,32 @@ namespace DevTools
                 }
                 addresses = addresses.Substring(0,addresses.Length-1); //Remove the final comma
                 CustomConsole.NetworkingPrint("Server IP: " + addresses);
+                return;
+            }
+            if (userINPUT.StartsWith("factors("))
+            {
+                userINPUT = userINPUT.Substring(8);
+                userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
+
+                string toprint = "";
+                int n;
+                try
+                {
+                    n = int.Parse(userINPUT);
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception(string.Format("'{0}' is not a number", userINPUT));
+                }
+                foreach (var factor in Algebra.GetFactors(n))
+                {
+                    toprint += factor;
+                    toprint += ',';
+                }
+                toprint = toprint.Substring(0, toprint.Length - 1);
+
+                CustomConsole.PrintColour(toprint);
                 return;
             }
             if (userINPUT.BeginsWith("f")) //Flipping the binary result?
@@ -880,10 +880,19 @@ namespace DevTools
         {
             loop = loop.Substring(5); //Remove the loop( from the start
             string[] args = loop.Split(')')[0].Split(',');
+            int bottomRange;
+            int topRange;
 
-            int bottomRange = int.Parse(args[0]);
-            int topRange = int.Parse(args[1]);
-
+            try
+            {
+                bottomRange = int.Parse(Bitmath.BitCalculate(args[0], 'u'));
+                topRange    = int.Parse(Bitmath.BitCalculate(args[1], 'u'));
+            }
+            catch
+            {
+                expectingError = true;
+                throw new Exception(string.Format("Loop did not contain valid range", loop));
+            }
             loop = loop.AddSpaces();
             loop = loop.Substring(loop.IndexOf(':')+1);
             for (int i = bottomRange; i < topRange; ++i)
@@ -920,6 +929,7 @@ namespace DevTools
             CustomConsole.PrintColour("quit");
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
+            CustomConsole.PrintColour("factors");
             CustomConsole.PrintColour("v");
             CustomConsole.PrintColour("doub");
             CustomConsole.PrintColour("float");

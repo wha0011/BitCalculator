@@ -8,7 +8,7 @@ namespace DevTools
     {
         public static List<UnitTest> unitTests = new List<UnitTest>()
         {
-            new UnitTest("nw np 4==4?5:3", "5"),
+            new UnitTest("np 4==4?5:3", "5"),
             new UnitTest("#del bob; #define bob = 2; np bob + 7", "9"),
             new UnitTest("alg(7,-11,-6)", "(1x-2)(7x+3)"),
             new UnitTest("np tan(70)", "Closest conversion: 2.7474774194546216"),
