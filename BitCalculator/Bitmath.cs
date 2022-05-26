@@ -381,11 +381,6 @@ namespace DevTools
             }
             string return_result = fixedval + calcNum + afterThat;
 
-            if (return_result.StartsWith("nw"))
-            {
-                Program.printWorkings = false;
-                return_result = return_result.Substring(2);
-            }
             if (return_result.StartsWith("np"))
             {
                 Program.noprint = true;

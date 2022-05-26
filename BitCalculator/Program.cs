@@ -204,15 +204,6 @@ namespace DevTools
                 return;
             }
             var resetworkings = false;
-            if (userINPUT.BeginsWith("nw")) //User wants to print with no workings?
-            {
-                printWorkings = false; //Stop printing workings
-                userINPUT = userINPUT.Substring(2); //remove the "nw" from the userinput string
-                if (!resetworkings)
-                {
-                    resetworkings = true; //Change the workings value back to normal when we are done
-                }
-            }
 
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
@@ -386,21 +377,6 @@ namespace DevTools
             if (userINPUT.ToLower() == "help") //Pretty damn well self explanatory
             {
                 PrintHelp();
-                return;
-            }
-            if (userINPUT.StartsWith("pw")) //Change the default value for printing workings or not
-            {
-                string value = userINPUT.Substring(3); //Remove start bracket
-                value = value.Substring(0,value.Length-1); //Removing ending bracket
-                printWorkings = bool.Parse(value);
-                return;
-            }
-            if (userINPUT.ToLower() == "fpw") //Change the value for printing workings of not.. Write it to a file
-            {
-                string value = userINPUT.Substring(4); //Remove start bracket
-                value = value.Substring(0, value.Length - 1); //Removing ending bracket
-                printWorkings = bool.Parse(value);
-                File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
                 return;
             }
             if (userINPUT.ToLower() == "cv") //Delete all variables
