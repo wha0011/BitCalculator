@@ -28,6 +28,8 @@ namespace DevTools
             }
         }
         public static ulong lastInput = 0ul;
+        public static bool lastWasDouble = false;
+
         static bool defaultFlipVal = false;
         public static string lastprint;
         static void Main(string[] args)
@@ -318,6 +320,7 @@ namespace DevTools
             {
                 CustomConsole.DoubleRePrint(BitConverter.Int64BitsToDouble((long)lastInput).AsBinary());
                 CustomConsole.PrintColour("Double is: " + BitConverter.Int64BitsToDouble((long)lastInput));
+                lastWasDouble = true; //Process next inputs math as double
                 return;
             }
             if (userINPUT == "afv") //Show previous bitset as a float value
@@ -518,8 +521,10 @@ namespace DevTools
                 }
                 CustomConsole.PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString());
                 double d = double.Parse(userINPUT);
+
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
+                lastWasDouble = true;
                 return;
             }
 
@@ -598,6 +603,7 @@ namespace DevTools
             {
                 CustomConsole.PrintColour(input.ToString()); //Instead of printing a binary result, print out the result as plain text
             }
+            lastWasDouble = false;
             lastInput = input; //Assign lastinput
         }
 

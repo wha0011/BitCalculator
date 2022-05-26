@@ -205,7 +205,14 @@ namespace DevTools
                             if (firstdouble == "")
                             {
                                 Program.modifyLastOutput = true;
-                                firstdouble = Program.lastInput.ToString();
+                                if (Program.lastWasDouble)
+                                {
+                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                                }
+                                else
+                                {
+                                    firstdouble = Program.lastInput.ToString();
+                                }
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -234,7 +241,14 @@ namespace DevTools
                             if (firstdouble == "")
                             {
                                 Program.modifyLastOutput = true;
-                                firstdouble = Program.lastInput.ToString();
+                                if (Program.lastWasDouble)
+                                {
+                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                                }
+                                else
+                                {
+                                    firstdouble = Program.lastInput.ToString();
+                                }
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -263,7 +277,14 @@ namespace DevTools
                     if (firstdouble == "")
                     {
                         Program.modifyLastOutput = true;
-                        firstdouble = Program.lastInput.ToString();
+                        if (Program.lastWasDouble)
+                        {
+                            firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                        }
+                        else
+                        {
+                            firstdouble = Program.lastInput.ToString();
+                        }
                         sINPUT = sINPUT.Insert(0, firstdouble);
                         //firstdoubleStart_IDX = 1;
                     }
@@ -638,7 +659,15 @@ namespace DevTools
                 var strings = sINPUT.Split('*');
                 if (strings[0] == "")
                 {
-                    strings[0] = Program.lastInput.ToString();
+                    if (Program.lastWasDouble)
+                    {
+                        strings[0] = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                    }
+                    else
+                    {
+                        strings[0] = Program.lastInput.ToString();
+                    }
+
                 }
                 double first = 0;
                 double second = 0;
@@ -664,7 +693,14 @@ namespace DevTools
                 var strings = sINPUT.Split('/');
                 if (strings[0] == "")
                 {
-                    strings[0] = Program.lastInput.ToString();
+                    if (Program.lastWasDouble)
+                    {
+                        strings[0] = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                    }
+                    else
+                    {
+                        strings[0] = Program.lastInput.ToString();
+                    }
                 }
                 double first = 0;
                 double second = 0;
