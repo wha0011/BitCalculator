@@ -274,7 +274,7 @@ namespace DevTools
                 return;
             }
 
-            string replaced = Variables.ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
+            string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
                 CustomConsole.PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
@@ -881,7 +881,7 @@ namespace DevTools
             loop = loop.Substring(tocalc.Length + 1);
             for (int i = 0; i < timesAround; ++i)
             {
-                string currentLoop = Variables.ReplaceTempVariables(loop, 'i', i.ToString());
+                string currentLoop = Variables.ReplaceTempVariables(loop, "i", i.ToString());
                 DoMainMethod(currentLoop);
             }
         }

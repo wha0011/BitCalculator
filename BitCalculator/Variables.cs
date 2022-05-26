@@ -188,47 +188,6 @@ namespace DevTools
         }
 
         /// <summary>
-        /// Replaces 
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="variableName"></param>
-        /// <param name="variableValue"></param>
-        /// <returns></returns>
-        public static string ReplaceTempVariables(string input, char variableName, string variableValue)
-        {
-            string result = "";
-            for (int i = 0; i < input.Length; ++i)
-            {
-                char c = input[i];
-                if (c == variableName)
-                {
-                    if ((input.Length - 1 == i || input[i + 1].IsOperator()) && (i == 0 || input[i - 1].IsOperator()))
-                    {
-                        result += variableValue;
-                    }
-                    else if (i == 2 && (input.StartsWith("nw") || input.StartsWith("np"))) //Is there a nw or a np command?
-                    {
-                        //Replace the variable
-                        result += variableValue;
-                    }
-                    else if (i == 4 && input.StartsWith("nwnp")) //nw and np?
-                    {
-                        //replace the variable
-                        result += variableValue;
-                    }
-                    else
-                    {
-                        result += c;
-                    }
-                }
-                else
-                {
-                    result += c;
-                }
-            }
-            return result;
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="input"></param>
