@@ -171,7 +171,7 @@ namespace DevTools
 
             if (removeSpaces)
             {
-                userINPUT = userINPUT.RemoveSpaces();
+                //userINPUT = userINPUT.RemoveSpaces();
                 userINPUT = userINPUT.RemoveComments();
             }
             #region uservariables
@@ -599,6 +599,8 @@ namespace DevTools
         }
         public static string RemoveX(string userINPUT)
         {
+            userINPUT = userINPUT.AddSpaces(); //Add spaces around the operators to help with variable replacement
+
             userINPUT = Variables.ReplaceTempVariables(userINPUT);
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
