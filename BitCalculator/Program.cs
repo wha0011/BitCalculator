@@ -153,6 +153,10 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
+                        if (str == "")
+                        {
+                            continue;
+                        }
                         MainMethod(str, removeSpaces);
                     }
                     userINPUT = userINPUT.Substring(beforeLoop.Length); //Remove the previous statements from the userinputs
@@ -171,27 +175,31 @@ namespace DevTools
 
             if (removeSpaces)
             {
-                userINPUT = userINPUT.RemoveSpaces();
+                //userINPUT = userINPUT.RemoveSpaces();
                 userINPUT = userINPUT.RemoveComments();
             }
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("#defunc"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
             if (userINPUT.BeginsWith("#delfunc"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DeleteFunction(userINPUT.Substring(8)); //Delete the function
                 return;
             }
             if (userINPUT.BeginsWith("#del"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
@@ -207,7 +215,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+            if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -270,7 +278,7 @@ namespace DevTools
                 return;
             }
 
-            string replaced = Variables.ReplaceTempVariables(userINPUT, 'v', lastInput.ToString()); //Define a new variable 'v' as the last result
+            string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
                 CustomConsole.PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
@@ -599,6 +607,8 @@ namespace DevTools
         }
         public static string RemoveX(string userINPUT)
         {
+            userINPUT = userINPUT.AddSpaces(); //Add spaces around the operators to help with variable replacement
+
             userINPUT = Variables.ReplaceTempVariables(userINPUT);
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
@@ -607,6 +617,9 @@ namespace DevTools
             userINPUT = Bitmath.RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
+
+            userINPUT = userINPUT.RemoveSpaces();
+
             return userINPUT;
         }
         /// <summary>
@@ -618,6 +631,7 @@ namespace DevTools
         /// <returns></returns>
         public static string RemoveRandom(string sINPUT)
         {
+            sINPUT = sINPUT.RemoveSpaces();
             if (sINPUT.Contains("ran(")) //Is the ran function in the users input
             {
                 string buffer = "";
@@ -634,8 +648,8 @@ namespace DevTools
 
                         Random random = new Random();
                         string[] nums = constraints.Split(',');
-                        nums[0] = Bitmath.RemoveBrackets(nums[0],'u');
-                        nums[1] = Bitmath.RemoveBrackets(nums[1],'u'); //User may have variables or functions declared here. Check for these
+                        nums[0] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[0],'u'),'u');
+                        nums[1] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[1],'u'),'u'); //User may have variables or functions declared here. Check for these
 
                         int nextRan = random.Next(int.Parse(nums[0]), 1 + int.Parse(nums[1])); //+1 because max val is INCLUSIVE
                         CustomConsole.PrintColour("Random number is: " + nextRan.ToString(), true);
@@ -772,6 +786,7 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveBinary(string input)
         {
+            input = input.RemoveSpaces();
             char prev = ' ';
             if (input.Contains("b_")) //Is there binary to remove?
             {
@@ -806,6 +821,7 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveHex(string input)
         {
+            input = input.RemoveSpaces();
             if (input.Length >= 2 && input[1] == '_')
             {
                 return input;
@@ -862,14 +878,17 @@ namespace DevTools
         }
         public static void DoLoopFunc(string loop)
         {
-            loop = loop.Substring(4);
-            string tocalc = loop.Split(':')[0];
-            string s = Bitmath.BitCalculate(Bitmath.RemoveBrackets(tocalc, 'u'), 'u');
-            int timesAround = int.Parse(s);
-            loop = loop.Substring(tocalc.Length + 1);
-            for (int i = 0; i < timesAround; ++i)
+            loop = loop.Substring(5); //Remove the loop( from the start
+            string[] args = loop.Split(')')[0].Split(',');
+
+            int bottomRange = int.Parse(args[0]);
+            int topRange = int.Parse(args[1]);
+
+            loop = loop.AddSpaces();
+            loop = loop.Substring(loop.IndexOf(':')+1);
+            for (int i = bottomRange; i < topRange; ++i)
             {
-                string currentLoop = Variables.ReplaceTempVariables(loop, 'i', i.ToString());
+                string currentLoop = Variables.ReplaceTempVariables(loop, "i", i.ToString());
                 DoMainMethod(currentLoop);
             }
         }

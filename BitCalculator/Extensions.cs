@@ -15,6 +15,7 @@ namespace DevTools
             {
                 return false;
             }
+            s = s.RemoveSpaces();
 
             if (s.Length >= start.Length && s.Substring(0,start.Length) == start)
             {
@@ -499,7 +500,28 @@ namespace DevTools
             return finalResult;
         }
 
-
+        public static string AddSpaces(this string input)
+        {
+            string result = " ";
+            for (int i = 0; i < input.Length-1; ++i) //Do not add a space on the end of the string
+            {
+                char c = input[i];
+                char nextC = input[i + 1];
+                result += c;
+                if (c == '#' || nextC == '#' || nextC == ' ' || c == '_' || nextC == '_') //Ignore hex, binary and spaces
+                {
+                    //Ignore this
+                    continue;
+                }
+                if (!char.IsLetterOrDigit(c) ^ !char.IsLetterOrDigit(nextC)) //Are we an operator, or is the next one an operator
+                    //If there are two operators in a row, assume that they are part of one operator, therefore dont add a space
+                {
+                    result += ' '; //Add spaces before and after anythign that is an operator
+                }
+            }
+            result += input.Last(); //Add the final character from the input to the end of the result string
+            result += ' ';
+            return result;
+        }
     }
-
 }

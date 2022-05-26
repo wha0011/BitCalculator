@@ -188,47 +188,6 @@ namespace DevTools
         }
 
         /// <summary>
-        /// Replaces 
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="variableName"></param>
-        /// <param name="variableValue"></param>
-        /// <returns></returns>
-        public static string ReplaceTempVariables(string input, char variableName, string variableValue)
-        {
-            string result = "";
-            for (int i = 0; i < input.Length; ++i)
-            {
-                char c = input[i];
-                if (c == variableName)
-                {
-                    if ((input.Length - 1 == i || input[i + 1].IsOperator()) && (i == 0 || input[i - 1].IsOperator()))
-                    {
-                        result += variableValue;
-                    }
-                    else if (i == 2 && (input.StartsWith("nw") || input.StartsWith("np"))) //Is there a nw or a np command?
-                    {
-                        //Replace the variable
-                        result += variableValue;
-                    }
-                    else if (i == 4 && input.StartsWith("nwnp")) //nw and np?
-                    {
-                        //replace the variable
-                        result += variableValue;
-                    }
-                    else
-                    {
-                        result += c;
-                    }
-                }
-                else
-                {
-                    result += c;
-                }
-            }
-            return result;
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="input"></param>
@@ -237,31 +196,7 @@ namespace DevTools
         /// <returns></returns>
         public static string ReplaceTempVariables(string input, string variableName, string variableValue)
         {
-            string result = "";
-            for (int i = 0; i < input.Length; ++i)
-            {
-                char c = input[i];
-                string currentVar = "";
-                result += c;
-                if (result.Length >= variableName.Length && !input[i].IsOperator() && !char.IsDigit(input[i]))
-                {
-                    currentVar = result.Substring(i - variableName.Length + 1);
-                }
-                if (currentVar == variableName) //Is this the current variable we are working on
-                {
-                    if (input.Length == result.Length //Are we at the end of the line?
-                    || (input[i + 1].IsOperator() //At the end of the variable. i.e. there isn't a letter or number after the variable, but an operator
-                    && (i == variableName.Length - 1 || input[i - variableName.Length].IsOperator())))
-
-                    {
-                        result = result.Substring(0, result.Length - variableName.Length) + input.Substring(i + 1, input.Length - 1 - i);
-                        result = result.Insert(i - variableName.Length + 1, "(" + variableValue + ")");
-                        CustomConsole.PrintColour(variableName + " --> " + variableValue, true);
-                        return ReplaceTempVariables(result, variableName, variableValue);
-                    }
-                }
-            }
-            return result;
+            return Regex.Replace(input," " + variableName + " ", variableValue);
         }
         public static string ReplaceVariables(string input)
         {
@@ -382,6 +317,7 @@ namespace DevTools
                             char c = userINPUT[i];
                             string currentVar = "";
                             result += c;
+
                             if (result.Length >= variableName.Length)
                             {
                                 currentVar = result.Substring(i - variableName.Length + 1);
