@@ -30,7 +30,6 @@ namespace DevTools
         public static ulong lastInput = 0ul;
         static bool defaultFlipVal = false;
         public static string lastprint;
-        public static bool printWorkings;
         static void Main(string[] args)
         {
             CheckDirectories(); //See if the file storing directories exist, if not, then create them
@@ -81,6 +80,8 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
+        public const string VERSION = "v1.0.0";
+
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
         /// </summary>
@@ -94,9 +95,9 @@ namespace DevTools
             {
                 File.CreateText(DataFilePath);
             }
-            if (!File.Exists(WorkingsFilePath))
+            if (!File.Exists(VersionFile))
             {
-                File.CreateText(WorkingsFilePath);
+                File.CreateText(VersionFilePath);
             }
             if (!File.Exists(FuncFilePath))
             {
@@ -105,11 +106,10 @@ namespace DevTools
 
             try
             {
-                if (File.ReadAllText(WorkingsFilePath) == "")
+                if (File.ReadAllText(VersionFile) == "")
                 {
-                    File.WriteAllText(WorkingsFilePath, printWorkings.ToString());
+                    File.WriteAllText(VersionFilePath, VERSION);
                 }
-                printWorkings = bool.Parse(File.ReadAllText(WorkingsFilePath));
 
                 if (File.ReadAllText(FuncFilePath) == "")
                 {
@@ -562,10 +562,6 @@ namespace DevTools
                 CustomConsole.PrintColour(input.ToString()); //Instead of printing a binary result, print out the result as plain text
             }
             lastInput = input; //Assign lastinput
-            if (resetworkings) //Are we resetting the modified printworkings value
-            {
-                printWorkings = !printWorkings; //Reset static variable
-            }
         }
 
         /// <summary>
@@ -689,17 +685,8 @@ namespace DevTools
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
 
                         string conditionResult;
-                        if (printWorkings == true)
-                        {
-                            printWorkings = false;
-                            conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
-                            printWorkings = true;
-                        }
-                        else
-                        {
-                            conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
-                        }
-
+                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                        
                         CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
                         if (conditionResult == "true")
                         {
@@ -738,17 +725,8 @@ namespace DevTools
 
                         string conditionResult = "";
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
-
-                        if (printWorkings == true)
-                        {
-                            printWorkings = false;
-                            conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
-                            printWorkings = true;
-                        }
-                        else
-                        {
-                            conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
-                        }
+                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                       
                         CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
 
 
@@ -838,10 +816,8 @@ namespace DevTools
                         int nextOperaror = input.NextOperatorIDX_NoLetter(i + 1);
                         string hexNum = ulong.Parse(input.Substring(i + 1, nextOperaror - i - 1), System.Globalization.NumberStyles.HexNumber).ToString();
                         string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror);
-                        if (printWorkings)
-                        {
-                            CustomConsole.PrintColour(input.Substring(i + 1, nextOperaror - i - 1) + " --> " + hexNum);
-                        }
+
+                        CustomConsole.PrintColour("#"+input.Substring(i + 1, nextOperaror - i - 1) + " --> " + hexNum);
                         return RemoveHex(fixedval + hexNum + afterThat);
                     }
                 }
@@ -978,8 +954,8 @@ namespace DevTools
         static readonly string DataFile = @"\data.txt";
         public readonly static string DataFilePath = DataDirectory + DataFile;
                       
-        static readonly string WorkingsFile = @"\workings.txt";
-        public readonly static string WorkingsFilePath = DataDirectory + WorkingsFile;
+        static readonly string VersionFile = @"\version.txt";
+        public readonly static string VersionFilePath = DataDirectory + VersionFile;
 
         static readonly string funcsFile = @"\funcs.txt";
         public readonly static string FuncFilePath = DataDirectory + funcsFile;
