@@ -248,6 +248,8 @@ namespace DevTools
                         throw new Exception(string.Format("Recieved {0} arguments, expected {1}", values.Length, names.Length));
                     }
 
+                    replacestring = replacestring.AddSpaces(); //Add spaces back into the string for easier variable replacement
+
                     //Iterate through here and add the variable values to the variable names
                     //swap out the variable values for the variable names in the function stored file
                     //Replace the function text with the text found in the file
@@ -260,6 +262,9 @@ namespace DevTools
                     {
                         replacestring = replacestring.Substring(0, replacestring.IndexOf("///"));
                     }
+
+                    replacestring = replacestring.RemoveSpaces(); //Remove the spaces again
+
                     string before = i.Substring(0, i.IndexOf(name));
                     string after = i.Substring(i.ClosingBracket(i.IndexOf(name) + name.Length + 1) + 1);
                     i = before + replacestring + after;
