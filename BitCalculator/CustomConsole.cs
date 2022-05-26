@@ -31,8 +31,10 @@ namespace DevTools
             return result;
         }
         public static int startline;
+        public static List<int> prevReadLine = new List<int>();
         public static string ReadLineOrEsc()
         {
+            
             startline = Console.CursorTop;
             retString = "";
             readingConsole = true;
@@ -47,6 +49,7 @@ namespace DevTools
                     Console.WriteLine();
                     readingConsole = false;
                     //Console.CursorTop = startline;
+                    prevReadLine.Add(Console.CursorTop);
                     return retString;
                 }
 
@@ -607,6 +610,49 @@ namespace DevTools
                 Console.WriteLine();
             }
             return sINPUT;
+        }
+
+        internal static void RePrint(string toprint, bool isbinary)
+        {
+            var currentTop = Console.CursorTop;
+            var lastprint = prevReadLine[prevReadLine.Count()-2]; //Find the read top of the current readline
+            
+            for (int i = lastprint; i < currentTop+1; ++i)
+            {
+                ClearCurrentConsoleLine();
+                Console.CursorTop--;
+            } //Clear all the lines between the last print line and us
+
+            PrintColour(toprint, isbinary);
+            prevReadLine.RemoveAt(prevReadLine.Count()-1);
+        }
+        internal static void DoubleRePrint(string toprint)
+        {
+            var currentTop = Console.CursorTop;
+            var lastprint = prevReadLine[prevReadLine.Count() - 2]; //Find the read top of the current readline
+
+            for (int i = lastprint; i < currentTop + 1; ++i)
+            {
+                ClearCurrentConsoleLine();
+                Console.CursorTop--;
+            } //Clear all the lines between the last print line and us
+
+            PrintDouble(toprint);
+            prevReadLine.RemoveAt(prevReadLine.Count() - 1);
+        }
+        internal static void FloatRePrint(string toprint)
+        {
+            var currentTop = Console.CursorTop;
+            var lastprint = prevReadLine[prevReadLine.Count() - 2]; //Find the read top of the current readline
+
+            for (int i = lastprint; i < currentTop + 1; ++i)
+            {
+                ClearCurrentConsoleLine();
+                Console.CursorTop--;
+            } //Clear all the lines between the last print line and us
+
+            PrintFloat(toprint);
+            prevReadLine.RemoveAt(prevReadLine.Count() - 1);
         }
 
         public static void WriteAscii(string text)

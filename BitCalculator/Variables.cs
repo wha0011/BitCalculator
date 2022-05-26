@@ -339,7 +339,7 @@ namespace DevTools
                             if (currentVar == variableName && (userINPUT.Length - result.Length == 0 || (userINPUT[i + 1]) == '=') && (i == variableName.Length - 1 || (userINPUT[i - variableName.Length]) == '='))
                             {
                                 //The last x characters of result are a variable and the next character is an '=' sign
-                                var value = Bitmath.BitCalculate(Bitmath.RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2)), 'u'), 'u');
+                                var value = Bitmath.BitCalculate(Bitmath.RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2))));
                                 if (value != "null")
                                 {
                                     toreplace.Add(variableName, value);
@@ -476,6 +476,14 @@ namespace DevTools
             foreach (var pair in tempVariables)
             {
                 sINPUT = ReplaceTempVariables(sINPUT, pair.Key, pair.Value);
+            }
+
+            string replaced = Variables.ReplaceTempVariables(sINPUT, "v", Program.lastInput.ToString()); //Define a new variable 'v' as the last result
+            if (replaced != sINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
+            {
+                Program.modifyLastOutput = true;
+                CustomConsole.PrintColour(sINPUT + "-->" + replaced); //Show the user the change
+                sINPUT = replaced; //Modify the user input to be the old input
             }
             return sINPUT;
         }

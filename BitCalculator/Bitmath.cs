@@ -8,9 +8,9 @@ namespace DevTools
 {
     internal class Bitmath
     {
-        public static string BitCalculate(string input, char chosenType)
+        public static string BitCalculate(string input)
         {
-            var sINPUT = RemoveMultiplyDivide(RemoveBitShift(input, chosenType));
+            var sINPUT = RemoveMultiplyDivide(RemoveBitShift(input));
 
             if (sINPUT.Contains('&') ||
                 sINPUT.Contains('|') ||
@@ -51,9 +51,9 @@ namespace DevTools
                             ulong result = 0ul;
                             if (firstUlong == "")
                             {
+                                Program.modifyLastOutput = true; //We are modifying the previous input
                                 firstUlong = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstUlong);
-                                //firstUlongStart_IDX = 1;
                             }
                             switch (_operator)
                             {
@@ -74,7 +74,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()), chosenType);
+                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()));
                         }
                         operatorSet = true;
                         _operator = c;
@@ -86,6 +86,7 @@ namespace DevTools
                             ulong result = 0ul;
                             if (firstUlong == "")
                             {
+                                Program.modifyLastOutput = true; //We are modifying the previous input
                                 firstUlong = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstUlong);
                                 //firstUlongStart_IDX = 1;
@@ -109,7 +110,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, i, result.ToString(), sINPUT), true);
-                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()), chosenType);
+                            return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, i, result.ToString()));
                         }
                         firstUlong = "";
                         operatorSet = false;
@@ -121,6 +122,7 @@ namespace DevTools
                     ulong result = 0ul;
                     if (firstUlong == "")
                     {
+                        Program.modifyLastOutput = true; //We are modifying the previous input
                         firstUlong = Program.lastInput.ToString();
                         sINPUT = sINPUT.Insert(0, firstUlong);
                         //firstUlongStart_IDX = 1;
@@ -145,8 +147,7 @@ namespace DevTools
                             result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                             break;
                     }
-                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString()), chosenType);
+                    return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString()));
                 }
             }
             return sINPUT;
@@ -202,6 +203,7 @@ namespace DevTools
                             }
                             if (firstdouble == "")
                             {
+                                Program.modifyLastOutput = true;
                                 firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
@@ -230,6 +232,7 @@ namespace DevTools
                             double result = 0ul;
                             if (firstdouble == "")
                             {
+                                Program.modifyLastOutput = true;
                                 firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
@@ -258,6 +261,7 @@ namespace DevTools
                     double result = 0ul;
                     if (firstdouble == "")
                     {
+                        Program.modifyLastOutput = true;
                         firstdouble = Program.lastInput.ToString();
                         sINPUT = sINPUT.Insert(0, firstdouble);
                         //firstdoubleStart_IDX = 1;
@@ -473,7 +477,7 @@ namespace DevTools
             }
             return s;
         }
-        public static string RemoveBrackets(string s, char chosenType)
+        public static string RemoveBrackets(string s)
         {
             string buffer = "";
             int firstBracketIDX = 0;
@@ -485,7 +489,7 @@ namespace DevTools
                 if (c == ')')
                 {
                     string betweenBrackets = s.TextBetween(firstBracketIDX + 1, i - 1);
-                    string total = BitCalculate(betweenBrackets, chosenType);
+                    string total = BitCalculate(betweenBrackets);
                     string nextString = "";
                     for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
                     {
@@ -500,7 +504,7 @@ namespace DevTools
                     }
                     if (nextString.Contains('('))
                     {
-                        return RemoveBrackets(nextString, chosenType);
+                        return RemoveBrackets(nextString);
                     }
                     else
                     {
@@ -524,7 +528,7 @@ namespace DevTools
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
                             string betweenBrackets = s.TextBetween( i + 1, nextBracketIDX - 1);
-                            string total = BitCalculate(betweenBrackets, chosenType);
+                            string total = BitCalculate(betweenBrackets);
                             string nextString = "";
                             for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
                             {
@@ -537,7 +541,7 @@ namespace DevTools
                                     nextString += total;
                                 }
                             }
-                            return RemoveBrackets(nextString, chosenType);
+                            return RemoveBrackets(nextString);
                         }
                         else
                         {
@@ -722,7 +726,7 @@ namespace DevTools
         /*
  * Calculates <<'s given a specific string
  */
-        private static string CalculateBitShift(string sINPUT, char chosenType)
+        private static string CalculateBitShift(string sINPUT)
         {
             if (sINPUT.Contains("<<"))
             {
@@ -746,21 +750,8 @@ namespace DevTools
                 var strings = sINPUT.Split(new string[] { ">>" }, StringSplitOptions.None);
                 if (strings[0] == "")
                 {
-                    switch (chosenType)
-                    {
-                        case 'b':
-                            strings[0] = (byte.MaxValue / 2 + 1).ToString();
-                            break;
-                        case 's':
-                            strings[0] = (ushort.MaxValue / 2 + 1).ToString();
-                            break;
-                        case 'i':
-                            strings[0] = (uint.MaxValue / 2 + 1).ToString();
-                            break;
-                        default:
-                            strings[0] = (ulong.MaxValue / 2 + 1).ToString();
-                            break;
-                    }
+                    Program.expectingError = true;
+                    throw new Exception("For right shift operations you must specify a number");
                 }
                 var first = 0;
                 var second = 0ul;
@@ -778,7 +769,7 @@ namespace DevTools
         /// <param name="input"></param>
         /// <param name="chosenType"></param>
         /// <returns></returns>
-        public static string RemoveBitShift(string input, char chosenType)
+        public static string RemoveBitShift(string input)
         {
             string buffer = "";
             if (input.Contains("<<") || input.Contains(">>")) //Is there a bitwise operator?
@@ -796,9 +787,9 @@ namespace DevTools
                         }
                         int nextOperatorIDX = input.NextOperatorIDX(i + 1);
                         string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
-                        string result = CalculateBitShift(sub, chosenType);
+                        string result = CalculateBitShift(sub);
                         string toReturn = string.Format("{0}{1}{2}", input.Substring(0, lastOperatorIDX), result, input.Substring(nextOperatorIDX, input.Length - nextOperatorIDX));
-                        return RemoveBitShift(toReturn, chosenType);
+                        return RemoveBitShift(toReturn);
                     }
                 }
             }
