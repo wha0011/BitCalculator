@@ -46,6 +46,11 @@ namespace DevTools
             }
 
             string[] strings = variable.SplitAtFirst('=');
+            if (strings.Length == 1)
+            {
+                Program.expectingError = true;
+                throw new Exception("Include an '=' when using #define");
+            }
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1].TrimStart();
             string variableName = variable.Substring(8, equalsIDX - 7);
@@ -90,7 +95,11 @@ namespace DevTools
             function = function.Substring("#defunc ".Length);
 
             var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
-            var name = function.Substring(0, function.IndexOf('(')).RemoveSpaces();
+            var name = function.Substring(0, function.IndexOf('(')).RemoveSpaces().ToLower();
+            //Modify function to have name in lowercase
+            function = function.Substring(function.IndexOf('('));
+            function = function.Insert(0,name);
+
             if (VariableExists(name))
             {
                 CustomConsole.PrintError("Variable is already defined");
@@ -126,6 +135,7 @@ namespace DevTools
                 Program.expectingError = true;
                 throw new Exception("Define an action to take place with the variable");
             }
+
             string result = function + "\n" + File.ReadAllText(Program.FuncFilePath);
 
             File.WriteAllText(Program.FuncFilePath, result);

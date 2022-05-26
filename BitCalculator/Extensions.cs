@@ -535,5 +535,10 @@ namespace DevTools
             result = result.Substring(0,result.Length-1);
             return result;
         }
+
+        public static string ExactDecimal(this double d)
+        {
+            return d.ToString("0." + new string('#', 339));
+        }
     }
 }

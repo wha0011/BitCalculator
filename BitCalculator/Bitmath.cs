@@ -155,6 +155,7 @@ namespace DevTools
         public static string DoubleCalculate(string input)
         {
             input = Regex.Replace(input, "--", "-");
+            input = DoubleRemove_E(input);
             var sINPUT = DoubleRemoveMultiplyDivide(input);
             if (sINPUT.Where(c => c == '-').Count() == 1 && !sINPUT.Any(c => c == '+') && sINPUT[0] == '-')
             {
@@ -204,7 +205,14 @@ namespace DevTools
                             if (firstdouble == "")
                             {
                                 Program.modifyLastOutput = true;
-                                firstdouble = Program.lastInput.ToString();
+                                if (Program.lastWasDouble)
+                                {
+                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                                }
+                                else
+                                {
+                                    firstdouble = Program.lastInput.ToString();
+                                }
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -220,7 +228,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
                         }
                         operatorSet = true;
                         _operator = c;
@@ -233,7 +241,14 @@ namespace DevTools
                             if (firstdouble == "")
                             {
                                 Program.modifyLastOutput = true;
-                                firstdouble = Program.lastInput.ToString();
+                                if (Program.lastWasDouble)
+                                {
+                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                                }
+                                else
+                                {
+                                    firstdouble = Program.lastInput.ToString();
+                                }
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
                             }
@@ -249,7 +264,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
                         }
                         firstdouble = "";
                         operatorSet = false;
@@ -262,7 +277,14 @@ namespace DevTools
                     if (firstdouble == "")
                     {
                         Program.modifyLastOutput = true;
-                        firstdouble = Program.lastInput.ToString();
+                        if (Program.lastWasDouble)
+                        {
+                            firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                        }
+                        else
+                        {
+                            firstdouble = Program.lastInput.ToString();
+                        }
                         sINPUT = sINPUT.Insert(0, firstdouble);
                         //firstdoubleStart_IDX = 1;
                     }
@@ -278,7 +300,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString()));
+                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ExactDecimal()));
                 }
             }
             return sINPUT;
@@ -637,7 +659,15 @@ namespace DevTools
                 var strings = sINPUT.Split('*');
                 if (strings[0] == "")
                 {
-                    strings[0] = Program.lastInput.ToString();
+                    if (Program.lastWasDouble)
+                    {
+                        strings[0] = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                    }
+                    else
+                    {
+                        strings[0] = Program.lastInput.ToString();
+                    }
+
                 }
                 double first = 0;
                 double second = 0;
@@ -655,7 +685,7 @@ namespace DevTools
                 }
                 input = second * first;
                 //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
-                return input.ToString();
+                return input.ExactDecimal();
             }
             else if (sINPUT.Contains("/"))
             {
@@ -663,7 +693,14 @@ namespace DevTools
                 var strings = sINPUT.Split('/');
                 if (strings[0] == "")
                 {
-                    strings[0] = Program.lastInput.ToString();
+                    if (Program.lastWasDouble)
+                    {
+                        strings[0] = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
+                    }
+                    else
+                    {
+                        strings[0] = Program.lastInput.ToString();
+                    }
                 }
                 double first = 0;
                 double second = 0;
@@ -681,9 +718,26 @@ namespace DevTools
                 }
                 input = second / first;
                 //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
-                return input.ToString();
+                return input.ExactDecimal();
             }
             return "0";
+        }
+        public static string DoubleRemove_E(string input)
+        {
+            if (input.Contains("e-")) //Is there a 1.1E-1... number?
+            {
+                var middle = input.IndexOf("e-");
+                var start = input.LastOperatorIDX(middle-1); //Look for last operator or letter. When we get there, we know that that is the index of the start of the number
+                var end = input.NextOperatorIDX(middle+3); //Add 2 to ignore the E-
+
+                string result = input.TextBetween(start,end);
+
+                var before = input.Substring(0,start);
+                var after = input.Substring(end);
+                input = before + double.Parse(result).ExactDecimal() + after; //Convert double to an exact decimal, add it to the string
+                return DoubleRemove_E(input); //Recursively try again
+            }
+            return input;
         }
         static string prevanswer = "";
         public static string RemoveLog(string userINPUT)
