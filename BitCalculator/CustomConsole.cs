@@ -108,12 +108,17 @@ namespace DevTools
                     }
                     else if (writeIDX >= 0)//We have moved the idx?
                     {
-                        StringBuilder sb = new StringBuilder(retString);
-                        sb[writeIDX] = readKeyResult.KeyChar; //Replace specific position in string
-                        retString = sb.ToString(); //Update string
-
+                        retString = retString.Insert(writeIDX, readKeyResult.KeyChar.ToString());
                         writeIDX++;
-                        Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop);
+                        if (Console.WindowWidth == Console.CursorLeft + 1) //At end of line?
+                        {
+                            Console.CursorTop++; //Go to the next line
+                            Console.CursorLeft = 0; //Do not put text behind the header
+                        }
+                        else
+                        {
+                            Console.SetCursorPosition(Console.CursorLeft + 1, Console.CursorTop); //Move the cursor right
+                        }
                     }
                     ChangeUserTextColourLive(retString); //Change the colour of the users text
                 }
