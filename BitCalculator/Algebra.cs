@@ -6,7 +6,7 @@ namespace DevTools
 {
     internal class Algebra
     {
-        static IEnumerable<int> GetFactors(int n)
+        public static IEnumerable<int> GetFactors(int n)
         {
             for (int i = 1; i <= Math.Abs(n); ++i)
             {

@@ -418,6 +418,22 @@ namespace DevTools
                 CustomConsole.NetworkingPrint("Server IP: " + addresses);
                 return;
             }
+            if (userINPUT.StartsWith("factors("))
+            {
+                userINPUT = userINPUT.Substring(8);
+                userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
+
+                string toprint = "";
+                foreach (var factor in Algebra.GetFactors(int.Parse(userINPUT)))
+                {
+                    toprint += factor;
+                    toprint += ',';
+                }
+                toprint = toprint.Substring(0, toprint.Length - 1);
+
+                CustomConsole.PrintColour(toprint);
+                return;
+            }
             if (userINPUT.BeginsWith("f")) //Flipping the binary result?
             {
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
@@ -896,6 +912,7 @@ namespace DevTools
             CustomConsole.PrintColour("quit");
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
+            CustomConsole.PrintColour("factors");
             CustomConsole.PrintColour("v");
             CustomConsole.PrintColour("doub");
             CustomConsole.PrintColour("float");
