@@ -483,7 +483,7 @@ namespace DevTools
             {
                 Colorful.Console.WriteLine();
             }
-            Program.lastprint = vlower;
+            Program.lastprint = v;
         }
         public static void ChangeUserTextColour(string userinput)
         {

@@ -175,6 +175,7 @@ namespace DevTools
 
             if (removeSpaces)
             {
+                userINPUT = userINPUT.Trim();
                 //userINPUT = userINPUT.RemoveSpaces();
                 userINPUT = userINPUT.RemoveComments();
             }
