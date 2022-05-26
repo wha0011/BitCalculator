@@ -80,7 +80,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.0.0";
+        public const string VERSION = "v1.1.0";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -95,7 +95,7 @@ namespace DevTools
             {
                 File.CreateText(DataFilePath);
             }
-            if (!File.Exists(VersionFile))
+            if (!File.Exists(VersionFilePath))
             {
                 File.CreateText(VersionFilePath);
             }
@@ -106,9 +106,19 @@ namespace DevTools
 
             try
             {
-                if (File.ReadAllText(VersionFile) == "")
+                string prevVersion = File.ReadAllText(VersionFilePath);
+
+                if (prevVersion != VERSION) //Is this a new install?
                 {
-                    File.WriteAllText(VersionFilePath, VERSION);
+                    var userVars = Variables.UserVariables(); //Record the users variables
+                    File.WriteAllText(FuncFilePath, Help.DEFAULTFUNCS); //Write the new help
+                    var fileText = File.ReadAllLines(FuncFilePath); //Read the new help
+
+                    userVars.AddRange(fileText.ToList()); //Add the users variables back
+
+                    File.WriteAllLines(FuncFilePath, userVars); //Write the data to a file
+
+                    File.WriteAllText(VersionFilePath, VERSION); //Write the new version
                 }
 
                 if (File.ReadAllText(FuncFilePath) == "")
@@ -213,7 +223,7 @@ namespace DevTools
             //Display/show variables
             if (userINPUT == "showfunc") //Show the user defined functions
             {
-                CustomConsole.PrintColour(File.ReadAllText(FuncFilePath));
+                CustomConsole.PrintColour(Variables.UserVariables().AsString());
                 return;
             }
             if (userINPUT == "ipconfig") //Show the user defined functions

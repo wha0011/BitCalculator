@@ -503,5 +503,18 @@ namespace DevTools
             }
             File.WriteAllLines(Program.DataFilePath, copy); //Write the new variable set to the file
         }
+        public static List<string> UserVariables()
+        {
+            List<string> result = new List<string>();
+            foreach (var line in File.ReadAllLines(Program.FuncFilePath))
+            {
+                if (line == "SYSTEM FUNCTIONS:")
+                {
+                    break;
+                }
+                result.Add(line);
+            }
+            return result;
+        }
     }
 }

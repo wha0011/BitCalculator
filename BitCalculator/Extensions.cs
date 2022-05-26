@@ -523,5 +523,17 @@ namespace DevTools
             result += ' ';
             return result;
         }
+
+        public static string AsString(this List<string> list)
+        {
+            string result = "";
+            foreach (var item in list)
+            {
+                result += item;
+                result += '\n';
+            }
+            result = result.Substring(0,result.Length-1);
+            return result;
+        }
     }
 }
