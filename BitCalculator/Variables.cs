@@ -317,6 +317,7 @@ namespace DevTools
                             char c = userINPUT[i];
                             string currentVar = "";
                             result += c;
+
                             if (result.Length >= variableName.Length)
                             {
                                 currentVar = result.Substring(i - variableName.Length + 1);

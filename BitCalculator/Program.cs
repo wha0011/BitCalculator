@@ -153,6 +153,10 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
+                        if (str == "")
+                        {
+                            continue;
+                        }
                         MainMethod(str, removeSpaces);
                     }
                     userINPUT = userINPUT.Substring(beforeLoop.Length); //Remove the previous statements from the userinputs
@@ -874,12 +878,15 @@ namespace DevTools
         }
         public static void DoLoopFunc(string loop)
         {
-            loop = loop.Substring(4);
-            string tocalc = loop.Split(':')[0];
-            string s = Bitmath.BitCalculate(Bitmath.RemoveBrackets(tocalc, 'u'), 'u');
-            int timesAround = int.Parse(s);
-            loop = loop.Substring(tocalc.Length + 1);
-            for (int i = 0; i < timesAround; ++i)
+            loop = loop.Substring(5); //Remove the loop( from the start
+            string[] args = loop.Split(')')[0].Split(',');
+
+            int bottomRange = int.Parse(args[0]);
+            int topRange = int.Parse(args[1]);
+
+            loop = loop.AddSpaces();
+            loop = loop.Substring(loop.IndexOf(':')+1);
+            for (int i = bottomRange; i < topRange; ++i)
             {
                 string currentLoop = Variables.ReplaceTempVariables(loop, "i", i.ToString());
                 DoMainMethod(currentLoop);
