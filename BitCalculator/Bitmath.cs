@@ -203,6 +203,7 @@ namespace DevTools
                             }
                             if (firstdouble == "")
                             {
+                                Program.modifyLastOutput = true;
                                 firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
@@ -231,6 +232,7 @@ namespace DevTools
                             double result = 0ul;
                             if (firstdouble == "")
                             {
+                                Program.modifyLastOutput = true;
                                 firstdouble = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstdouble);
                                 //firstdoubleStart_IDX = 1;
@@ -259,6 +261,7 @@ namespace DevTools
                     double result = 0ul;
                     if (firstdouble == "")
                     {
+                        Program.modifyLastOutput = true;
                         firstdouble = Program.lastInput.ToString();
                         sINPUT = sINPUT.Insert(0, firstdouble);
                         //firstdoubleStart_IDX = 1;

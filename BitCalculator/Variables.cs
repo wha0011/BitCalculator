@@ -477,6 +477,14 @@ namespace DevTools
             {
                 sINPUT = ReplaceTempVariables(sINPUT, pair.Key, pair.Value);
             }
+
+            string replaced = Variables.ReplaceTempVariables(sINPUT, "v", Program.lastInput.ToString()); //Define a new variable 'v' as the last result
+            if (replaced != sINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
+            {
+                Program.modifyLastOutput = true;
+                CustomConsole.PrintColour(sINPUT + "-->" + replaced); //Show the user the change
+                sINPUT = replaced; //Modify the user input to be the old input
+            }
             return sINPUT;
         }
         /// <summary>

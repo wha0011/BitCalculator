@@ -286,14 +286,6 @@ namespace DevTools
                 return;
             }
 
-            string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
-            if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
-            {
-                modifyLastOutput = true;
-                CustomConsole.PrintColour(userINPUT + "-->" + replaced); //Show the user the change
-                userINPUT = replaced; //Modify the user input to be the old input
-            }
-
 
             if (userINPUT.BeginsWith("loop")) //User wants to do a loop?
             {
@@ -324,15 +316,24 @@ namespace DevTools
             //Show previous bitset as decimal
             if (userINPUT == "adv") //Show previous bitset as a double
             {
-                CustomConsole.PrintDouble(BitConverter.Int64BitsToDouble((long)lastInput).AsBinary());
+                CustomConsole.DoubleRePrint(BitConverter.Int64BitsToDouble((long)lastInput).AsBinary());
                 CustomConsole.PrintColour("Double is: " + BitConverter.Int64BitsToDouble((long)lastInput));
                 return;
             }
             if (userINPUT == "afv") //Show previous bitset as a float value
             {
-                int lastinput__int = int.Parse(lastInput.ToString());
+                int lastinput__int;
+                try
+                {
+                    lastinput__int = int.Parse(lastInput.ToString());
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception("Value too large");
+                }
                 float int32bits = BitConverter.ToSingle(BitConverter.GetBytes(lastinput__int));
-                CustomConsole.PrintFloat(int32bits.AsBinary());
+                CustomConsole.FloatRePrint(int32bits.AsBinary());
                 CustomConsole.PrintColour("Float is: " + BitConverter.Int32BitsToSingle(int.Parse(lastInput.ToString())));
                 return;
             }
@@ -506,7 +507,14 @@ namespace DevTools
                 //Print the value as a double
                 if (!noprint)
                 {
-                    CustomConsole.PrintDouble(double.Parse(userINPUT).AsBinary());
+                    if (modifyLastOutput) //Modifying last output? We will need to print on last line
+                    {
+                        CustomConsole.DoubleRePrint(double.Parse(userINPUT).AsBinary());
+                    }
+                    else
+                    {
+                        CustomConsole.PrintDouble(double.Parse(userINPUT).AsBinary());
+                    }
                 }
                 CustomConsole.PrintColour("Closest conversion: " + double.Parse(userINPUT).ToString());
                 double d = double.Parse(userINPUT);
@@ -636,9 +644,11 @@ namespace DevTools
             userINPUT = userINPUT.AddSpaces(); //Add spaces around the operators to help with variable replacement
 
             userINPUT = Variables.ReplaceTempVariables(userINPUT);
+            
             userINPUT = RemoveHex(userINPUT);
             userINPUT = RemoveBinary(userINPUT);
             userINPUT = Variables.ReplaceVariables(userINPUT);
+
             userINPUT = Bitmath.RemoveTrig(userINPUT);
             userINPUT = Bitmath.RemoveLog(userINPUT);
 
