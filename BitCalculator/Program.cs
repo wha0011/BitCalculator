@@ -981,6 +981,7 @@ namespace DevTools
             CustomConsole.PrintColour("udp_server");
             CustomConsole.PrintColour("send");
             CustomConsole.PrintColour("nslookup");
+            CustomConsole.PrintColour("ping");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
