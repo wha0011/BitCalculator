@@ -177,21 +177,25 @@ namespace DevTools
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("#defunc"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
             if (userINPUT.BeginsWith("#delfunc"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DeleteFunction(userINPUT.Substring(8)); //Delete the function
                 return;
             }
             if (userINPUT.BeginsWith("#del"))
             {
+                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
@@ -207,7 +211,7 @@ namespace DevTools
             }
 
             userINPUT = RemoveX(userINPUT);
-            if (userINPUT == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
+            if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
                 return;
             }
@@ -609,6 +613,9 @@ namespace DevTools
             userINPUT = Bitmath.RemoveLog(userINPUT);
 
             userINPUT = RemoveBooleanStatements(userINPUT);
+
+            userINPUT = userINPUT.RemoveSpaces();
+
             return userINPUT;
         }
         /// <summary>
@@ -620,6 +627,7 @@ namespace DevTools
         /// <returns></returns>
         public static string RemoveRandom(string sINPUT)
         {
+            sINPUT = sINPUT.RemoveSpaces();
             if (sINPUT.Contains("ran(")) //Is the ran function in the users input
             {
                 string buffer = "";
@@ -636,8 +644,8 @@ namespace DevTools
 
                         Random random = new Random();
                         string[] nums = constraints.Split(',');
-                        nums[0] = Bitmath.RemoveBrackets(nums[0],'u');
-                        nums[1] = Bitmath.RemoveBrackets(nums[1],'u'); //User may have variables or functions declared here. Check for these
+                        nums[0] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[0],'u'),'u');
+                        nums[1] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[1],'u'),'u'); //User may have variables or functions declared here. Check for these
 
                         int nextRan = random.Next(int.Parse(nums[0]), 1 + int.Parse(nums[1])); //+1 because max val is INCLUSIVE
                         CustomConsole.PrintColour("Random number is: " + nextRan.ToString(), true);
@@ -774,6 +782,7 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveBinary(string input)
         {
+            input = input.RemoveSpaces();
             char prev = ' ';
             if (input.Contains("b_")) //Is there binary to remove?
             {
@@ -808,6 +817,7 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveHex(string input)
         {
+            input = input.RemoveSpaces();
             if (input.Length >= 2 && input[1] == '_')
             {
                 return input;

@@ -15,6 +15,7 @@ namespace DevTools
             {
                 return false;
             }
+            s = s.RemoveSpaces();
 
             if (s.Length >= start.Length && s.Substring(0,start.Length) == start)
             {
@@ -501,13 +502,13 @@ namespace DevTools
 
         public static string AddSpaces(this string input)
         {
-            string result = "";
+            string result = " ";
             for (int i = 0; i < input.Length-1; ++i) //Do not add a space on the end of the string
             {
                 char c = input[i];
                 char nextC = input[i + 1];
                 result += c;
-                if (c == '#') //Hex?
+                if (c == '#' || nextC == '#' || nextC == ' ' || c == '_' || nextC == '_') //Ignore hex, binary and spaces
                 {
                     //Ignore this
                     continue;
@@ -519,6 +520,7 @@ namespace DevTools
                 }
             }
             result += input.Last(); //Add the final character from the input to the end of the result string
+            result += ' ';
             return result;
         }
     }
