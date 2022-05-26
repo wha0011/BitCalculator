@@ -374,7 +374,7 @@ namespace DevTools
                     break;
             }
             string afterThat = sINPUT.Substring(nextOperaror + 1, sINPUT.Length - nextOperaror - 1);
-            CustomConsole.PrintColour(string.Format("{0}({1}) = {2}", mathAngleType.ToString(), result, calcNum), true);
+            CustomConsole.PrintColour(string.Format("{0}({1}) = {2}", mathAngleType.ToString(), result, calcNum));
             if (fixedval.EndsWith("arc")) //Fixed val has "arc" on the end of it? This happens for arccos, arcsin, and arctan operations
             {
                 fixedval = fixedval.Substring(0,fixedval.Length-3);

@@ -226,7 +226,7 @@ namespace DevTools
                 foreach (var i in File.ReadAllLines(DataFilePath)) //Iterate through all the lines
                 {
                     string copy = Regex.Replace(i, ",", " = "); //Replace the csv style commas with more user friendly " = "
-                    CustomConsole.PrintColour(copy, false); //Print the new variable
+                    CustomConsole.PrintColour(copy); //Print the new variable
                 }
                 return;
             }
@@ -234,7 +234,7 @@ namespace DevTools
             {
                 foreach (var i in Variables.tempVariables) //Iterate through all the variables
                 {
-                    CustomConsole.PrintColour(string.Format("{0} = {1}", i.Key, i.Value), false); //Print them to the screen
+                    CustomConsole.PrintColour(string.Format("{0} = {1}", i.Key, i.Value)); //Print them to the screen
                 }
                 return;
             }
@@ -271,7 +271,7 @@ namespace DevTools
             string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
-                CustomConsole.PrintColour(userINPUT + "-->" + replaced, true); //Show the user the change
+                CustomConsole.PrintColour(userINPUT + "-->" + replaced); //Show the user the change
                 userINPUT = replaced; //Modify the user input to be the old input
             }
 
@@ -287,7 +287,7 @@ namespace DevTools
             {
                 CustomConsole.PrintDouble(double.Parse(userINPUT.Substring(4)).AsBinary()); //Print the new double value
                 double userDoubleInput = double.Parse(userINPUT.Substring(4));
-                CustomConsole.PrintColour("Closest conversion: " + userDoubleInput.ToString(), true); //Show the conversion
+                CustomConsole.PrintColour("Closest conversion: " + userDoubleInput.ToString()); //Show the conversion
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(userDoubleInput), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2); //Convert the double into a ulong to change last input
                 return;
@@ -296,7 +296,7 @@ namespace DevTools
             {
                 CustomConsole.PrintFloat(float.Parse(userINPUT.Substring(5)).AsBinary()); //Print the new float value
                 float userFloatInput = float.Parse(userINPUT.Substring(5));
-                CustomConsole.PrintColour("Closest conversion: " + userFloatInput.ToString(), true); //Show the conversion
+                CustomConsole.PrintColour("Closest conversion: " + userFloatInput.ToString()); //Show the conversion
                 string bitconv = Convert.ToString(BitConverter.SingleToInt32Bits(userFloatInput), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2); //Convert the double into a ulong to change last input
                 return;
@@ -306,7 +306,7 @@ namespace DevTools
             if (userINPUT == "adv") //Show previous bitset as a double
             {
                 CustomConsole.PrintDouble(BitConverter.Int64BitsToDouble((long)lastInput).AsBinary());
-                CustomConsole.PrintColour("Double is: " + BitConverter.Int64BitsToDouble((long)lastInput), false);
+                CustomConsole.PrintColour("Double is: " + BitConverter.Int64BitsToDouble((long)lastInput));
                 return;
             }
             if (userINPUT == "afv") //Show previous bitset as a float value
@@ -314,14 +314,14 @@ namespace DevTools
                 int lastinput__int = int.Parse(lastInput.ToString());
                 float int32bits = BitConverter.ToSingle(BitConverter.GetBytes(lastinput__int));
                 CustomConsole.PrintFloat(int32bits.AsBinary());
-                CustomConsole.PrintColour("Float is: " + BitConverter.Int32BitsToSingle(int.Parse(lastInput.ToString())), false);
+                CustomConsole.PrintColour("Float is: " + BitConverter.Int32BitsToSingle(int.Parse(lastInput.ToString())));
                 return;
             }
             #endregion
 
             if (userINPUT == "dt") //User wants to see the current date/time
             {
-                CustomConsole.PrintColour(DateTime.Now.ToString(), false); //Print the date/time
+                CustomConsole.PrintColour(DateTime.Now.ToString()); //Print the date/time
                 return;
             }
             if (Variables.ModifyVariables(userINPUT)) //Is the user modifying variables that already exist
@@ -447,7 +447,7 @@ namespace DevTools
             {
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
                 userINPUT = userINPUT.Substring(1); //Remove the 'f' from the string
-                CustomConsole.PrintColour("Printing flipped...", true); //Inform the user that the binary outcome is being flipped
+                CustomConsole.PrintColour("Printing flipped..."); //Inform the user that the binary outcome is being flipped
             }
 
             if (userINPUT.BeginsWith("i")) //User wants to show binary value as 32i (32 bit uint)
@@ -475,7 +475,7 @@ namespace DevTools
             if (userINPUT.BeginsWith("#_")) //Converting hex value into ulong?
             {
                 userINPUT = userINPUT.Substring(2);
-                CustomConsole.PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString(), false);
+                CustomConsole.PrintColour(ulong.Parse(userINPUT, System.Globalization.NumberStyles.HexNumber).ToString());
                 //Convert from hex to ulong, and print the result
                 return;
             }
@@ -518,7 +518,7 @@ namespace DevTools
             string booleans = CheckForBooleans(userINPUT, chosenType); //Remove boolean conditions (==,!=,<,>)
             if (booleans == "true" || booleans == "false")
             {
-                CustomConsole.PrintColour(booleans, false); //Only do bool math, don't process following characters
+                CustomConsole.PrintColour(booleans); //Only do bool math, don't process following characters
                 return;
             }
             if (Bitmath.BitCalculate(userINPUT, chosenType) != userINPUT)
@@ -538,15 +538,15 @@ namespace DevTools
             {
                 if (is32bit) //Print as 32 bit
                 {
-                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(67), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(67), true);
                 }
                 else if (is16bit) //Print as 16 bit
                 {
-                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(101), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(101),true);
                 }
                 else if (is8bit) //Print as 8 bit
                 {
-                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(118), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped).Substring(118), true);
                 }
                 else //Print as ulong
                 {
@@ -554,7 +554,7 @@ namespace DevTools
                     {
                         return;
                     }
-                    CustomConsole.PrintColour(input.AsBinary(flipped), false, true);
+                    CustomConsole.PrintColour(input.AsBinary(flipped), true);
                 }
             }
             else
@@ -653,7 +653,7 @@ namespace DevTools
                         nums[1] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[1],'u'),'u'); //User may have variables or functions declared here. Check for these
 
                         int nextRan = random.Next(int.Parse(nums[0]), 1 + int.Parse(nums[1])); //+1 because max val is INCLUSIVE
-                        CustomConsole.PrintColour("Random number is: " + nextRan.ToString(), true);
+                        CustomConsole.PrintColour("Random number is: " + nextRan.ToString());
 
                         //Rebuild the string
                         string before = sINPUT.Substring(0, i - 3); //Get the prev string value up until the ran(
@@ -700,7 +700,7 @@ namespace DevTools
                             conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
                         }
 
-                        CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult), true);
+                        CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
                         if (conditionResult == "true")
                         {
                             string result = sINPUT.Substring(sINPUT.IndexOf('?') + 1, sINPUT.NextOperatorIDX_NoBrackets(i) - sINPUT.IndexOf('?') - 1); //Space between the ? and the : is the final condition
@@ -749,7 +749,7 @@ namespace DevTools
                         {
                             conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
                         }
-                        CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult),true);
+                        CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
 
 
                         if (conditionResult == "true")
@@ -802,7 +802,7 @@ namespace DevTools
                         string binNum = Convert.ToUInt64(input.Substring(i + 1, nextOperaror - i - 1), 2).ToString(); //Find the binary num, convert it to a uint64
 
                         string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror); //Find the trailing characters
-                        CustomConsole.PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat), true); //Show the user what has been replaced
+                        CustomConsole.PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat)); //Show the user what has been replaced
                         return RemoveBinary(fixedval + binNum + afterThat); //There may be more binary to find, so look for that
                     }
                     prev = c;
@@ -875,7 +875,7 @@ namespace DevTools
             }
             result = result.Substring(0, result.Length - 1);
             result += ");";
-            CustomConsole.PrintColour(result, false);
+            CustomConsole.PrintColour(result);
         }
         public static void DoLoopFunc(string loop)
         {
