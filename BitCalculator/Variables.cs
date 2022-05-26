@@ -42,11 +42,12 @@ namespace DevTools
             string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1];
-            string variableName = variable.Substring(7, equalsIDX - 6);
-            if (variableName.Any(c => !char.IsLetter(c) && c != ' '))
+            string variableName = variable.Substring(8, equalsIDX - 7);
+            variableName = variableName.RemoveSpaces();
+            if (variableName.Any(c => !char.IsLetter(c)))
             {
-                CustomConsole.PrintColour("Invalid variable name", false);
-                return;
+                Program.expectingError = true;
+                throw new Exception(string.Format("Invalid variable name: '{0}'", variableName));
             }
             if (VariableExists(variableName))
             {
@@ -80,10 +81,10 @@ namespace DevTools
         }
         public static void DefineFunction(string function)
         {
-            function = function.Substring("#defunc".Length);
+            function = function.Substring("#defunc ".Length);
 
             var prev = File.ReadAllLines(Program.FuncFilePath).ToList();
-            var name = function.Substring(0, function.IndexOf('('));
+            var name = function.Substring(0, function.IndexOf('(')).RemoveSpaces();
             if (VariableExists(name))
             {
                 CustomConsole.PrintError("Variable is already defined");

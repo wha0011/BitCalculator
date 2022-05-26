@@ -181,13 +181,11 @@ namespace DevTools
             #region uservariables
             if (userINPUT.BeginsWith("#define")) //Are we defining a variable?
             {
-                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineVariable(userINPUT); //Define the veriable with the users input
                 return;
             }
             if (userINPUT.BeginsWith("#defunc"))
             {
-                userINPUT = userINPUT.RemoveSpaces();
                 Variables.DefineFunction(userINPUT); //Define a function with the new input
                 return;
             }
