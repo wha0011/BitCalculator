@@ -46,6 +46,11 @@ namespace DevTools
             }
 
             string[] strings = variable.SplitAtFirst('=');
+            if (strings.Length == 1)
+            {
+                Program.expectingError = true;
+                throw new Exception("Include an '=' when using #define");
+            }
             int equalsIDX = strings[0].Length - 1;
             string value = strings[1].TrimStart();
             string variableName = variable.Substring(8, equalsIDX - 7);
