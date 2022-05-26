@@ -51,9 +51,9 @@ namespace DevTools
                             ulong result = 0ul;
                             if (firstUlong == "")
                             {
+                                Program.modifyLastOutput = true; //We are modifying the previous input
                                 firstUlong = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstUlong);
-                                //firstUlongStart_IDX = 1;
                             }
                             switch (_operator)
                             {
@@ -86,6 +86,7 @@ namespace DevTools
                             ulong result = 0ul;
                             if (firstUlong == "")
                             {
+                                Program.modifyLastOutput = true; //We are modifying the previous input
                                 firstUlong = Program.lastInput.ToString();
                                 sINPUT = sINPUT.Insert(0, firstUlong);
                                 //firstUlongStart_IDX = 1;
@@ -121,6 +122,7 @@ namespace DevTools
                     ulong result = 0ul;
                     if (firstUlong == "")
                     {
+                        Program.modifyLastOutput = true; //We are modifying the previous input
                         firstUlong = Program.lastInput.ToString();
                         sINPUT = sINPUT.Insert(0, firstUlong);
                         //firstUlongStart_IDX = 1;
@@ -145,7 +147,6 @@ namespace DevTools
                             result = ulong.Parse(firstUlong) - ulong.Parse(secondUlong);
                             break;
                     }
-                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
                     return BitCalculate(sINPUT.RemoveAndReplace(firstUlongStart_IDX, sINPUT.Length, result.ToString()));
                 }
             }

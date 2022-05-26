@@ -179,6 +179,7 @@ namespace DevTools
         /// </summary>
         /// <param name="text">text to print</param>
         public static bool noprint = false;
+        public static bool modifyLastOutput = false;
         public static void MainMethod(string userINPUT, bool removeSpaces = true)
         {
             noprint = false;
@@ -288,6 +289,7 @@ namespace DevTools
             string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
+                modifyLastOutput = true;
                 CustomConsole.PrintColour(userINPUT + "-->" + replaced); //Show the user the change
                 userINPUT = replaced; //Modify the user input to be the old input
             }
@@ -551,6 +553,16 @@ namespace DevTools
                 expectingError = true;
                 throw new Exception(string.Format("'{0}' is not a number", userINPUT));
             }
+
+            if (modifyLastOutput) //Are we modifying what was previously printed?
+            {
+                CustomConsole.RePrint(input.AsBinary(flipped), true);
+                CustomConsole.PrintColour("-->"+userINPUT);
+                lastInput = input; //Assign lastinput
+                modifyLastOutput = false;
+                return;
+            }
+
             if (!noprint) //Are we printing the binary values?
             {
                 if (is32bit) //Print as 32 bit
