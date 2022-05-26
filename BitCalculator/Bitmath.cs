@@ -221,7 +221,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
                         }
                         operatorSet = true;
                         _operator = c;
@@ -250,7 +250,7 @@ namespace DevTools
                                     break;
                             }
                             //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString()));
+                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
                         }
                         firstdouble = "";
                         operatorSet = false;
@@ -279,7 +279,7 @@ namespace DevTools
                             break;
                     }
                     //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString()));
+                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ExactDecimal()));
                 }
             }
             return sINPUT;
@@ -656,7 +656,7 @@ namespace DevTools
                 }
                 input = second * first;
                 //PrintColour(string.Format("{0} * {1} = {2}", second, first, input), true);
-                return input.ToString();
+                return input.ExactDecimal();
             }
             else if (sINPUT.Contains("/"))
             {
@@ -682,7 +682,7 @@ namespace DevTools
                 }
                 input = second / first;
                 //PrintColour(string.Format("{0} / {1} = {2}", second, first, input), true);
-                return input.ToString();
+                return input.ExactDecimal();
             }
             return "0";
         }
