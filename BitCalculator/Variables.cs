@@ -463,9 +463,11 @@ namespace DevTools
         {
             foreach (var pair in networkingVariables)
             {
-                if (sINPUT.StartsWith(pair.Key)) //Doing operation on a networking thingy?
+                var input = sINPUT.RemoveSpaces();
+
+                if (input.StartsWith(pair.Key)) //Doing operation on a networking thingy?
                 {
-                    string operation = sINPUT.Split('.')[1]; //Find the function after the '.'
+                    string operation = input.Split('.')[1]; //Find the function after the '.'
                     Program.DoNetworkingOperation(pair.Value, operation);
                     return "CLOSE_CONDITION_PROCESSED";
                 }
