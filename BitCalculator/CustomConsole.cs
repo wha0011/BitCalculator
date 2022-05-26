@@ -190,11 +190,13 @@ namespace DevTools
         /// <summary>
         /// An extension method for Colourful.Console.Writeline()
         /// </summary>
-        /// <param name="v"></param>
+        /// <param name="vlower"></param>
         /// <param name="workings"></param>
         /// <param name="isBin"></param>
         public static void PrintColour(string v, bool workings = false, bool isBin = false, bool writeline = true)
         {
+            var vlower = v.ToLower();
+
             //Checking for functions
             #region functionCheck
             var AllFunctions = File.ReadAllLines(Program.FuncFilePath);
@@ -210,15 +212,15 @@ namespace DevTools
                     break;
                 }
                 var name = s.Split('(')[0];
-                if (v.Contains(name) && name.Length >= 2) //Name is in the users input?
+                if (vlower.Contains(name) && name.Length >= 2) //Name is in the users input?
                 {
-                    foreach (var idx in v.AllIndexs(name))
+                    foreach (var idx in vlower.AllIndexs(name))
                     {
-                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(vlower[idx - 1])) //Is this the start of the word?
                         {
-                            if (idx + name.Length < v.Length && !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            if (idx + name.Length < vlower.Length && !char.IsLetter(vlower[idx + name.Length]))//Is this the end of a word?
                             {
-                                funclocations.Add(new FuncLocation(v.IndexOf(name), v.ClosingBracket(v.IndexOf(name) + name.Length + 1), name));
+                                funclocations.Add(new FuncLocation(vlower.IndexOf(name), vlower.ClosingBracket(vlower.IndexOf(name) + name.Length + 1), name));
                             }
                         }
                     }
@@ -239,13 +241,13 @@ namespace DevTools
                     continue;
                 }
                 var name = s.Split('(')[0];
-                if (v.Contains(name) && name.Length >= 1) //Name is in the users input?
+                if (vlower.Contains(name) && name.Length >= 1) //Name is in the users input?
                 {
-                    foreach (var idx in v.AllIndexs(name))
+                    foreach (var idx in vlower.AllIndexs(name))
                     {
-                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(vlower[idx - 1])) //Is this the start of the word?
                         {
-                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            if (idx + name.Length >= vlower.Length || !char.IsLetter(vlower[idx + name.Length]))//Is this the end of a word?
                             {
                                 sysfunclocations.Add(new FuncLocation(idx, idx + name.Length, name));
                             }
@@ -264,9 +266,9 @@ namespace DevTools
                     throw new Exception("Variables file corrupted. File cleared");
                 }
                 var name = s.Split(',')[0];
-                if (v.Contains(name)) //Name is in the users input?
+                if (vlower.Contains(name)) //Name is in the users input?
                 {
-                    foreach (var idx in v.AllIndexs(name))
+                    foreach (var idx in vlower.AllIndexs(name))
                     {
                         variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
                     }
@@ -274,13 +276,13 @@ namespace DevTools
             }
             foreach (var name in Variables.tempVariables.Keys)
             {
-                if (v.Contains(name)) //Name is in the users input?
+                if (vlower.Contains(name)) //Name is in the users input?
                 {
-                    foreach (var idx in v.AllIndexs(name))
+                    foreach (var idx in vlower.AllIndexs(name))
                     {
-                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(vlower[idx - 1])) //Is this the start of the word?
                         {
-                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            if (idx + name.Length >= vlower.Length || !char.IsLetter(vlower[idx + name.Length]))//Is this the end of a word?
                             {
                                 variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
                             }
@@ -290,13 +292,13 @@ namespace DevTools
             }
             foreach (var name in Variables.networkingVariables.Keys)
             {
-                if (v.Contains(name)) //Name is in the users input?
+                if (vlower.Contains(name)) //Name is in the users input?
                 {
-                    foreach (var idx in v.AllIndexs(name))
+                    foreach (var idx in vlower.AllIndexs(name))
                     {
-                        if (idx == 0 || !char.IsLetter(v[idx - 1])) //Is this the start of the word?
+                        if (idx == 0 || !char.IsLetter(vlower[idx - 1])) //Is this the start of the word?
                         {
-                            if (idx + name.Length >= v.Length || !char.IsLetter(v[idx + name.Length]))//Is this the end of a word?
+                            if (idx + name.Length >= vlower.Length || !char.IsLetter(vlower[idx + name.Length]))//Is this the end of a word?
                             {
                                 variableLocations.Add(new FuncLocation(idx, idx + name.Length, name));
                             }
@@ -476,7 +478,7 @@ namespace DevTools
             {
                 Colorful.Console.WriteLine();
             }
-            Program.lastprint = v;
+            Program.lastprint = vlower;
         }
         public static void ChangeUserTextColour(string userinput)
         {
