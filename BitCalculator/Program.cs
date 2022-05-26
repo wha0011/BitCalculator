@@ -424,7 +424,17 @@ namespace DevTools
                 userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
 
                 string toprint = "";
-                foreach (var factor in Algebra.GetFactors(int.Parse(userINPUT)))
+                int n;
+                try
+                {
+                    n = int.Parse(userINPUT);
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception(string.Format("'{0}' is not a number", userINPUT));
+                }
+                foreach (var factor in Algebra.GetFactors(n))
                 {
                     toprint += factor;
                     toprint += ',';
@@ -872,10 +882,19 @@ namespace DevTools
         {
             loop = loop.Substring(5); //Remove the loop( from the start
             string[] args = loop.Split(')')[0].Split(',');
+            int bottomRange;
+            int topRange;
 
-            int bottomRange = int.Parse(args[0]);
-            int topRange = int.Parse(args[1]);
-
+            try
+            {
+                bottomRange = int.Parse(Bitmath.BitCalculate(args[0], 'u'));
+                topRange    = int.Parse(Bitmath.BitCalculate(args[1], 'u'));
+            }
+            catch
+            {
+                expectingError = true;
+                throw new Exception(string.Format("Loop did not contain valid range", loop));
+            }
             loop = loop.AddSpaces();
             loop = loop.Substring(loop.IndexOf(':')+1);
             for (int i = bottomRange; i < topRange; ++i)

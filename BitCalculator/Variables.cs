@@ -268,7 +268,9 @@ namespace DevTools
                     string before = i.Substring(0, i.IndexOf(name));
                     string after = i.Substring(i.ClosingBracket(i.IndexOf(name) + name.Length + 1) + 1);
                     i = before + replacestring + after;
-                    return ReplaceVariables(i);
+
+                    Program.DoMainMethod(i);
+                    return "CLOSE_CONDITION_PROCESSED";
                 }
             }
             if (i != input)
