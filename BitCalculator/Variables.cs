@@ -339,7 +339,7 @@ namespace DevTools
                             if (currentVar == variableName && (userINPUT.Length - result.Length == 0 || (userINPUT[i + 1]) == '=') && (i == variableName.Length - 1 || (userINPUT[i - variableName.Length]) == '='))
                             {
                                 //The last x characters of result are a variable and the next character is an '=' sign
-                                var value = Bitmath.BitCalculate(Bitmath.RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2)), 'u'), 'u');
+                                var value = Bitmath.BitCalculate(Bitmath.RemoveBrackets(ReplaceTempVariables(userINPUT.Substring(i + 2, userINPUT.Length - i - 2))));
                                 if (value != "null")
                                 {
                                     toreplace.Add(variableName, value);

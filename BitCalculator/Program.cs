@@ -367,7 +367,7 @@ namespace DevTools
             {
                 try
                 {
-                    userINPUT = Bitmath.RemoveBrackets(userINPUT, 'u');
+                    userINPUT = Bitmath.RemoveBrackets(userINPUT);
                 }
                 catch
                 {
@@ -380,7 +380,7 @@ namespace DevTools
             {
                 try
                 {
-                    userINPUT = Bitmath.RemoveBrackets(userINPUT, 'u');
+                    userINPUT = Bitmath.RemoveBrackets(userINPUT);
                 }
                 catch
                 {
@@ -531,16 +531,16 @@ namespace DevTools
             } //Change the chosen output type depending on the specified bit length
               //Default is 64 bit ulong
 
-            userINPUT = Bitmath.RemoveBrackets(userINPUT, chosenType);
-            string booleans = CheckForBooleans(userINPUT, chosenType); //Remove boolean conditions (==,!=,<,>)
+            userINPUT = Bitmath.RemoveBrackets(userINPUT);
+            string booleans = CheckForBooleans(userINPUT); //Remove boolean conditions (==,!=,<,>)
             if (booleans == "true" || booleans == "false")
             {
                 CustomConsole.PrintColour(booleans); //Only do bool math, don't process following characters
                 return;
             }
-            if (Bitmath.BitCalculate(userINPUT, chosenType) != userINPUT)
+            if (Bitmath.BitCalculate(userINPUT) != userINPUT)
             {
-                userINPUT = Bitmath.BitCalculate(userINPUT, chosenType);
+                userINPUT = Bitmath.BitCalculate(userINPUT);
                 if (!noprint)
                 {
                     CustomConsole.PrintColour(userINPUT); //Only print out the answer if there has been a calculation
@@ -662,8 +662,8 @@ namespace DevTools
 
                         Random random = new Random();
                         string[] nums = constraints.Split(',');
-                        nums[0] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[0],'u'),'u');
-                        nums[1] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[1],'u'),'u'); //User may have variables or functions declared here. Check for these
+                        nums[0] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[0]));
+                        nums[1] = Bitmath.RemoveBrackets(Bitmath.BitCalculate(nums[1])); //User may have variables or functions declared here. Check for these
 
                         int nextRan = random.Next(int.Parse(nums[0]), 1 + int.Parse(nums[1])); //+1 because max val is INCLUSIVE
                         CustomConsole.PrintColour("Random number is: " + nextRan.ToString());
@@ -702,7 +702,7 @@ namespace DevTools
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
 
                         string conditionResult;
-                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition))));
                         
                         CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
                         if (conditionResult == "true")
@@ -742,7 +742,7 @@ namespace DevTools
 
                         string conditionResult = "";
                         string inputCondition = sINPUT.Substring(lastOperatorIDX + 1, i - lastOperatorIDX - 1);
-                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition, 'u'), 'u'), 'u'));
+                        conditionResult = RemoveHex(Bitmath.RemoveBrackets(Bitmath.BitCalculate(CheckForBooleans(inputCondition))));
                        
                         CustomConsole.PrintColour(String.Format("{0} is {1}", inputCondition, conditionResult));
 
@@ -879,8 +879,8 @@ namespace DevTools
 
             try
             {
-                bottomRange = int.Parse(Bitmath.BitCalculate(args[0], 'u'));
-                topRange    = int.Parse(Bitmath.BitCalculate(args[1], 'u'));
+                bottomRange = int.Parse(Bitmath.BitCalculate(args[0]));
+                topRange    = int.Parse(Bitmath.BitCalculate(args[1]));
             }
             catch
             {
@@ -984,13 +984,13 @@ namespace DevTools
         /// <param name="input"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static string CheckForBooleans(string input, char type)
+        public static string CheckForBooleans(string input)
         {
             if (input.Contains('<') && !input.Contains("<<"))
             {
                 var strings = input.Split('<');
-                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type),type);
-                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type),type);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0]));
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1]));
                 if (ulong.Parse(strings[0])<ulong.Parse(strings[1]))
                 {
                     return "true";
@@ -1003,8 +1003,8 @@ namespace DevTools
             if (input.Contains('>') && !input.Contains(">>"))
             {
                 var strings = input.Split('>');
-                strings[0] = Bitmath.BitCalculate(strings[0], type);
-                strings[1] = Bitmath.BitCalculate(strings[1], type);
+                strings[0] = Bitmath.BitCalculate(strings[0]);
+                strings[1] = Bitmath.BitCalculate(strings[1]);
                 if (ulong.Parse(strings[0]) > ulong.Parse(strings[1]))
                 {
                     return "true";
@@ -1017,8 +1017,8 @@ namespace DevTools
             if (input.Contains("=="))
             {
                 string[] strings=  input.Split(new string[] { "==" }, StringSplitOptions.None);
-                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type), type);
-                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type), type);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0]));
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1]));
                 if (ulong.Parse(strings[0]) == ulong.Parse(strings[1]))
                 {
                     return "true";
@@ -1031,8 +1031,8 @@ namespace DevTools
             if (input.Contains("!="))
             {
                 string[] strings = input.Split(new string[] { "!=" }, StringSplitOptions.None);
-                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0], type), type);
-                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1], type), type);
+                strings[0] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[0]));
+                strings[1] = Bitmath.BitCalculate(Bitmath.RemoveBrackets(strings[1]));
                 if (ulong.Parse(strings[0]) != ulong.Parse(strings[1]))
                 {
                     return "true";
