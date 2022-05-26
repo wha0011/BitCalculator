@@ -55,6 +55,7 @@ namespace DevTools
                                           + @"udp_server()///Opens a new server port with the *udp* protocol<new>For example, *var server = new udp_server(7777)*\\\" + "\n"
                                           + @"send()///Sends data through a port. Put text to send in brackets<new>Example usage:<new>*var server = new tcp_server(7777)<new>var client = new tcp_client(7777,localhost)<new>client.send(WASSUP)*\\\" + "\n"
                                           + @"factors()///Prints out all the factors of a number. Put number to calculate factors of in the brackets<new>\\\" + "\n"
+                                          + @"ping()///Pings a server with 32 bytes of data. Attempts to send twice<new>For example, *ping 8.8.8.8*\\\" + "\n"
      ;
     }
 }

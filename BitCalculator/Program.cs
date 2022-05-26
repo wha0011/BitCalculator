@@ -278,6 +278,13 @@ namespace DevTools
                 return;
             }
 
+            if (userINPUT.StartsWith("ping")) //User wants to ping a server?
+            {
+                Networking.PingHost(userINPUT.Substring(4));
+                Networking.PingHost(userINPUT.Substring(4)); //Ping twice
+                return;
+            }
+
             string replaced = Variables.ReplaceTempVariables(userINPUT, "v", lastInput.ToString()); //Define a new variable 'v' as the last result
             if (replaced != userINPUT) //Is the new value different to the old value. Used to stop infinite recursive loop
             {
