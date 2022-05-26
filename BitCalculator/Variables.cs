@@ -39,9 +39,15 @@ namespace DevTools
         }
         public static void DefineVariable(string variable)
         {
+            if (variable[7] != ' ')
+            {
+                Program.expectingError = true;
+                throw new Exception(string.Format("Please add a space between '#define' and the variable name"));
+            }
+
             string[] strings = variable.SplitAtFirst('=');
             int equalsIDX = strings[0].Length - 1;
-            string value = strings[1];
+            string value = strings[1].TrimStart();
             string variableName = variable.Substring(8, equalsIDX - 7);
             variableName = variableName.RemoveSpaces();
             if (variableName.Any(c => !char.IsLetter(c)))
