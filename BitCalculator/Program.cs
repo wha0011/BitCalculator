@@ -660,8 +660,6 @@ namespace DevTools
 
             userINPUT = RemoveBooleanStatements(userINPUT);
 
-            userINPUT = userINPUT.RemoveSpaces();
-
             return userINPUT;
         }
         /// <summary>
@@ -810,7 +808,6 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveBinary(string input)
         {
-            input = input.RemoveSpaces();
             char prev = ' ';
             if (input.Contains("b_")) //Is there binary to remove?
             {
@@ -822,7 +819,8 @@ namespace DevTools
                         string fixedval = input.Substring(0, i - 1); //The statement that came previously to the binary num
 
                         int nextOperaror = input.NextOperatorIDX_NoLetter(i + 1); //Find the index of the next operator so that we know when the binary statement ends
-                        string binNum = Convert.ToUInt64(input.Substring(i + 1, nextOperaror - i - 1), 2).ToString(); //Find the binary num, convert it to a uint64
+                        string binarystring = input.Substring(i + 1, nextOperaror - i - 1).RemoveSpaces();
+                        string binNum = Convert.ToUInt64(binarystring, 2).ToString(); //Find the binary num, convert it to a uint64
 
                         string afterThat = input.Substring(nextOperaror, input.Length - nextOperaror); //Find the trailing characters
                         CustomConsole.PrintColour(string.Format("{0} --> {1}", input, fixedval + binNum + afterThat)); //Show the user what has been replaced
@@ -845,7 +843,6 @@ namespace DevTools
         /// <returns></returns>
         private static string RemoveHex(string input)
         {
-            input = input.RemoveSpaces();
             if (input.Length >= 2 && input[1] == '_')
             {
                 return input;

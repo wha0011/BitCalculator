@@ -503,11 +503,20 @@ namespace DevTools
         public static string AddSpaces(this string input)
         {
             string result = " ";
+            bool lookingForSpeech = false;
             for (int i = 0; i < input.Length-1; ++i) //Do not add a space on the end of the string
             {
                 char c = input[i];
                 char nextC = input[i + 1];
                 result += c;
+                if (c == '\"')
+                {
+                    lookingForSpeech = !lookingForSpeech;
+                }
+                if (lookingForSpeech)
+                {
+                    continue;
+                }
                 if (c == '#' || nextC == '#' || nextC == ' ' || c == '_' || nextC == '_') //Ignore hex, binary and spaces
                 {
                     //Ignore this

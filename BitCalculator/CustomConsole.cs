@@ -145,6 +145,7 @@ namespace DevTools
 
                 PrintColour(retString, false, false);
                 Console.CursorLeft = left; //Reset the left to its original position
+                startline++;
             }
             else
             {
