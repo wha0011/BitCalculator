@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -154,156 +155,16 @@ namespace DevTools
         }
         public static string DoubleCalculate(string input)
         {
-            input = Regex.Replace(input, "--", "-");
-            input = DoubleRemove_E(input);
-            var sINPUT = DoubleRemoveMultiplyDivide(input);
-            if (sINPUT.Where(c => c == '-').Count() == 1 && !sINPUT.Any(c => c == '+') && sINPUT[0] == '-')
+            try
             {
-                return sINPUT;
+                input = DoubleRemove_E(input);
+                return Convert.ToDouble(new DataTable().Compute(input, null)).ExactDecimal();
             }
-            if (sINPUT.Contains('+') ||
-                sINPUT.Contains('-'))
+            catch
             {
-                string firstdouble = "";
-                int firstdoubleStart_IDX = 0;
-                bool firstTime = true;
-                string seconddouble = "";
-                char _operator = ' ';
-                bool operatorSet = false;
-                for (int i = 0; i < sINPUT.Length; i++)
-                {
-                    char c = sINPUT[i];
-                    if (char.IsNumber(c) || c == '.')
-                    {
-                        //is it a number
-                        if (!operatorSet)
-                        {
-                            firstdouble += c;
-                            if (firstTime)
-                            {
-                                firstTime = false;
-                                firstdoubleStart_IDX = i;
-                            }
-                        }
-                        else
-                        {
-                            seconddouble += c;
-                        }
-                    }
-                    else if (c == '+' || c == '-')
-                    {
-                        if (seconddouble != "")
-                        {
-                            double result = 0ul;
-                            if (firstdouble == "" && _operator == '-')//negative number
-                            {
-                                operatorSet = true;
-                                firstdouble = '-' + seconddouble;
-                                seconddouble = "";
-                                continue;
-                            }
-                            if (firstdouble == "")
-                            {
-                                Program.modifyLastOutput = true;
-                                if (Program.lastWasDouble)
-                                {
-                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
-                                }
-                                else
-                                {
-                                    firstdouble = Program.lastInput.ToString();
-                                }
-                                sINPUT = sINPUT.Insert(0, firstdouble);
-                                //firstdoubleStart_IDX = 1;
-                            }
-                            double first = double.Parse(firstdouble);
-                            double second = double.Parse(seconddouble);
-                            switch (_operator)
-                            {
-                                case '+':
-                                    result = first + second;
-                                    break;
-                                case '-':
-                                    result = first - second;
-                                    break;
-                            }
-                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
-                        }
-                        operatorSet = true;
-                        _operator = c;
-                    }
-                    else
-                    {
-                        if (seconddouble != "")
-                        {
-                            double result = 0ul;
-                            if (firstdouble == "")
-                            {
-                                Program.modifyLastOutput = true;
-                                if (Program.lastWasDouble)
-                                {
-                                    firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
-                                }
-                                else
-                                {
-                                    firstdouble = Program.lastInput.ToString();
-                                }
-                                sINPUT = sINPUT.Insert(0, firstdouble);
-                                //firstdoubleStart_IDX = 1;
-                            }
-                            double first = double.Parse(firstdouble);
-                            double second = double.Parse(seconddouble);
-                            switch (_operator)
-                            {
-                                case '+':
-                                    result = first + second;
-                                    break;
-                                case '-':
-                                    result = first - second;
-                                    break;
-                            }
-                            //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, i, result.ToString(), sINPUT), true);
-                            return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, i, result.ExactDecimal()));
-                        }
-                        firstdouble = "";
-                        operatorSet = false;
-                        seconddouble = "";
-                    }
-                }
-                if (seconddouble != "")
-                {
-                    double result = 0ul;
-                    if (firstdouble == "")
-                    {
-                        Program.modifyLastOutput = true;
-                        if (Program.lastWasDouble)
-                        {
-                            firstdouble = BitConverter.Int64BitsToDouble((long)Program.lastInput).ExactDecimal(); //Convert bits to double
-                        }
-                        else
-                        {
-                            firstdouble = Program.lastInput.ToString();
-                        }
-                        sINPUT = sINPUT.Insert(0, firstdouble);
-                        //firstdoubleStart_IDX = 1;
-                    }
-                    double first = double.Parse(firstdouble);
-                    double second = double.Parse(seconddouble);
-                    switch (_operator)
-                    {
-                        case '+':
-                            result = first + second;
-                            break;
-                        case '-':
-                            result = first - second;
-                            break;
-                    }
-                    //PrintColour(sINPUT + " = " + RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ToString(), sINPUT), true);
-                    return DoubleCalculate(sINPUT.RemoveAndReplace(firstdoubleStart_IDX, sINPUT.Length, result.ExactDecimal()));
-                }
+                Program.expectingError = true;
+                throw new Exception("Invalid equation");
             }
-            return sINPUT;
         }
         #region angleconversions
         public static double DegreeToRadian(double angle)
@@ -376,7 +237,7 @@ namespace DevTools
         {
             string fixedval = sINPUT.Substring(0, stringIDX - 3); //Find the math that happens before it
             int nextOperaror = sINPUT.ClosingBracket(stringIDX + 1); //The next operator
-            string result = DoubleRemoveBrackets(sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1)); //Find the number between the brackets
+            string result = DoubleCalculate(sINPUT.Substring(stringIDX + 1, nextOperaror - stringIDX - 1)); //Find the number between the brackets
             double calcNum = DegreeToRadian(double.Parse(result)); //Convert it from degrees to radians
             switch (mathAngleType)
             {
@@ -419,86 +280,6 @@ namespace DevTools
             return RemoveTrig(return_result);
         }
 
-        public static string DoubleRemoveBrackets(string s)
-        {
-            string buffer = "";
-            int firstBracketIDX = 0;
-            bool addingToBuffer = false;
-            for (int i = 0; i < s.Length; ++i)
-            {
-                var c = s[i];
-
-                if (c == ')')
-                {
-                    string betweenBrackets = s.TextBetween(firstBracketIDX + 1, i - 1);
-                    string total = DoubleCalculate(betweenBrackets);
-                    string nextString = "";
-                    for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
-                    {
-                        if (secondIDX < firstBracketIDX || secondIDX > i)
-                        {
-                            nextString += s[secondIDX];
-                        }
-                        else if (secondIDX == firstBracketIDX)
-                        {
-                            nextString += total;
-                        }
-                    }
-                    if (nextString.Contains('('))
-                    {
-                        return DoubleRemoveBrackets(nextString);
-                    }
-                    else
-                    {
-                        return nextString;
-                    }
-                }
-                else if (addingToBuffer)
-                {
-                    buffer += c;
-                }
-                if (c == '(')
-                {
-                    if (addingToBuffer == true)
-                    {
-                        int nextBracketIDX = s.NextBracket(i);
-                        if (nextBracketIDX == -1)
-                        {
-                            Program.expectingError = true;
-                            throw new Exception("No closing bracket was included");
-                        }
-                        if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
-                        {
-                            string betweenBrackets = s.TextBetween(i + 1, nextBracketIDX - 1);
-                            string total = DoubleCalculate(betweenBrackets);
-                            string nextString = "";
-                            for (int secondIDX = 0; secondIDX < s.Length; ++secondIDX)
-                            {
-                                if (secondIDX < i || secondIDX > nextBracketIDX)
-                                {
-                                    nextString += s[secondIDX];
-                                }
-                                else if (secondIDX == i)
-                                {
-                                    nextString += total;
-                                }
-                            }
-                            return DoubleRemoveBrackets(nextString);
-                        }
-                        else
-                        {
-                            firstBracketIDX = i;
-                        }
-                    }
-                    else
-                    {
-                        addingToBuffer = true;
-                        firstBracketIDX = i;
-                    }
-                }
-            }
-            return s;
-        }
         public static string RemoveBrackets(string s)
         {
             string buffer = "";
@@ -545,7 +326,7 @@ namespace DevTools
                         if (nextBracketIDX == -1)
                         {
                             Program.expectingError = true;
-                            throw new Exception("Some weird sh*t is happening");
+                            throw new Exception("Amount of opening brackets inequal to amount of closing brackets");
                         }
                         if (s[nextBracketIDX] == ')') //Is this the last layer of brackets?
                         {
@@ -579,47 +360,7 @@ namespace DevTools
             }
             return s;
         }
-        private static string DoubleRemoveMultiplyDivide(string input)
-        {
-            if (input.Contains("*") || input.Contains("/"))
-            {
-                for (int i = 0; i < input.Length; i++)
-                {
-                    if (input[i] == '/' || input[i] == '*')
-                    {
-                        int lastOperatorIDX = input.LastOperatorIDX(i - 2);
-                        int nextOperatorIDX = DoubleNextOperatorIDX(input, i + 1);
-                        string sub = input.Substring(lastOperatorIDX, (nextOperatorIDX - lastOperatorIDX));
-                        string result = DoubleCalculateMultiplyDivide(sub);
-                        string toReturn = string.Format("{0}{1}{2}", input.Substring(0, lastOperatorIDX == 0 ? 0 : lastOperatorIDX + 1), result, input.Substring(nextOperatorIDX, input.Length - nextOperatorIDX));
-                        return DoubleRemoveMultiplyDivide(toReturn);
-                    }
-                }
-            }
-            return input;
-        }
 
-        private static int DoubleNextOperatorIDX(string input, int currIDX)
-        {
-            for (int i = currIDX; i < input.Length; i++)
-            {
-                if ((input[i] == '<' ||
-                    input[i] == '>' ||
-                    input[i] == '+' ||
-                    input[i] == '-' ||
-                    input[i] == '*' ||
-                    input[i] == '/' ||
-                    input[i] == '^' ||
-                    input[i] == '&' ||
-                    input[i] == '|' ||
-                    char.IsLetter(input[i]))
-                    && (i == 0 | !input[i - 1].IsOperator()))
-                {
-                    return i;
-                }
-            }
-            return input.Length;
-        }
         public static double Average(string sINPUT)
         {
             sINPUT = sINPUT.Substring(4);
@@ -739,7 +480,6 @@ namespace DevTools
             }
             return input;
         }
-        static string prevanswer = "";
         public static string RemoveLog(string userINPUT)
         {
             List<int> logidxs = userINPUT.AllIndexs("log"); //Find the positions of all the log statements

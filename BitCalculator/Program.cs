@@ -505,7 +505,21 @@ namespace DevTools
             if (userINPUT.BeginsWith("doum")) //Check if the user wants to do doum math
             {
                 userINPUT = userINPUT.Substring(4);
-                userINPUT = Bitmath.DoubleCalculate(Bitmath.DoubleRemoveBrackets(userINPUT)); //Calculate the result
+                if (userINPUT[0].IsOperator()) //Doing operation on v?
+                {
+                    if (lastWasDouble)
+                    {
+                        string last = BitConverter.Int64BitsToDouble((long)lastInput).ExactDecimal();
+
+                        userINPUT = userINPUT.Insert(0,last);
+                    }
+                    else
+                    {
+                        userINPUT = userINPUT.Insert(0, lastInput.ToString());
+                    }
+                    modifyLastOutput = true;
+                }
+                userINPUT = Bitmath.DoubleCalculate(userINPUT); //Calculate the result
 
                 //Print the value as a double
                 if (!noprint)
@@ -525,6 +539,7 @@ namespace DevTools
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
                 lastWasDouble = true;
+                modifyLastOutput = false;
                 return;
             }
 
