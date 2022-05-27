@@ -12,13 +12,13 @@ namespace DevTools
             new UnitTest("#del bob; #define bob = 2; np bob + 7", "9"),
             new UnitTest("alg(7,-11,-6)", "(1x-2)(7x+3)"),
             new UnitTest("np tan(70)", "Closest conversion: 2.7474774194546216"),
-            new UnitTest("arcsin(45) + arccos(45)", "Closest conversion: 1.5707963267948966"),
+            new UnitTest("arcsin(45) + arccos(45)", "Closest conversion: 1.5707963267949"),
             new UnitTest("hrgb ffffff", "rgb(255,255,255);"),
             new UnitTest("np tan(70)+sin(90)-arccos(60)-40+6.75532-3", "Closest conversion: -49.75532"),
             new UnitTest("np b_01010101010000101001010101 + 345", "22350766"),
             new UnitTest("np doum b_01010101010000101001010101 + 345", "Closest conversion: 22350766"),
             new UnitTest("np doum #ffff + 3 - 2 + 4 - b_010101010101 + 0.0055", "Closest conversion: 64175.0055"),
-            new UnitTest("np log8(9) + log89(90) + log(10) + 10", "Closest conversion: 13.059130908796298"),
+            new UnitTest("np log8(9) + log89(90) + log(10) + 10", "Closest conversion: 13.0591309087963"),
         };
 
         public string Input;
