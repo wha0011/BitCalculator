@@ -502,6 +502,11 @@ namespace DevTools
 
         public static string AddSpaces(this string input)
         {
+            if (input == "") //Process empty input
+            {
+                return ""; //Just dont return anything
+            }
+
             string result = " ";
             bool lookingForSpeech = false;
             for (int i = 0; i < input.Length-1; ++i) //Do not add a space on the end of the string
