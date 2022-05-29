@@ -540,6 +540,10 @@ namespace DevTools
 
         public static string AsString(this List<string> list)
         {
+            if (list.Count == 0)
+            {
+                return "";
+            }
             string result = "";
             foreach (var item in list)
             {

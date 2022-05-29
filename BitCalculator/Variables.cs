@@ -526,6 +526,7 @@ namespace DevTools
         }
         public static List<string> UserVariables()
         {
+
             List<string> result = new List<string>();
             foreach (var line in File.ReadAllLines(Program.FuncFilePath))
             {
