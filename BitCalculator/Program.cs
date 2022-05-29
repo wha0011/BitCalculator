@@ -82,7 +82,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.0";
+        public const string VERSION = "v1.1.4";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -165,7 +165,7 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
-                        if (str == "")
+                        if (str.RemoveSpaces() == "")
                         {
                             continue;
                         }
@@ -473,6 +473,25 @@ namespace DevTools
                 CustomConsole.PrintColour("Printing flipped..."); //Inform the user that the binary outcome is being flipped
             }
 
+            if (userINPUT.BeginsWith("sqrt"))
+            {
+                userINPUT = userINPUT.Substring(5);
+                userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
+                userINPUT = Bitmath.DoubleCalculate(userINPUT);
+                double num = 0;
+                try
+                {
+                    num = double.Parse(userINPUT);
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception("Input must be a valid decimal");
+                }
+                MainMethod("doum " + Math.Sqrt(num)); //Run again to process the 'doum'
+                return;
+            }
+
             if (userINPUT.BeginsWith("i")) //User wants to show binary value as 32i (32 bit uint)
             {
                 is32bit = true; //Tell the binary printer to print only 32 bits
@@ -505,7 +524,21 @@ namespace DevTools
             if (userINPUT.BeginsWith("doum")) //Check if the user wants to do doum math
             {
                 userINPUT = userINPUT.Substring(4);
-                userINPUT = Bitmath.DoubleCalculate(Bitmath.DoubleRemoveBrackets(userINPUT)); //Calculate the result
+                if (userINPUT[0].IsOperator()) //Doing operation on v?
+                {
+                    if (lastWasDouble)
+                    {
+                        string last = BitConverter.Int64BitsToDouble((long)lastInput).ExactDecimal();
+
+                        userINPUT = userINPUT.Insert(0,last);
+                    }
+                    else
+                    {
+                        userINPUT = userINPUT.Insert(0, lastInput.ToString());
+                    }
+                    modifyLastOutput = true;
+                }
+                userINPUT = Bitmath.DoubleCalculate(userINPUT); //Calculate the result
 
                 //Print the value as a double
                 if (!noprint)
@@ -525,6 +558,7 @@ namespace DevTools
                 string bitconv = Convert.ToString(BitConverter.DoubleToInt64Bits(d), 2);
                 lastInput = Convert.ToUInt64(bitconv, 2);
                 lastWasDouble = true;
+                modifyLastOutput = false;
                 return;
             }
 
@@ -914,6 +948,7 @@ namespace DevTools
             }
             loop = loop.AddSpaces();
             loop = loop.Substring(loop.IndexOf(':')+1);
+            loop = loop.AddSpaces();
             for (int i = bottomRange; i < topRange; ++i)
             {
                 string currentLoop = Variables.ReplaceTempVariables(loop, "i", i.ToString());
@@ -949,6 +984,7 @@ namespace DevTools
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
             CustomConsole.PrintColour("factors");
+            CustomConsole.PrintColour("sqrt");
             CustomConsole.PrintColour("v");
             CustomConsole.PrintColour("doub");
             CustomConsole.PrintColour("float");

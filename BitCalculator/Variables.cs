@@ -254,8 +254,9 @@ namespace DevTools
                     int closingBracketidx = replacestring.ClosingBracket(name.Length + 1);
                     replacestring = replacestring.Substring(closingBracketidx + 1);
 
-                    int valuesstartidx = i.IndexOf(name) + name.Length + 1;
-                    string[] values = i.Substring(valuesstartidx, i.ClosingBracket(valuesstartidx) - valuesstartidx).Split(',');
+                    var nospaces = i.RemoveSpaces();
+                    int valuesstartidx = nospaces.IndexOf(name) + name.Length + 1;
+                    string[] values = nospaces.Substring(valuesstartidx, nospaces.ClosingBracket(valuesstartidx) - valuesstartidx).Split(',');
                     string[] names = s.Substring(name.Length + 1, s.ClosingBracket(name.Length + 1) - name.Length - 1).Split(',');
                     Dictionary<string, int> variableValues = new Dictionary<string, int>();
 
