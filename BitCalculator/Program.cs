@@ -82,7 +82,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.0";
+        public const string VERSION = "v1.1.4";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -471,6 +471,25 @@ namespace DevTools
                 flipped = true; //Change the flipped value to true so that when we print binary later, we know what to do
                 userINPUT = userINPUT.Substring(1); //Remove the 'f' from the string
                 CustomConsole.PrintColour("Printing flipped..."); //Inform the user that the binary outcome is being flipped
+            }
+
+            if (userINPUT.BeginsWith("sqrt"))
+            {
+                userINPUT = userINPUT.Substring(5);
+                userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
+                userINPUT = Bitmath.DoubleCalculate(userINPUT);
+                double num = 0;
+                try
+                {
+                    num = double.Parse(userINPUT);
+                }
+                catch
+                {
+                    expectingError = true;
+                    throw new Exception("Input must be a valid decimal");
+                }
+                MainMethod("doum " + Math.Sqrt(num)); //Run again to process the 'doum'
+                return;
             }
 
             if (userINPUT.BeginsWith("i")) //User wants to show binary value as 32i (32 bit uint)
@@ -965,6 +984,7 @@ namespace DevTools
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
             CustomConsole.PrintColour("factors");
+            CustomConsole.PrintColour("sqrt");
             CustomConsole.PrintColour("v");
             CustomConsole.PrintColour("doub");
             CustomConsole.PrintColour("float");
