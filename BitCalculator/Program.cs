@@ -165,7 +165,7 @@ namespace DevTools
                     var beforeLoop = userINPUT.Substring(0, userINPUT.IndexOf("loop"));
                     foreach (var str in beforeLoop.Split(';'))
                     {
-                        if (str == "")
+                        if (str.RemoveSpaces() == "")
                         {
                             continue;
                         }
@@ -929,6 +929,7 @@ namespace DevTools
             }
             loop = loop.AddSpaces();
             loop = loop.Substring(loop.IndexOf(':')+1);
+            loop = loop.AddSpaces();
             for (int i = bottomRange; i < topRange; ++i)
             {
                 string currentLoop = Variables.ReplaceTempVariables(loop, "i", i.ToString());
