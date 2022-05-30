@@ -345,6 +345,30 @@ namespace DevTools
                     throw new Exception("Directory already exists");
                 }
             }
+            if (userINPUT.BeginsWith("deletedr"))
+            {
+                userINPUT = userINPUT.Substring(8); //Remove the mkdir from the string
+                try
+                {
+                    File.Delete(userINPUT);
+                    CustomConsole.PrintColour("Deleted file");
+                }
+                catch
+                {
+                    try
+                    {
+                        var dir = new DirectoryInfo(userINPUT);
+                        dir.Delete(true);
+                        CustomConsole.PrintColour("Deleted directory");
+                    }
+                    catch
+                    {
+                        expectingError = true;
+                        throw new Exception("Directory does not exist");
+                    }
+                }
+                return;
+            }
 
             if (userINPUT.BeginsWith("ping")) //User wants to ping a server?
             {
