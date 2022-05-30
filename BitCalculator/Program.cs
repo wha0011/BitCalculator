@@ -258,7 +258,7 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT.StartsWith("alg")) //Generate algebra
+            if (userINPUT.BeginsWith("alg")) //Generate algebra
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = userINPUT.Substring(0,userINPUT.Length-1); //Remove brackets
@@ -280,8 +280,30 @@ namespace DevTools
                 Algebra.FactoriseCrissCross(nums[0], nums[1], nums[2]);
                 return;
             }
-
-            if (userINPUT.StartsWith("ping")) //User wants to ping a server?
+            if (userINPUT.BeginsWith("mkdir"))
+            {
+                userINPUT = userINPUT.Substring(5); //Remove the mkdir from the string
+                if (!Directory.Exists(userINPUT))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(userINPUT);
+                        CustomConsole.PrintColour("Successfully created directory: " + userINPUT);
+                        return;
+                    }
+                    catch(UnauthorizedAccessException e)
+                    {
+                        expectingError = true;
+                        throw new Exception("Access denied. Try running as administrator");
+                    }
+                }
+                else
+                {
+                    expectingError = true;
+                    throw new Exception("Directory already exists");
+                }
+            }
+            if (userINPUT.BeginsWith("ping")) //User wants to ping a server?
             {
                 Networking.PingHost(userINPUT.Substring(4));
                 Networking.PingHost(userINPUT.Substring(4)); //Ping twice
@@ -440,7 +462,7 @@ namespace DevTools
                 CustomConsole.NetworkingPrint("Server IP: " + addresses);
                 return;
             }
-            if (userINPUT.StartsWith("factors("))
+            if (userINPUT.BeginsWith("factors("))
             {
                 userINPUT = userINPUT.Substring(8);
                 userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
@@ -1021,6 +1043,7 @@ namespace DevTools
             CustomConsole.PrintColour("send");
             CustomConsole.PrintColour("nslookup");
             CustomConsole.PrintColour("ping");
+            CustomConsole.PrintColour("mkdir");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }

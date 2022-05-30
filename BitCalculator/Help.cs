@@ -57,6 +57,7 @@ namespace DevTools
                                           + @"factors()///Prints out all the factors of a number. Put number to calculate factors of in the brackets<new>\\\" + "\n"
                                           + @"sqrt()///Gets the square root of a number. Put number to get root of in brackets<new>For example, *sqrt(4)*<new>For example, *sqrt(4.345676/345.345)*\\\" + "\n"
                                           + @"ping()///Pings a server with 32 bytes of data. Attempts to send twice<new>For example, *ping 8.8.8.8*\\\" + "\n"
+                                          + @"mkdir()///Creates a new directory. Used similiarly to CMD.<new>For example: *mkdir "+ "\""+@"C:\Example"+"\""+ @"*\\\" + "\n"
      ;
     }
 }
