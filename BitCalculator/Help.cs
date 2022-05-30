@@ -57,7 +57,9 @@ namespace DevTools
                                           + @"factors()///Prints out all the factors of a number. Put number to calculate factors of in the brackets<new>\\\" + "\n"
                                           + @"sqrt()///Gets the square root of a number. Put number to get root of in brackets<new>For example, *sqrt(4)*<new>For example, *sqrt(4.345676/345.345)*\\\" + "\n"
                                           + @"ping()///Pings a server with 32 bytes of data. Attempts to send twice<new>For example, *ping 8.8.8.8*\\\" + "\n"
-                                          + @"mkdir()///Creates a new directory. Used similiarly to CMD.<new>For example: *mkdir "+ "\""+@"C:\Example"+"\""+ @"*\\\" + "\n"
+                                          + @"mkdir()///Creates a new directory. Used similiarly to CMD.<new>For example: *mkdir " + "\"" + @"C:\Example" + "\"" + @"*\\\" + "\n"
+                                          + @"copy()///Copies a file or files from one directory to another. Searches recursively through folders.<new>For example, *copy " + "\"" + @"C:\Users\Username\Documents\"+ "\""+ @" : " +"\""+@"D:\Documents\"+"\"*"+ @"<new>Can also be used to copy just a specific file:<new>For example, *copy " + "\"" + @"C:\Users\Username\Document.docx" + "\"" + @" : " + "\"" + @"D:\Documents\" + "\"*"+ @"<new>There MUST be spaces around the '*:*'\\\" + "\n"
+                                          + @"deletedr()///Deletes a file or directory. Used similiarly to CMD.<new>For example: *deletedr " + "\"" + @"C:\Example" + "\"" + @"*<new>Or it can be used to delete a single file:<new>For example, *deletedr " + "\"" + @"C:\Users\Username\Document.docx" + "\"*" + @"\\\" + "\n"
      ;
     }
 }

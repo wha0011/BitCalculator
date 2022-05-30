@@ -1131,6 +1131,8 @@ namespace DevTools
             CustomConsole.PrintColour("nslookup");
             CustomConsole.PrintColour("ping");
             CustomConsole.PrintColour("mkdir");
+            CustomConsole.PrintColour("copy");
+            CustomConsole.PrintColour("deletedr");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
