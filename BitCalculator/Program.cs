@@ -215,7 +215,46 @@ namespace DevTools
                 Variables.DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
-            var resetworkings = false;
+
+            if (userINPUT.BeginsWith("copy"))
+            {
+                userINPUT = userINPUT.Substring(4); //Remove the copy from the string
+                string[] filepaths = userINPUT.Split(" : ");
+                for (int i = 0; i < 2; ++i)
+                {
+                    filepaths[i] = filepaths[i].RemoveSpaces(); //We can't remove spaces earlier, because we need to check for spaces around the ':'
+                }
+
+                if (!Directory.Exists(filepaths[1])) //Does destination directory not exist?
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(filepaths[1]);
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        expectingError = true;
+                        throw new Exception("Access denied. Try running as administrator");
+                    }
+                }
+                //Now we know that a destination filepath exists
+
+                if (Directory.Exists(filepaths[0])) //Does origin path exist?
+                {
+
+                }
+                else if (File.Exists(filepaths[0])) //Is it a singular file?
+                {
+                    if (!filepaths[1].EndsWith("\\")) //Is a filename specified?
+                    {
+                        File.Copy(filepaths[0], filepaths[1]); //Just do a normal copy
+                    }
+                    else //Filename not specified? Use original filename
+                    {
+                        File.Copy(filepaths[0], filepaths[1] + filepaths[0].Split('\\').Last());
+                    }
+                }
+            }
 
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
@@ -303,6 +342,7 @@ namespace DevTools
                     throw new Exception("Directory already exists");
                 }
             }
+
             if (userINPUT.BeginsWith("ping")) //User wants to ping a server?
             {
                 Networking.PingHost(userINPUT.Substring(4));
