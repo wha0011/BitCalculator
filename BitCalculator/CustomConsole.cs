@@ -569,7 +569,7 @@ namespace DevTools
                 for (int i = 0; i < comment.Length; i++)
                 {
                     char c = comment[i];
-                    if (c == '\\') //Is it a \
+                    if (i <= comment.Length-3 && c == '\\' && comment[i+1]=='\\' && comment[i+2]=='\\') //Is it a \
                                    //Uses \\, but is really looking for \
                     {
                         toprint.Add(new Comment(buffer, PrintType.Comment)); //Add this as being normal

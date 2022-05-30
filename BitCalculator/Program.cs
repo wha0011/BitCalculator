@@ -82,7 +82,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.4";
+        public const string VERSION = "v1.1.5";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -215,7 +215,49 @@ namespace DevTools
                 Variables.DeleteVariable(userINPUT.Substring(4)); //Delete the variable
                 return;
             }
-            var resetworkings = false;
+
+            if (userINPUT.BeginsWith("copy"))
+            {
+                userINPUT = userINPUT.Substring(4); //Remove the copy from the string
+                string[] filepaths = userINPUT.Split(" : ");
+                for (int i = 0; i < 2; ++i)
+                {
+                    filepaths[i] = filepaths[i].RemoveSpaces(); //We can't remove spaces earlier, because we need to check for spaces around the ':'
+                }
+
+                if (!Directory.Exists(filepaths[1])) //Does destination directory not exist?
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(filepaths[1]);
+                    }
+                    catch (UnauthorizedAccessException e)
+                    {
+                        expectingError = true;
+                        throw new Exception("Access denied. Try running as administrator");
+                    }
+                }
+                //Now we know that a destination filepath exists
+
+                if (Directory.Exists(filepaths[0])) //Is the origin path a directory?
+                {
+                    CopyDirectory(filepaths[0],filepaths[1]);
+                    foreach (var directory in Directory.EnumerateDirectories(filepaths[0],"",SearchOption.AllDirectories))
+                    {
+                        string dest = filepaths[1] + "\\" + directory.Split(filepaths[0])[1] + "\\";
+                        Directory.CreateDirectory(dest);
+                        CopyDirectory(directory, dest);
+                    }
+                    CustomConsole.PrintColour("Successfully copied directories");
+                    return;
+                }
+                else if (File.Exists(filepaths[0])) //Is it a singular file?
+                {
+                    CopyFiles(filepaths[0],filepaths[1]);
+                    CustomConsole.PrintColour("Successfully copied file");
+                    return;
+                }
+            }
 
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
@@ -258,7 +300,7 @@ namespace DevTools
             {
                 Environment.Exit(0);
             }
-            if (userINPUT.StartsWith("alg")) //Generate algebra
+            if (userINPUT.BeginsWith("alg")) //Generate algebra
             {
                 userINPUT = userINPUT.Substring(4);
                 userINPUT = userINPUT.Substring(0,userINPUT.Length-1); //Remove brackets
@@ -280,8 +322,55 @@ namespace DevTools
                 Algebra.FactoriseCrissCross(nums[0], nums[1], nums[2]);
                 return;
             }
+            if (userINPUT.BeginsWith("mkdir"))
+            {
+                userINPUT = userINPUT.Substring(5); //Remove the mkdir from the string
+                if (!Directory.Exists(userINPUT))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(userINPUT);
+                        CustomConsole.PrintColour("Successfully created directory: " + userINPUT);
+                        return;
+                    }
+                    catch(UnauthorizedAccessException e)
+                    {
+                        expectingError = true;
+                        throw new Exception("Access denied. Try running as administrator");
+                    }
+                }
+                else
+                {
+                    expectingError = true;
+                    throw new Exception("Directory already exists");
+                }
+            }
+            if (userINPUT.BeginsWith("deletedr"))
+            {
+                userINPUT = userINPUT.Substring(8); //Remove the mkdir from the string
+                try
+                {
+                    File.Delete(userINPUT);
+                    CustomConsole.PrintColour("Deleted file");
+                }
+                catch
+                {
+                    try
+                    {
+                        var dir = new DirectoryInfo(userINPUT);
+                        dir.Delete(true);
+                        CustomConsole.PrintColour("Deleted directory");
+                    }
+                    catch
+                    {
+                        expectingError = true;
+                        throw new Exception("Directory does not exist");
+                    }
+                }
+                return;
+            }
 
-            if (userINPUT.StartsWith("ping")) //User wants to ping a server?
+            if (userINPUT.BeginsWith("ping")) //User wants to ping a server?
             {
                 Networking.PingHost(userINPUT.Substring(4));
                 Networking.PingHost(userINPUT.Substring(4)); //Ping twice
@@ -440,7 +529,7 @@ namespace DevTools
                 CustomConsole.NetworkingPrint("Server IP: " + addresses);
                 return;
             }
-            if (userINPUT.StartsWith("factors("))
+            if (userINPUT.BeginsWith("factors("))
             {
                 userINPUT = userINPUT.Substring(8);
                 userINPUT = userINPUT.Substring(0, userINPUT.Length - 1);
@@ -639,6 +728,26 @@ namespace DevTools
             }
             lastWasDouble = false;
             lastInput = input; //Assign lastinput
+        }
+
+        private static void CopyDirectory(string origin, string dest)
+        {
+            foreach (var file in Directory.GetFiles(origin)) //Go through each of the files in the origin directory
+            {
+                CopyFiles(file, dest); //Copy the file
+            }
+        }
+
+        private static void CopyFiles(string origin, string dest)
+        {
+            if (!dest.EndsWith("\\")) //Is a filename specified?
+            {
+                File.Copy(origin, dest, true); //Just do a normal copy
+            }
+            else //Filename not specified? Use original filename
+            {
+                File.Copy(origin, dest + origin.Split('\\').Last(), true);
+            }
         }
 
         /// <summary>
@@ -1021,6 +1130,9 @@ namespace DevTools
             CustomConsole.PrintColour("send");
             CustomConsole.PrintColour("nslookup");
             CustomConsole.PrintColour("ping");
+            CustomConsole.PrintColour("mkdir");
+            CustomConsole.PrintColour("copy");
+            CustomConsole.PrintColour("deletedr");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
