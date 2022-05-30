@@ -241,14 +241,21 @@ namespace DevTools
 
                 if (Directory.Exists(filepaths[0])) //Is the origin path a directory?
                 {
-                    foreach (var file in Directory.GetFiles(filepaths[0])) //Go through each of the files in the origin directory
+                    CopyDirectory(filepaths[0],filepaths[1]);
+                    foreach (var directory in Directory.EnumerateDirectories(filepaths[0],"",SearchOption.AllDirectories))
                     {
-                        CopyFiles(file,filepaths[1]); //Copy the file
+                        string dest = filepaths[1] + "\\" + directory.Split(filepaths[0])[1] + "\\";
+                        Directory.CreateDirectory(dest);
+                        CopyDirectory(directory, dest);
                     }
+                    CustomConsole.PrintColour("Successfully copied directories");
+                    return;
                 }
                 else if (File.Exists(filepaths[0])) //Is it a singular file?
                 {
                     CopyFiles(filepaths[0],filepaths[1]);
+                    CustomConsole.PrintColour("Successfully copied file");
+                    return;
                 }
             }
 
@@ -699,15 +706,23 @@ namespace DevTools
             lastInput = input; //Assign lastinput
         }
 
+        private static void CopyDirectory(string origin, string dest)
+        {
+            foreach (var file in Directory.GetFiles(origin)) //Go through each of the files in the origin directory
+            {
+                CopyFiles(file, dest); //Copy the file
+            }
+        }
+
         private static void CopyFiles(string origin, string dest)
         {
             if (!dest.EndsWith("\\")) //Is a filename specified?
             {
-                File.Copy(origin, dest); //Just do a normal copy
+                File.Copy(origin, dest, true); //Just do a normal copy
             }
             else //Filename not specified? Use original filename
             {
-                File.Copy(origin, dest + origin.Split('\\').Last());
+                File.Copy(origin, dest + origin.Split('\\').Last(), true);
             }
         }
 
