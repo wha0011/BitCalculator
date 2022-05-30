@@ -239,20 +239,16 @@ namespace DevTools
                 }
                 //Now we know that a destination filepath exists
 
-                if (Directory.Exists(filepaths[0])) //Does origin path exist?
+                if (Directory.Exists(filepaths[0])) //Is the origin path a directory?
                 {
-
+                    foreach (var file in Directory.GetFiles(filepaths[0])) //Go through each of the files in the origin directory
+                    {
+                        CopyFiles(file,filepaths[1]); //Copy the file
+                    }
                 }
                 else if (File.Exists(filepaths[0])) //Is it a singular file?
                 {
-                    if (!filepaths[1].EndsWith("\\")) //Is a filename specified?
-                    {
-                        File.Copy(filepaths[0], filepaths[1]); //Just do a normal copy
-                    }
-                    else //Filename not specified? Use original filename
-                    {
-                        File.Copy(filepaths[0], filepaths[1] + filepaths[0].Split('\\').Last());
-                    }
+                    CopyFiles(filepaths[0],filepaths[1]);
                 }
             }
 
@@ -701,6 +697,18 @@ namespace DevTools
             }
             lastWasDouble = false;
             lastInput = input; //Assign lastinput
+        }
+
+        private static void CopyFiles(string origin, string dest)
+        {
+            if (!dest.EndsWith("\\")) //Is a filename specified?
+            {
+                File.Copy(origin, dest); //Just do a normal copy
+            }
+            else //Filename not specified? Use original filename
+            {
+                File.Copy(origin, dest + origin.Split('\\').Last());
+            }
         }
 
         /// <summary>
