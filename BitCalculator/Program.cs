@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -259,6 +260,49 @@ namespace DevTools
                 }
             }
 
+            if (userINPUT.BeginsWith("zip"))
+            {
+                userINPUT = userINPUT.Substring(3);
+                var name = "";
+                if(userINPUT.Contains(" : ")) //Specified a name?
+                {
+                    name = userINPUT.Split(" : ")[1].RemoveSpaces();
+                    userINPUT = userINPUT.Split(" : ")[0].RemoveSpaces();
+                }
+
+                List<string> files = userINPUT.Split(",").ToList();
+                if (files.Count() == 1 && name == "")
+                {
+                    //Only 1 thing to add, use original filename
+                    name = files[0].Split(".")[0] + ".zip"; //Add the name in
+                }
+
+                if (File.Exists(name))
+                {
+                    expectingError = true;
+                    throw new Exception(name + " already exists");
+                }
+
+                var directory = Directory.CreateDirectory(TempZIP);
+
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        CopyFiles(file, TempZIP); //Add the file to the temp directory
+                    }
+                    catch
+                    {
+                        expectingError = true;
+                        Directory.Delete(TempZIP, true);
+                        throw new Exception("Error zipping file: " + file);
+                    }
+                }
+                ZipFile.CreateFromDirectory(TempZIP, name);
+                Directory.Delete(TempZIP, true);
+                return;
+            }
+
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
             {
@@ -369,7 +413,7 @@ namespace DevTools
                 }
                 return;
             }
-
+           
             if (userINPUT.BeginsWith("ping")) //User wants to ping a server?
             {
                 Networking.PingHost(userINPUT.Substring(4));
@@ -1144,6 +1188,7 @@ namespace DevTools
 
         static readonly string DataFile = @"\data.txt";
         public readonly static string DataFilePath = DataDirectory + DataFile;
+        public readonly static string TempZIP = DataDirectory + @"\tempDirectory\";
                       
         static readonly string VersionFile = @"\version.txt";
         public readonly static string VersionFilePath = DataDirectory + VersionFile;

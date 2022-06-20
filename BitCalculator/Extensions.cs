@@ -326,7 +326,7 @@ namespace DevTools
                 '-' => true,
                 '*' => true,
                 '/' => true,
-                '\\' => true,
+                '\\'=> true,
                 '|' => true,
                 '^' => true,
                 '&' => true,
