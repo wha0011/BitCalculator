@@ -83,7 +83,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.5";
+        public const string VERSION = "v1.1.6";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -1177,6 +1177,7 @@ namespace DevTools
             CustomConsole.PrintColour("mkdir");
             CustomConsole.PrintColour("copy");
             CustomConsole.PrintColour("deletedr");
+            CustomConsole.PrintColour("zip");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
