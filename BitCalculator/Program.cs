@@ -83,7 +83,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.6";
+        public const string VERSION = "v1.1.7";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -1179,6 +1179,7 @@ namespace DevTools
             CustomConsole.PrintColour("quit");
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
+            CustomConsole.PrintColour("simplify");
             CustomConsole.PrintColour("factors");
             CustomConsole.PrintColour("sqrt");
             CustomConsole.PrintColour("v");
