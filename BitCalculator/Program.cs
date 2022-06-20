@@ -302,6 +302,16 @@ namespace DevTools
                 Directory.Delete(TempZIP, true);
                 return;
             }
+            if (userINPUT.BeginsWith("convert"))
+            {
+                //Converting file
+                userINPUT = userINPUT.Substring(7); //Remove the 'convert' from the string
+                var data = userINPUT.Split(" : ");
+                var path = data[0].RemoveSpaces();
+                var filetype = data[1].RemoveSpaces();
+                Converter.Convert(path, filetype);
+                return;
+            }
 
             userINPUT = RemoveX(userINPUT);
             if (userINPUT.ToUpper() == "CLOSE_CONDITION_PROCESSED") //Boolean condition has already been processed. Exit the loop
