@@ -83,7 +83,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.6";
+        public const string VERSION = "v1.1.7";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -357,7 +357,7 @@ namespace DevTools
             if (userINPUT.BeginsWith("alg")) //Generate algebra
             {
                 userINPUT = userINPUT.Substring(4);
-                userINPUT = userINPUT.Substring(0,userINPUT.Length-1); //Remove brackets
+                userINPUT = userINPUT.Substring(0, userINPUT.Length - 1); //Remove brackets
                 int[] nums;
                 try
                 {
@@ -371,9 +371,42 @@ namespace DevTools
                 if (nums.Length != 3)
                 {
                     expectingError = true;
-                    throw new Exception("Expected 2 commas, recieved " + nums.Where(c=>c==',').Count());
+                    throw new Exception("Expected 2 commas, recieved " + nums.Where(c => c == ',').Count());
                 }
                 Algebra.FactoriseCrissCross(nums[0], nums[1], nums[2]);
+                return;
+            }
+            if (userINPUT.BeginsWith("simplify")) //simplify fraction
+            {
+                userINPUT = userINPUT.Substring(9); //Remove opening bracket
+                userINPUT = userINPUT.Substring(0, userINPUT.Length-1);
+                var nums = userINPUT.Split('/').Select(s=>double.Parse(s)).ToList();
+                while (nums[0] % 1 != 0 || nums[1] % 1 != 0) //Is it a decimal?
+                {
+                    nums[0] *= 10;
+                    nums[1] *= 10;
+                } //Remove all decimals from fractions
+                //Begin simplification
+                while (true)
+                {
+                    var first_factors = Algebra.GetFactors((int)nums[0]).Where(i => i >= 0 && i != 1); //Remove all negative numbers and 1
+                    var second_factors = Algebra.GetFactors((int)nums[1]).Where(i => i >= 0 && i != 1);//Remove all negative numbers and 1
+                    var factor = first_factors.Where(i => second_factors.Contains(i)).OrderByDescending(t => t).FirstOrDefault(); //Get the numbers that are only in both, select largest one
+                    if (factor == 0)
+                    {
+                        break;
+                    }
+                    nums[0] = nums[0] / factor;
+                    nums[1] = nums[1] / factor;
+                }
+                if (nums[1] != 1) 
+                {
+                    CustomConsole.PrintColour(nums[0] + "/" + nums[1]);
+                }
+                else
+                {
+                    CustomConsole.PrintColour(nums[0].ToString());
+                }
                 return;
             }
             if (userINPUT.BeginsWith("mkdir"))
@@ -1146,6 +1179,7 @@ namespace DevTools
             CustomConsole.PrintColour("quit");
             CustomConsole.PrintColour("ran");
             CustomConsole.PrintColour("alg");
+            CustomConsole.PrintColour("simplify");
             CustomConsole.PrintColour("factors");
             CustomConsole.PrintColour("sqrt");
             CustomConsole.PrintColour("v");
