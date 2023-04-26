@@ -68,6 +68,7 @@ namespace DevTools
                 }
                 catch (Exception e)
                 {
+                    continue;
                     //Catch any error
 
                     Colorful.Console.WriteLine(e.Message, Color.FromArgb(255, 10, 10));
@@ -83,7 +84,7 @@ namespace DevTools
         public static bool expectingError; //Set this to true, and it means the application is throwing a custom error
         //This will not print out a stack traces
 
-        public const string VERSION = "v1.1.6";
+        public const string VERSION = "v1.1.7";
 
         /// <summary>
         /// Checks to see if directories are valid. re-creates files if nessecary
@@ -310,6 +311,7 @@ namespace DevTools
                 var path = data[0].RemoveSpaces();
                 var filetype = data[1].RemoveSpaces();
                 Converter.Convert(path, filetype);
+                CustomConsole.PrintColour(String.Format("Converted {0} to filetype {1}",path.Split("\\").Last(),filetype));
                 return;
             }
 
@@ -1188,6 +1190,7 @@ namespace DevTools
             CustomConsole.PrintColour("copy");
             CustomConsole.PrintColour("deletedr");
             CustomConsole.PrintColour("zip");
+            CustomConsole.PrintColour("convert");
             CustomConsole.PrintColour("");
             WriteHelp("You can also type in math equations using math operators *,/,+,-");
         }
